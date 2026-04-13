@@ -1,0 +1,29 @@
+[[keyboard.bindings]]
+key = "Return"
+mods = "Control|Shift"
+action = "SpawnNewInstance"
+
+[[keyboard.bindings]]
+key = "C"
+mods = "Control|Shift"
+action = "Copy"
+
+[[keyboard.bindings]]
+key = "V"
+mods = "Control|Shift"
+action = "Paste"
+
+[[keyboard.bindings]]
+key = "|"
+mods = "Control|Shift"
+chars = "\u0001|"
+
+[[keyboard.bindings]]
+key = "_"
+mods = "Control|Shift"
+chars = "\u0001_"
+
+[[keyboard.bindings]]
+key = "T"
+mods = "Control|Shift"
+chars = "\u0001c"
