@@ -21,17 +21,26 @@ end
 function module.setup()
   wezterm.on('update-status', function(window, pane)
     local ram_usage = nil
+    local success, stdout
 
-    local success, stdout = wezterm.run_child_process({
-      'powershell.exe', '-NoProfile', '-Command',
-      "(Get-CimInstance Win32_OperatingSystem | ForEach-Object { [Math]::Round((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize) * 100) })"
-    })
 
-    if success then
+    if wezterm.target_triple:find("windows") then
+      success, stdout = wezterm.run_child_process({
+        'powershell.exe', '-NoProfile', '-Command',
+        "(Get-CimInstance Win32_OperatingSystem | ForEach-Object { [Math]::Round((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize) * 100) })"
+      })
+    else
+      success, stdout = wezterm.run_child_process({
+        'sh', '-c',
+        "free | awk '/^Mem:/ {printf \"%.0f\", $3/$2 * 100}'"
+      })
+    end
+
+    if success and stdout then
       ram_usage = stdout:gsub("%s+", "")
     end
 
-    local display = ram_usage and (ram_usage .. '%') or 'N/A'
+    local display = (ram_usage and ram_usage ~= "") and (ram_usage .. '%') or 'N/A'
     local color   = ram_color(ram_usage)
     local icon    = ram_icon(ram_usage)
 
