@@ -1,6 +1,6 @@
-# 🛠️ Windows Dotfiles & Dev Environment
+# 🛠️ Cross-Platform Dotfiles & Dev Environment (Windows & Linux)
 
-Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **Windows 11 / 10** với **PowerShell 7**, **WezTerm**, **Neovim (NvChad)** và script tự động hóa cài đặt bằng **Scoop**.
+Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **Windows 11 / 10** và **Linux / WSL** với **PowerShell 7 / Bash / Zsh**, **WezTerm**, **Neovim (NvChad)** và script tự động hóa cài đặt 1 chạm.
 
 ---
 
@@ -8,22 +8,20 @@ Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **
 
 - [Tổng quan](#-tổng-quan)
 - [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
-- [Các thành phần chính](#-các-thành-phần-chính)
-  - [1. PowerShell](#1-powershell-shell--utilities)
-  - [2. WezTerm](#2-wezterm-terminal-emulator)
-  - [3. Neovim](#3-neovim-nvchad)
-  - [4. Scoop & Windows Setup](#4-scoop--windows-setup)
 - [Hướng dẫn cài đặt](#-hướng-dẫn-cài-đặt)
+  - [1. Dành cho Windows](#1-dành-cho-windows)
+  - [2. Dành cho Linux / WSL / macOS](#2-dành-cho-linux--wsl--macos)
+- [Các thành phần chính](#-các-thành-phần-chính)
 - [Phím tắt & Lệnh tiện ích](#-phím-tắt--lệnh-tiện-ích)
 
 ---
 
 ## 🌟 Tổng quan
 
-- **Terminal:** [WezTerm](https://wezfurlong.org/wezterm/) (GPU-accelerated, giao diện tối giản, hiển thị RAM realtime, hỗ trợ chia pane nhanh).
-- **Shell:** [PowerShell 7 (`pwsh`)](https://github.com/PowerShell/PowerShell) kết hợp với [Oh My Posh](https://ohmyposh.dev/) (theme `zash`), `PSReadLine`, `PSFzf`, `Terminal-Icons`.
+- **Terminal:** [WezTerm](https://wezfurlong.org/wezterm/) (GPU-accelerated, hiển thị RAM realtime mượt mà trên cả Windows & Linux, hỗ trợ chia pane nhanh).
+- **Shell:** [PowerShell 7 (`pwsh`)](https://github.com/PowerShell/PowerShell) hoặc **Bash / Zsh** kết hợp với [Oh My Posh](https://ohmyposh.dev/) (theme `zash`), `PSReadLine`, `FZF`, `Terminal-Icons`.
 - **Editor:** [Neovim](https://neovim.io/) với nền tảng [NvChad](https://nvchad.com/) v2.5 / v3.0, tích hợp LSP và Formatter (`conform.nvim`).
-- **Package Manager:** [Scoop](https://scoop.sh/) quản lý CLI, Dev Tools, Runtime (Node.js/NVM, Java, Python, Flutter, Docker, v.v.).
+- **Package Manager:** [Scoop](https://scoop.sh/) (trên Windows) & `apt`/`pacman`/`dnf`/`brew` (trên Linux).
 
 ---
 
@@ -31,132 +29,63 @@ Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **
 
 ```text
 dotfiles/
+├── install.ps1                 # Script cài đặt 1 lệnh cho Windows
+├── install.sh                  # Script cài đặt 1 lệnh cho Linux / WSL / macOS
 ├── nvim/                       # Cấu hình Neovim (NvChad)
 │   ├── init.lua
 │   ├── lazy-lock.json
 │   └── lua/
-│       ├── autocmds.lua
-│       ├── chadrc.lua          # Tùy biến UI / Theme NvChad (OneDark)
-│       ├── mappings.lua        # Key mappings
-│       ├── options.lua         # Vim options
-│       ├── configs/            # Config chi tiết cho plugins (LSP, Conform, Lazy)
-│       └── plugins/            # Danh sách plugin cá nhân
 ├── powershell/                 # Cấu hình PowerShell
-│   ├── set_up_windows.ps1      # Script tự động cài đặt toàn bộ môi trường
 │   ├── user_profile.ps1        # Profile chính ($PROFILE)
-│   └── functions.ps1           # Các hàm & alias tiện ích (Linux commands, Disk analyzer)
+│   └── functions.ps1           # Các hàm & alias tiện ích
+├── shell/                      # Cấu hình Bash / Zsh cho Linux
+│   └── .bashrc
 ├── scoop/                      # Scoop config
 │   └── config.json
-├── tglow/                      # Cấu hình tglow (Telegram client CLI)
-│   └── config.toml
-├── wezterm/                    # Cấu hình WezTerm
+├── wezterm/                    # Cấu hình WezTerm (Cross-platform)
 │   ├── wezterm.lua             # Entry point
-│   ├── core.lua                # Cấu hình font, phím tắt, độ mờ cửa sổ
-│   ├── ui.lua                  # Tab bar, màu sắc, thanh cuộn
-│   └── status.lua              # Hiển thị RAM status & định dạng tiêu đề tab
+│   ├── core.lua                # Cấu hình font, phím tắt
+│   ├── ui.lua                  # Giao diện, tab bar
+│   └── status.lua              # Hiển thị RAM realtime (tương thích Windows & Linux)
 └── README.md
 ```
 
 ---
 
-## ⚙️ Các thành phần chính
-
-### 1. PowerShell (Shell & Utilities)
-
-- **Giao diện & Tiện ích:**
-  - Font: JetBrainsMono Nerd Font.
-  - Theme prompt: Oh My Posh `zash`.
-  - Autocomplete & Gợi ý lịch sử lệnh dạng danh sách (`ListView`).
-  - Tìm kiếm lịch sử và file mượt mà với `PSFzf` (`Ctrl + R`, `Ctrl + F`).
-  - Hỗ trợ đầy đủ UTF-8.
-
-- **Alias quen thuộc từ Linux:**
-  - `ls` ➔ `eza`
-  - `cat` ➔ `bat`
-  - `vim` / `vi` ➔ `nvim`
-  - `g` ➔ `git`
-  - `touch`, `which`, `grep`, `ll`, `la`, `cd...`, `cd....`
-
-- **Công cụ kiểm tra dung lượng hệ thống:**
-  - `Get-SystemSizeReport`: Báo cáo tổng quan dung lượng ổ `C:`, dung lượng Windows, Programs, Users.
-  - `Get-AppSizeReport`: Quét và sắp xếp kích thước các ứng dụng cài đặt từ lớn đến nhỏ.
-
-### 2. WezTerm (Terminal Emulator)
-
-- **Modular Configuration:** Chia tách `core`, `ui`, và `status`.
-- **Hiệu năng cao:** Tự động cache và cập nhật chỉ số RAM tiêu thụ mỗi 5s qua script tối ưu `pwsh -NoProfile`.
-- **Tùy biến UI:**
-  - Độ mờ (opacity) `0.75`.
-  - Tab bar tùy chỉnh nằm ở cạnh dưới màn hình (`bottom`).
-  - Hiển thị tên tiến trình đang chạy trên từng tab.
-
-### 3. Neovim (NvChad)
-
-- Thiết lập nhẹ, khởi động tức thì.
-- Theme mặc định: `onedark`.
-- Quản lý plugin qua `lazy.nvim`.
-- Hỗ trợ format code tự động với `conform.nvim` và cấu hình LSP đa ngôn ngữ.
-
-### 4. Scoop & Windows Setup
-
-File script `powershell/set_up_windows.ps1` tự động hóa:
-- Cài đặt **Scoop** và kích hoạt các bucket: `main`, `extras`, `nerd-fonts`, `java`, `nonportable`.
-- Cài đặt trọn bộ công cụ:
-  - **Dev Tools:** `pwsh`, `wezterm`, `vscode`, `nvm`, `yarn`, `python`, `temurin17-jdk`, `gradle`, `docker`.
-  - **Mobile:** `flutter`, `android-studio`, `react-native-cli`, `react-native-windows-init`.
-  - **Fonts & Libs:** `JetBrainsMono Nerd Font`, `vcredist-aio`.
-- Kích hoạt tính năng ảo hóa: **Hyper-V**, **WSL2** (Ubuntu), **Containers**.
-
----
-
 ## 🚀 Hướng dẫn cài đặt
 
-### Bước 1: Clone kho lưu trữ
+### 1. Dành cho Windows
 
-Mở PowerShell và clone về thư mục cấu hình hoặc thư mục cá nhân:
-
-```powershell
-git clone https://github.com/kachitaro/dotfiles.git D:\work\dotfiles
-```
-
-### Bước 2: Cài đặt toàn bộ môi trường (Chạy lần đầu)
-
-Mở PowerShell với quyền User thường và chạy:
+Mở **PowerShell** trên máy mới và dán lệnh duy nhất sau:
 
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-& "D:\work\dotfiles\powershell\set_up_windows.ps1"
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1 | iex
 ```
-> [!IMPORTANT]
-> Sau khi script hoàn tất, hãy **khởi động lại máy tính (Restart)** để áp dụng kích hoạt Hyper-V, WSL và Docker.
+
+> **Script tự động:** Cài Scoop, Git, Neovim, Font JetBrainsMono, WezTerm, NVM, Docker, WSL2, tạo Symlink và nạp Profile PowerShell.
 
 ---
 
-### Bước 3: Áp dụng các cấu hình (Symlink / Copy)
+### 2. Dành cho Linux / WSL / macOS
 
-#### 1. PowerShell Profile
-Thêm dòng sau vào `$PROFILE` của bạn (hoặc tạo symlink):
-```powershell
-# Mở file profile
-notepad $PROFILE
+Mở **Terminal** và chạy lệnh duy nhất sau:
 
-# Thêm nội dung nạp cấu hình từ dotfiles:
-. "D:\work\dotfiles\powershell\user_profile.ps1"
-```
-*Lưu ý: Đảm bảo file `functions.ps1` được liên kết tới `~/.config/powershell/functions.ps1` hoặc đặt đúng đường dẫn.*
-
-#### 2. WezTerm
-Tạo symlink hoặc trỏ cấu hình WezTerm:
-```powershell
-New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.wezterm.lua" -Target "D:\work\dotfiles\wezterm\wezterm.lua"
-New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.config\wezterm" -Target "D:\work\dotfiles\wezterm"
+```bash
+curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash
 ```
 
-#### 3. Neovim
-Liên kết thư mục config Neovim:
-```powershell
-New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\nvim" -Target "D:\work\dotfiles\nvim"
-```
+> **Script tự động:** Cài đặt các công cụ CLI (`neovim`, `ripgrep`, `fd`, `fzf`, `bat`, `eza`), tải Font JetBrainsMono NF, cài `oh-my-posh`, `nvm` (Node 22) và liên kết cấu hình `nvim`, `wezterm`, `bashrc`/`zshrc`.
+
+---
+
+### 3. Chạy trực tiếp từ repo (Nếu đã clone về máy)
+
+- **Windows:** `.\install.ps1`
+- **Linux:** `chmod +x ./install.sh && ./install.sh`
+
+> [!IMPORTANT]
+> Sau khi cài đặt trên Windows, hãy **khởi động lại máy tính (Restart)** để áp dụng kích hoạt Hyper-V, WSL và Font.
+> Trên Linux, hãy chạy `source ~/.bashrc` hoặc mở tab terminal mới.
 
 ---
 

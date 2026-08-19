@@ -6,30 +6,41 @@ $tigPath = Join-Path $usrBinPath "tig.exe"
 $lessPath = Join-Path $usrBinPath "less.exe"
 
 
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/zash.omp.json" | Invoke-Expression
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/zash.omp.json" | Invoke-Expression
+}
+
 Import-Module Terminal-Icons -ErrorAction SilentlyContinue
 Import-Module PSFzf -ErrorAction SilentlyContinue
 Import-Module PSReadLine -ErrorAction SilentlyContinue
 
-Set-PSReadLineOption -EditMode Emacs
-Set-PSReadLineOption -BellStyle None
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -PredictionViewStyle ListView 
-Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar
+if (Get-Module -Name PSReadLine) {
+    Set-PSReadLineOption -EditMode Emacs -ErrorAction SilentlyContinue
+    Set-PSReadLineOption -BellStyle None -ErrorAction SilentlyContinue
+    Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+    Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar -ErrorAction SilentlyContinue
+}
 
 if (Get-Module -Name PSFzf -ListAvailable) {
     Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
 }
-Set-Alias g git
-Set-Alias vim nvim
-Set-Alias vi nvim
-Set-Alias ls eza
-Set-Alias cat bat
-    
-if (Test-Path $tigPath) { Set-Alias tig $tigPath }
-if (Test-Path $lessPath) { Set-Alias less $lessPath }
 
-$funcPath = Join-Path -Path $env:USERPROFILE -ChildPath ".config\powershell\functions.ps1"
+Set-Alias g git -ErrorAction SilentlyContinue
+Set-Alias vim nvim -ErrorAction SilentlyContinue
+Set-Alias vi nvim -ErrorAction SilentlyContinue
+Set-Alias ls eza -ErrorAction SilentlyContinue
+Set-Alias cat bat -ErrorAction SilentlyContinue
+    
+if (Test-Path $tigPath) { Set-Alias tig $tigPath -ErrorAction SilentlyContinue }
+if (Test-Path $lessPath) { Set-Alias less $lessPath -ErrorAction SilentlyContinue }
+
+# Dynamic load functions.ps1
+$funcPath = Join-Path $PSScriptRoot "functions.ps1"
+if (-not (Test-Path $funcPath)) {
+    $funcPath = Join-Path -Path $env:USERPROFILE -ChildPath ".config\powershell\functions.ps1"
+}
+
 if (Test-Path -Path $funcPath) {
     . $funcPath
 } else {

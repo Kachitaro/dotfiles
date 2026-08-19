@@ -3,7 +3,12 @@ local act = wezterm.action
 local module = {}
 
 function module.setup(config)
-  config.default_prog = { 'pwsh' }
+  local is_windows = wezterm.target_triple:find("windows") ~= nil
+
+  if is_windows then
+    config.default_prog = { 'pwsh.exe' }
+  end
+
   config.font = wezterm.font('JetBrainsMono Nerd Font Mono', {
     weight = 'Regular',
     style  = 'Normal',
@@ -39,7 +44,7 @@ function module.setup(config)
       action = act.SplitHorizontal { domain = 'CurrentPaneDomain' },
     },
     {
-     key = 'd',
+      key = 'd',
       mods = 'CTRL|SHIFT',
       action = act.SplitVertical { domain = 'CurrentPaneDomain' },
     }

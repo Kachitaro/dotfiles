@@ -25,25 +25,46 @@ local last_ram_check_time = 0
 local cached_ram_usage = nil
 local UPDATE_INTERVAL = 5 -- Thời gian giãn cách giữa mỗi lần check RAM (5 giây)
 
+local is_windows = wezterm.target_triple:find("windows") ~= nil
+local is_linux = wezterm.target_triple:find("linux") ~= nil
+
+local function get_ram_usage()
+  if is_windows then
+    local success, stdout = wezterm.run_child_process({
+      'pwsh.exe', '-NoProfile', '-NonInteractive', '-Command',
+      "(Get-CimInstance Win32_OperatingSystem | ForEach-Object { [Math]::Round((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize) * 100) })"
+    })
+    if success and stdout then
+      return stdout:gsub("%s+", "")
+    end
+  elseif is_linux then
+    -- Đọc trực tiếp /proc/meminfo siêu nhanh trên Linux mà không cần spawn child process
+    local file = io.open("/proc/meminfo", "r")
+    if file then
+      local mem_total, mem_available
+      for line in file:lines() do
+        local total = line:match("MemTotal:%s+(%d+)")
+        if total then mem_total = tonumber(total) end
+        local avail = line:match("MemAvailable:%s+(%d+)")
+        if avail then mem_available = tonumber(avail) end
+        if mem_total and mem_available then break end
+      end
+      file:close()
+      if mem_total and mem_available and mem_total > 0 then
+        local used = mem_total - mem_available
+        return tostring(math.floor((used / mem_total) * 100 + 0.5))
+      end
+    end
+  end
+  return nil
+end
+
 function module.setup()
   wezterm.on('update-status', function(window, pane)
     local current_time = os.time()
 
-    -- Chỉ chạy PowerShell khi đã trôi qua đủ số giây (UPDATE_INTERVAL)
     if current_time - last_ram_check_time >= UPDATE_INTERVAL then
-      -- Tối ưu: Dùng pwsh.exe thay vì powershell.exe để khởi động nhanh hơn
-      -- Tối ưu: Thêm cờ -NonInteractive để bỏ qua các bước nạp không cần thiết
-      local success, stdout = wezterm.run_child_process({
-        'pwsh.exe', '-NoProfile', '-NonInteractive', '-Command',
-        "(Get-CimInstance Win32_OperatingSystem | ForEach-Object { [Math]::Round((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize) * 100) })"
-      })
-
-      if success and stdout then
-        cached_ram_usage = stdout:gsub("%s+", "")
-      else
-        cached_ram_usage = nil
-      end
-
+      cached_ram_usage = get_ram_usage()
       last_ram_check_time = current_time
     end
 

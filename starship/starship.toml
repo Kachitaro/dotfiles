@@ -1,0 +1,166 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+palette = 'catppuccin_frappe'
+add_newline = false
+
+format = """
+$os\
+$username\
+$directory\
+$git_branch\
+$git_status\
+$c\
+$rust\
+$golang\
+$nodejs\
+$bun\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+$conda\
+$cmd_duration\
+$character"""
+
+right_format = "$time"
+
+[username]
+show_always = true
+style_user = "red"
+style_root = "bold red"
+format = '[$user ]($style)'
+
+[directory]
+style = "peach"
+format = "[$path ]($style)"
+truncation_length = 3
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"Developer" = "󰲋 "
+
+[git_branch]
+symbol = ""
+style = "yellow"
+format = '[$symbol $branch ]($style)'
+
+[git_status]
+style = "yellow"
+format = '([$all_status$ahead_behind ]($style))'
+
+[nodejs]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[bun]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[c]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[rust]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[golang]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[php]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[java]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[kotlin]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[haskell]
+symbol = ""
+style = "green"
+format = '[$symbol( $version) ]($style)'
+
+[python]
+symbol = ""
+style = "green"
+format = '[$symbol( $version)(\(#$virtualenv\)) ]($style)'
+
+[docker_context]
+symbol = ""
+style = "sapphire"
+format = '[$symbol( $context) ]($style)'
+
+[conda]
+symbol = ""
+style = "sapphire"
+format = '[ $symbol $environment ]($style)'
+ignore_base = false
+
+[time]
+disabled = false
+time_format = "%R"
+style = "lavender"
+format = '[ $time ]($style)'
+
+[character]
+disabled = false
+success_symbol = '[➜](bold green)'
+error_symbol = '[➜](bold red)'
+vimcmd_symbol = '[⬅](bold green)'
+vimcmd_replace_one_symbol = '[⬅](bold lavender)'
+vimcmd_replace_symbol = '[⬅](bold lavender)'
+vimcmd_visual_symbol = '[⬅](bold yellow)'
+
+[cmd_duration]
+show_milliseconds = true
+format = "[ in $duration ]($style)"
+style = "lavender"
+disabled = false
+show_notifications = true
+min_time_to_notify = 45000
+
+
+[palettes.catppuccin_frappe]
+rosewater = "#f2d5cf"
+flamingo = "#eebebe"
+pink = "#f4b8e4"
+mauve = "#ca9ee6"
+red = "#e78284"
+maroon = "#ea999c"
+peach = "#ef9f76"
+yellow = "#e5c890"
+green = "#a6d189"
+teal = "#81c8be"
+sky = "#99d1db"
+sapphire = "#85c1dc"
+blue = "#8caaee"
+lavender = "#babbf1"
+text = "#c6d0f5"
+subtext1 = "#b5bfe2"
+subtext0 = "#a5adce"
+overlay2 = "#949cbb"
+overlay1 = "#838ba7"
+overlay0 = "#737994"
+surface2 = "#626880"
+surface1 = "#51576d"
+surface0 = "#414559"
+base = "#303446"
+mantle = "#292c3c"
+crust = "#232634"
