@@ -3,9 +3,7 @@ local act = wezterm.action
 local module = {}
 
 function module.setup(config)
-  if wezterm.target_triple == 'x86_64-pc-windows-msvc' then
-    config.default_prog = { 'pwsh' }
-  end
+  config.default_prog = { 'pwsh' }
   config.font = wezterm.font('JetBrainsMono Nerd Font Mono', {
     weight = 'Regular',
     style  = 'Normal',
