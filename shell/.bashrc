@@ -86,21 +86,6 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-# ------------------------------------------------------------------------------
-# Custom Commands (Reload Theme)
-# ------------------------------------------------------------------------------
-reload() {
-    if [ "$1" = "theme" ]; then
-        python3 ~/Desktop/Work/dotfiles/scripts/generate_theme.py
-        if [ -f ~/Desktop/Work/dotfiles/themes/generated/theme.sh ]; then
-            source ~/Desktop/Work/dotfiles/themes/generated/theme.sh
-        fi
-        echo "Theme reloaded successfully! (WezTerm reloads automatically)"
-    else
-        echo "Usage: reload theme"
-    fi
-}
-
 # Load theme environment variables on startup
 if [ -f ~/Desktop/Work/dotfiles/themes/generated/theme.sh ]; then
     source ~/Desktop/Work/dotfiles/themes/generated/theme.sh

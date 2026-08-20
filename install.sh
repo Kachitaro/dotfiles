@@ -17,6 +17,13 @@ RED='\033[0;31m'
 MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
+FORCE_INSTALL=false
+for arg in "$@"; do
+    if [ "$arg" = "--force" ]; then
+        FORCE_INSTALL=true
+    fi
+done
+
 write_header() {
     clear 2>/dev/null || true
     echo -e "${MAGENTA}====================================================================${NC}"
@@ -187,7 +194,13 @@ create_link() {
     if [ -L "$link" ]; then
         rm -f "$link"
     elif [ -e "$link" ]; then
-        mv "$link" "${link}.bak_$(date +%Y%m%d%H%M%S)"
+        if [ "$FORCE_INSTALL" = true ]; then
+            rm -rf "$link"
+            write_warn "Đã xóa (ghi đè) file/thư mục hiện tại: $link"
+        else
+            mv "$link" "${link}.bak_$(date +%Y%m%d%H%M%S)"
+            write_warn "Đã sao lưu file/thư mục hiện tại thành .bak_..."
+        fi
     fi
 
     ln -sf "$target" "$link"
@@ -199,6 +212,9 @@ create_link "$DOTFILES_DIR/wezterm" "$HOME/.config/wezterm"
 
 # 7.2 Neovim
 create_link "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+
+# 7.3 Dotfiles CLI (dot)
+create_link "$DOTFILES_DIR/bin/dot" "$HOME/.local/bin/dot"
 
 # 7.3 Bash / Zsh Profiles
 SHELL_SOURCE_LINE="[ -f \"$DOTFILES_DIR/shell/.bashrc\" ] && source \"$DOTFILES_DIR/shell/.bashrc\""

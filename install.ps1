@@ -10,7 +10,8 @@
 param (
     [string]$DotfilesDir = "",
     [switch]$SkipFeatures,
-    [switch]$SkipHeavyApps
+    [switch]$SkipHeavyApps,
+    [switch]$ForceInstall
 )
 
 # ------------------------------------------------------------------------------
@@ -199,9 +200,14 @@ function Create-SafeLink {
         if ($item.LinkType -eq "SymbolicLink") {
             Remove-Item $LinkPath -Force
         } else {
-            $backupPath = "$LinkPath.bak_$(Get-Date -Format 'yyyyMMddHHmmss')"
-            Write-Warn "Đã sao lưu file/thư mục hiện tại sang $backupPath"
-            Rename-Item -Path $LinkPath -NewName (Split-Path $backupPath -Leaf) -Force
+            if ($ForceInstall) {
+                Remove-Item $LinkPath -Recurse -Force
+                Write-Warn "Đã xóa (ghi đè) file/thư mục hiện tại: $LinkPath"
+            } else {
+                $backupPath = "$LinkPath.bak_$(Get-Date -Format 'yyyyMMddHHmmss')"
+                Write-Warn "Đã sao lưu file/thư mục hiện tại sang $backupPath"
+                Rename-Item -Path $LinkPath -NewName (Split-Path $backupPath -Leaf) -Force
+            }
         }
     }
 

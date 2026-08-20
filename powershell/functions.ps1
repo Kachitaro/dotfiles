@@ -112,19 +112,13 @@ function Get-SystemSizeReport {
     Write-Host ("Your system is using     : {0:N2} GB" -f $totalC)
     Write-Host ("Extra over baseline      : {0:N2} GB" -f $extra)
 }
+
+
 # ------------------------------------------------------------------------------
-# Custom Commands (Reload Theme)
+# Dotfiles CLI (dot)
 # ------------------------------------------------------------------------------
-function reload {
-    param($target)
-    if ($target -eq "theme") {
-        python "$env:USERPROFILE\Desktop\Work\dotfiles\scripts\generate_theme.py"
-        $theme_path = "$env:USERPROFILE\Desktop\Work\dotfiles\themes\generated\theme.ps1"
-        if (Test-Path $theme_path) {
-            . $theme_path
-        }
-        Write-Host "Theme reloaded successfully! (WezTerm reloads automatically)" -ForegroundColor Green
-    } else {
-        Write-Host "Usage: reload theme" -ForegroundColor Yellow
-    }
+function dot {
+    # Dynamically find the dot.ps1 based on this file's location
+    $DotfilesDir = Split-Path -Path (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) -Parent
+    & "$DotfilesDir\bin\dot.ps1" @args
 }

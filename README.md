@@ -29,8 +29,10 @@ Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **
 
 ```text
 dotfiles/
-├── install.ps1                 # Script cài đặt 1 lệnh cho Windows
-├── install.sh                  # Script cài đặt 1 lệnh cho Linux / WSL / macOS
+├── install.ps1                 # Script cài đặt cho Windows (Hỗ trợ -ForceInstall)
+├── install.sh                  # Script cài đặt cho Linux (Hỗ trợ --force)
+├── uninstall.ps1               # Script gỡ cài đặt cho Windows
+├── uninstall.sh                # Script gỡ cài đặt cho Linux
 ├── nvim/                       # Cấu hình Neovim (NvChad)
 │   ├── init.lua
 │   ├── lazy-lock.json
@@ -91,6 +93,18 @@ curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh 
 > [!IMPORTANT]
 > Sau khi cài đặt trên Windows, hãy **khởi động lại máy tính (Restart)** để áp dụng kích hoạt Hyper-V, WSL và Font.
 > Trên Linux, hãy chạy `source ~/.bashrc` hoặc mở tab terminal mới.
+
+---
+
+### 4. Nâng cao: Cài đè (Overwrite) và Gỡ cài đặt (Uninstall)
+
+- **Cài đè (Bỏ qua sao lưu):** Nếu bạn muốn xóa hẳn file config cũ thay vì đổi tên thành `.bak_...`:
+  - **Windows:** `.\install.ps1 -ForceInstall`
+  - **Linux/macOS:** `./install.sh --force`
+
+- **Gỡ cài đặt (Xóa symlinks):** Trả lại môi trường gốc (xóa các file symlink của wezterm, nvim và gỡ nạp từ .bashrc/.zshrc/profile):
+  - **Windows:** `.\uninstall.ps1`
+  - **Linux/macOS:** `./uninstall.sh`
 
 ---
 

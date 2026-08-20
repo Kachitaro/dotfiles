@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Resolve dotfiles directory safely even if symlinked
+if [ -L "${BASH_SOURCE[0]}" ]; then
+    REAL_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
+    DOTFILES_DIR=$(dirname $(dirname "$REAL_SCRIPT"))
+else
+    DOTFILES_DIR=$(dirname $(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"))
+fi
+
+show_help() {
+    echo -e "\033[0;36mKachitaro Dotfiles CLI\033[0m"
+    echo -e "Usage: dot <command> [options]\n"
+    echo "Commands:"
+    echo "  install          Run the installation script."
+    echo "                   Options: --force (Overwrite existing configs)"
+    echo "  uninstall        Remove dotfiles symlinks and configurations."
+    echo "  theme reload     Recompile theme.json and apply dynamically."
+    echo "  update           Pull the latest changes from GitHub."
+    echo "  help             Show this help menu."
+    echo ""
+}
+
+COMMAND=$1
+shift
+
+case "$COMMAND" in
+    install)
+        bash "$DOTFILES_DIR/install.sh" "$@"
+        ;;
+    uninstall)
+        bash "$DOTFILES_DIR/uninstall.sh"
+        ;;
+    theme)
+        if [ "$1" = "reload" ]; then
+            echo -e "\033[0;36mĐang tải lại giao diện (Theme Engine)...\033[0m"
+            python3 "$DOTFILES_DIR/scripts/generate_theme.py"
+            if [ -f "$DOTFILES_DIR/themes/generated/theme.sh" ]; then
+                # Notice: sourcing in a subshell doesn't affect parent shell directly.
+                # Usually users will need a shell function wrapper if they want environment variables exported to current shell.
+                # But for Wezterm & Nvim, they reload dynamically via files.
+                echo "Theme compiled! (WezTerm & Neovim reload automatically)"
+                echo "Note: Để apply màu mới vào Shell hiện tại, chạy thủ công: source ~/.cache/theme.sh (hoặc mở terminal mới)"
+            fi
+        else
+            echo -e "\033[0;31mLệnh không hợp lệ. Ý bạn là: dot theme reload?\033[0m"
+        fi
+        ;;
+    update)
+        echo -e "\033[0;36mĐang cập nhật Dotfiles từ GitHub...\033[0m"
+        git -C "$DOTFILES_DIR" pull
+        ;;
+    help|*)
+        show_help
+        ;;
+esac
