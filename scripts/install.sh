@@ -47,8 +47,8 @@ write_step "Xác định thư mục Dotfiles..."
 REPO_URL="https://github.com/kachitaro/dotfiles.git"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
 
-if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/wezterm/wezterm.lua" ]; then
-    DOTFILES_DIR="$SCRIPT_DIR"
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../wezterm/wezterm.lua" ]; then
+    DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 else
     DOTFILES_DIR="$HOME/.dotfiles"
 fi
@@ -136,31 +136,38 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Install Oh My Posh
+# 4. Install Starship Prompt
 # ------------------------------------------------------------------------------
-write_step "Cài đặt Oh My Posh..."
-if ! command -v oh-my-posh >/dev/null 2>&1; then
-    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.local/bin"
-    write_succ "Đã cài đặt Oh My Posh vào ~/.local/bin/oh-my-posh."
+write_step "Cài đặt Starship Prompt..."
+if ! command -v starship >/dev/null 2>&1; then
+    curl -sS https://starship.rs/install.sh | sh -s -- -y --bin-dir "$HOME/.local/bin"
+    write_succ "Đã cài đặt Starship vào ~/.local/bin."
 else
-    write_succ "Oh My Posh đã được cài đặt."
+    write_succ "Starship đã được cài đặt."
 fi
 
 # ------------------------------------------------------------------------------
-# 5. Install NVM & Node.js LTS
+# 5. Install FNM, Node.js & Bun
 # ------------------------------------------------------------------------------
-write_step "Cài đặt NVM & Node.js LTS..."
-export NVM_DIR="$HOME/.nvm"
-if [ ! -d "$NVM_DIR" ]; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+write_step "Cài đặt FNM (Fast Node Manager), Node.js & Bun..."
+if ! command -v fnm >/dev/null 2>&1; then
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "$HOME/.local/bin" --skip-shell
 fi
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-if command -v nvm >/dev/null 2>&1; then
-    nvm install 22
-    nvm use 22
-    nvm alias default 22
-    write_succ "Node.js LTS (v22) đã sẵn sàng."
+if command -v fnm >/dev/null 2>&1 || [ -x "$HOME/.local/bin/fnm" ]; then
+    export PATH="$HOME/.local/bin:$PATH"
+    eval "$(fnm env)"
+    fnm install 22
+    fnm default 22
+    write_succ "Node.js LTS (v22) cài qua FNM đã sẵn sàng."
 fi
+
+if ! command -v bun >/dev/null 2>&1; then
+    curl -fsSL https://bun.sh/install | bash
+    write_succ "Bun đã được cài đặt."
+else
+    write_succ "Bun đã được cài đặt."
+fi
+
 
 # ------------------------------------------------------------------------------
 # 6. Clone or Update Dotfiles

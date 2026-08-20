@@ -45,8 +45,8 @@ Write-Succ "Execution Policy đã được đặt thành RemoteSigned cho Curren
 Write-Step "Xác định thư mục Dotfiles..."
 $RepoUrl = "https://github.com/kachitaro/dotfiles.git"
 if ([string]::IsNullOrWhiteSpace($DotfilesDir)) {
-    if (Test-Path "$PSScriptRoot\wezterm\wezterm.lua") {
-        $DotfilesDir = $PSScriptRoot
+    if (Test-Path "$PSScriptRoot\..\wezterm\wezterm.lua") {
+        $DotfilesDir = Split-Path -Path $PSScriptRoot -Parent
     } elseif (Test-Path "D:\work") {
         $DotfilesDir = "D:\work\dotfiles"
     } elseif (Test-Path "D:\") {
@@ -112,9 +112,10 @@ $corePackages = @(
     "main/bat",
     "main/eza",
     "main/lazygit",
-    "main/oh-my-posh",
+    "main/starship",
     "main/python",
-    "main/nvm",
+    "main/fnm",
+    "main/bun",
     "main/yarn",
     "java/temurin17-jdk",
     "nerd-fonts/JetBrainsMono-NF",
@@ -275,24 +276,24 @@ foreach ($pPath in $profiles) {
     }
 }
 
-# 10. Node.js & React Native Setup (qua NVM)
-Write-Step "Cấu hình Node.js LTS (NVM)..."
+# 10. Node.js & React Native Setup (qua FNM)
+Write-Step "Cấu hình Node.js LTS (FNM)..."
 try {
-    if (Get-Command nvm -ErrorAction SilentlyContinue) {
-        nvm install 22
-        nvm use 22
-        nvm alias default 22
+    if (Get-Command fnm -ErrorAction SilentlyContinue) {
+        fnm install 22
+        fnm default 22
         
-        # Cập nhật tạm thời PATH để dùng npm
-        $env:Path = "$env:ProgramFiles\nodejs;" + $env:Path
+        # Load FNM in current session to use npm
+        fnm env --use-on-cd | Out-String | Invoke-Expression
+        
         if (Get-Command npm -ErrorAction SilentlyContinue) {
             Write-Host "  Cài đặt React Native CLI global..." -ForegroundColor Gray
             npm install -g react-native-cli react-native-windows-init --silent
         }
-        Write-Succ "Node.js LTS và NPM packages đã được thiết lập."
+        Write-Succ "Node.js LTS (qua FNM) và NPM packages đã được thiết lập."
     }
 } catch {
-    Write-Warn "Không thể hoàn thành cấu hình Node qua NVM: $($_.Exception.Message)"
+    Write-Warn "Không thể hoàn thành cấu hình Node qua FNM: $($_.Exception.Message)"
 }
 
 # 11. Virtualization & Windows Optional Features (WSL2 / Hyper-V)

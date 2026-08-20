@@ -22,7 +22,7 @@ function Show-Help {
 
 switch ($Command) {
     "install" {
-        $installScript = "$DotfilesDir\install.ps1"
+        $installScript = "$DotfilesDir\scripts\install.ps1"
         if ($RestArgs -contains "-ForceInstall" -or $RestArgs -contains "--force") {
             & $installScript -ForceInstall
         } else {
@@ -30,7 +30,7 @@ switch ($Command) {
         }
     }
     "uninstall" {
-        & "$DotfilesDir\uninstall.ps1"
+        & "$DotfilesDir\scripts\uninstall.ps1"
     }
     "theme" {
         if ($RestArgs[0] -eq "reload") {

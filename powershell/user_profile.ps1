@@ -5,9 +5,12 @@ $usrBinPath = Join-Path $env:USERPROFILE "scoop\apps\git\current\usr\bin"
 $tigPath = Join-Path $usrBinPath "tig.exe"
 $lessPath = Join-Path $usrBinPath "less.exe"
 
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (&starship init powershell)
+}
 
-if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
-    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/zash.omp.json" | Invoke-Expression
+if (Get-Command fnm -ErrorAction SilentlyContinue) {
+    fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
 }
 
 Import-Module Terminal-Icons -ErrorAction SilentlyContinue

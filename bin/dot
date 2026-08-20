@@ -26,10 +26,10 @@ shift
 
 case "$COMMAND" in
     install)
-        bash "$DOTFILES_DIR/install.sh" "$@"
+        bash "$DOTFILES_DIR/scripts/install.sh" "$@"
         ;;
     uninstall)
-        bash "$DOTFILES_DIR/uninstall.sh"
+        bash "$DOTFILES_DIR/scripts/uninstall.sh"
         ;;
     theme)
         if [ "$1" = "reload" ]; then

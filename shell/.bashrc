@@ -67,24 +67,22 @@ if command -v fzf >/dev/null 2>&1; then
 fi
 
 # ------------------------------------------------------------------------------
-# Oh My Posh Prompt
+# Starship Prompt
 # ------------------------------------------------------------------------------
-if command -v oh-my-posh >/dev/null 2>&1; then
-    # Determine current running shell
-    CURRENT_SHELL=$(basename "$SHELL")
-    if [ "$CURRENT_SHELL" = "zsh" ]; then
-        eval "$(oh-my-posh init zsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/zash.omp.json)"
-    else
-        eval "$(oh-my-posh init bash --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/zash.omp.json)"
-    fi
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init $(basename "$SHELL"))"
 fi
 
 # ------------------------------------------------------------------------------
-# NVM (Node Version Manager)
+# FNM (Fast Node Manager) & Bun
 # ------------------------------------------------------------------------------
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --use-on-cd --shell $(basename "$SHELL"))"
+fi
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Load theme environment variables on startup
 if [ -f ~/Desktop/Work/dotfiles/themes/generated/theme.sh ]; then

@@ -16,12 +16,25 @@ Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **
 
 ---
 
-## 🌟 Tổng quan
+## 🌊 My Workflow & Tech Stack
 
-- **Terminal:** [WezTerm](https://wezfurlong.org/wezterm/) (GPU-accelerated, hiển thị RAM realtime mượt mà trên cả Windows & Linux, hỗ trợ chia pane nhanh).
-- **Shell:** [PowerShell 7 (`pwsh`)](https://github.com/PowerShell/PowerShell) hoặc **Bash / Zsh** kết hợp với [Oh My Posh](https://ohmyposh.dev/) (theme `zash`), `PSReadLine`, `FZF`, `Terminal-Icons`.
-- **Editor:** [Neovim](https://neovim.io/) với nền tảng [NvChad](https://nvchad.com/) v2.5 / v3.0, tích hợp LSP và Formatter (`conform.nvim`).
-- **Package Manager:** [Scoop](https://scoop.sh/) (trên Windows) & `apt`/`pacman`/`dnf`/`brew` (trên Linux).
+Luồng làm việc (workflow) của dotfiles này được xây dựng trên sự kết hợp của những công cụ hiện đại và tốc độ nhất hiện nay:
+
+```mermaid
+graph TD
+    A[WezTerm <br/> <i>GPU Terminal</i>] --> B(Bash / PowerShell 7 <br/> <i>Core Shell</i>)
+    B --> C{Starship <br/> <i>Fast Prompt</i>}
+    B --> D[Neovim + NvChad <br/> <i>Code Editor</i>]
+    B --> E[FNM + Bun <br/> <i>Node/JS Env</i>]
+    B --> F[Eza, Bat, FZF <br/> <i>Modern CLI Tools</i>]
+```
+
+- **Terminal:** [WezTerm](https://wezfurlong.org/wezterm/) (Hiển thị mượt mà bằng GPU, cấu hình bằng Lua, tích hợp hiển thị RAM realtime).
+- **Core Shell:** [PowerShell 7 (`pwsh`)](https://github.com/PowerShell/PowerShell) (cho Windows) và **Bash/Zsh** (cho Linux/macOS).
+- **Prompt:** [Starship](https://starship.rs/) (Siêu nhanh, viết bằng Rust, hiển thị context thông minh).
+- **Editor:** [Neovim](https://neovim.io/) đi kèm [NvChad](https://nvchad.com/) (Nhẹ, đẹp, đầy đủ IDE features như LSP & Treesitter).
+- **Dev Environment:** [FNM](https://github.com/Schniz/fnm) (Fast Node Manager) kết hợp với [Bun](https://bun.sh/) để tối đa hóa tốc độ chạy/cài đặt JavaScript.
+- **Modern CLI:** Sử dụng `eza` (thay cho `ls`), `bat` (thay cho `cat`), `fzf` + `ripgrep` (tìm kiếm file siêu tốc).
 
 ---
 
@@ -29,14 +42,17 @@ Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **
 
 ```text
 dotfiles/
-├── install.ps1                 # Script cài đặt cho Windows (Hỗ trợ -ForceInstall)
-├── install.sh                  # Script cài đặt cho Linux (Hỗ trợ --force)
-├── uninstall.ps1               # Script gỡ cài đặt cho Windows
-├── uninstall.sh                # Script gỡ cài đặt cho Linux
+│   ├── install.sh              # Cài đặt cho Linux
+│   ├── uninstall.ps1           # Gỡ cài đặt cho Windows
+│   ├── uninstall.sh            # Gỡ cài đặt cho Linux
+│   └── generate_theme.py       # Trình biên dịch màu
 ├── nvim/                       # Cấu hình Neovim (NvChad)
 │   ├── init.lua
 │   ├── lazy-lock.json
 │   └── lua/
+├── bin/                        # Công cụ dòng lệnh CLI (dot)
+│   ├── dot                     # Bash script (Linux/macOS)
+│   └── dot.ps1                 # PowerShell script (Windows)
 ├── powershell/                 # Cấu hình PowerShell
 │   ├── user_profile.ps1        # Profile chính ($PROFILE)
 │   └── functions.ps1           # Các hàm & alias tiện ích
@@ -47,8 +63,6 @@ dotfiles/
 ├── themes/                     # Theme Engine (JSON Source of Truth)
 │   ├── theme.json
 │   └── generated/              # Chứa các file màu đã biên dịch (Lua, sh, ps1)
-├── scripts/                    # Scripts tiện ích
-│   └── generate_theme.py       # Trình biên dịch màu (reload theme)
 ├── wezterm/                    # Cấu hình WezTerm (Cross-platform)
 │   ├── wezterm.lua             # Entry point
 │   ├── core.lua                # Cấu hình font, phím tắt
@@ -66,10 +80,10 @@ dotfiles/
 Mở **PowerShell** trên máy mới và dán lệnh duy nhất sau:
 
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1 | iex
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/scripts/install.ps1 | iex
 ```
 
-> **Script tự động:** Cài Scoop, Git, Neovim, Font JetBrainsMono, WezTerm, NVM, Docker, WSL2, tạo Symlink và nạp Profile PowerShell.
+> **Script tự động:** Cài Scoop, Git, Neovim, Font JetBrainsMono, WezTerm, FNM, Docker, WSL2, tạo Symlink và nạp Profile PowerShell.
 
 ---
 
@@ -78,17 +92,17 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; irm https://raw.gith
 Mở **Terminal** và chạy lệnh duy nhất sau:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/scripts/install.sh | bash
 ```
 
-> **Script tự động:** Cài đặt các công cụ CLI (`neovim`, `ripgrep`, `fd`, `fzf`, `bat`, `eza`), tải Font JetBrainsMono NF, cài `oh-my-posh`, `nvm` (Node 22) và liên kết cấu hình `nvim`, `wezterm`, `bashrc`/`zshrc`.
+> **Script tự động:** Cài đặt các công cụ CLI (`neovim`, `ripgrep`, `fd`, `fzf`, `bat`, `eza`), tải Font JetBrainsMono NF, cài `starship`, `fnm` (Node 22) và Bun và liên kết cấu hình `nvim`, `wezterm`, `bashrc`/`zshrc`.
 
 ---
 
 ### 3. Chạy trực tiếp từ repo (Nếu đã clone về máy)
 
-- **Windows:** `.\install.ps1`
-- **Linux:** `chmod +x ./install.sh && ./install.sh`
+- **Windows:** `.\scripts\install.ps1`
+- **Linux:** `chmod +x ./scripts/install.sh && ./scripts/install.sh`
 
 > [!IMPORTANT]
 > Sau khi cài đặt trên Windows, hãy **khởi động lại máy tính (Restart)** để áp dụng kích hoạt Hyper-V, WSL và Font.
@@ -99,12 +113,27 @@ curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh 
 ### 4. Nâng cao: Cài đè (Overwrite) và Gỡ cài đặt (Uninstall)
 
 - **Cài đè (Bỏ qua sao lưu):** Nếu bạn muốn xóa hẳn file config cũ thay vì đổi tên thành `.bak_...`:
-  - **Windows:** `.\install.ps1 -ForceInstall`
-  - **Linux/macOS:** `./install.sh --force`
+  - **Windows:** `.\scripts\install.ps1 -ForceInstall`
+  - **Linux/macOS:** `./scripts/install.sh --force`
 
 - **Gỡ cài đặt (Xóa symlinks):** Trả lại môi trường gốc (xóa các file symlink của wezterm, nvim và gỡ nạp từ .bashrc/.zshrc/profile):
-  - **Windows:** `.\uninstall.ps1`
-  - **Linux/macOS:** `./uninstall.sh`
+  - **Windows:** `.\scripts\uninstall.ps1`
+  - **Linux/macOS:** `./scripts/uninstall.sh`
+
+---
+
+### 5. Quản lý hệ thống bằng CLI (`dot`)
+
+Sau khi cài đặt, bạn sẽ được trang bị một lệnh hệ thống tên là `dot`. Đây là công cụ trung tâm để quản lý toàn bộ cấu hình:
+
+```bash
+dot install          # Chạy script cài đặt (giống ./install)
+dot install --force  # Ép cài đè (không tạo file .bak)
+dot uninstall        # Chạy lệnh gỡ cài đặt
+dot theme reload     # Biên dịch và áp dụng màu mới từ theme.json
+dot update           # Kéo (pull) bản cập nhật mới nhất từ GitHub
+dot help             # Hiển thị menu trợ giúp
+```
 
 ---
 
@@ -115,7 +144,7 @@ Dotfiles này được trang bị một "Theme Engine" mini giúp đồng bộ m
 - **Nguồn sự thật:** Định nghĩa/Thay đổi màu trong file `themes/theme.json`.
 - **Áp dụng:** Mở terminal và chạy lệnh:
   ```bash
-  reload theme
+  dot theme reload
   ```
 - **Kết quả:** Script Python (`scripts/generate_theme.py`) sẽ tự động biên dịch bảng màu JSON ra Lua, Shell, PS1. WezTerm sẽ bắt sự kiện thay đổi và tự động load lại màu (không cần khởi động lại), Neovim và môi trường Shell cũng áp dụng bộ màu mới tức thì ở phiên làm việc tiếp theo.
 
