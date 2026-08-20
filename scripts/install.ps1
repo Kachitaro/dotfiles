@@ -231,12 +231,25 @@ function Create-SafeLink {
     }
 }
 
-# 9.1 WezTerm Config
-Create-SafeLink -LinkPath "$env:USERPROFILE\.wezterm.lua" -TargetPath "$DotfilesDir\wezterm\wezterm.lua"
-Create-SafeLink -LinkPath "$env:USERPROFILE\.config\wezterm" -TargetPath "$DotfilesDir\wezterm" -Type "Directory"
+# 9.1 Liên kết cấu hình tự động cho các ứng dụng chuẩn
+$configApps = @{
+    "wezterm" = "$env:USERPROFILE\.config\wezterm"
+    "nvim" = "$env:LOCALAPPDATA\nvim"
+    "alacritty" = "$env:APPDATA\alacritty"
+    "starship" = "$env:USERPROFILE\.config\starship"
+}
 
-# 9.2 Neovim Config
-Create-SafeLink -LinkPath "$env:LOCALAPPDATA\nvim" -TargetPath "$DotfilesDir\nvim" -Type "Directory"
+foreach ($app in $configApps.GetEnumerator()) {
+    $src = "$DotfilesDir\$($app.Key)"
+    $dest = $app.Value
+    if (Test-Path $src) {
+        Create-SafeLink -LinkPath $dest -TargetPath $src -Type "Directory"
+    }
+}
+# Riêng WezTerm trên Windows thường cần file lua ở thư mục gốc
+if (Test-Path "$DotfilesDir\wezterm\wezterm.lua") {
+    Create-SafeLink -LinkPath "$env:USERPROFILE\.wezterm.lua" -TargetPath "$DotfilesDir\wezterm\wezterm.lua" -Type "File"
+}
 
 # 9.3 Functions file
 Create-SafeLink -LinkPath "$env:USERPROFILE\.config\powershell\functions.ps1" -TargetPath "$DotfilesDir\powershell\functions.ps1"

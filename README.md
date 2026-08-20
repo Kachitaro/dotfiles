@@ -1,4 +1,10 @@
-# 🛠️ Cross-Platform Dotfiles & Dev Environment (Windows & Linux)
+# 🛠️ Cross-Platform Dotfiles & Dev Environment
+
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
+![Neovim](https://img.shields.io/badge/Neovim-57A143?style=for-the-badge&logo=neovim&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 
 Bộ cấu hình (dotfiles) cá nhân hóa môi trường phát triển trên **Windows 11 / 10** và **Linux / WSL** với **PowerShell 7 / Bash / Zsh**, **WezTerm**, **Neovim (NvChad)** và script tự động hóa cài đặt 1 chạm.
 
@@ -129,7 +135,9 @@ Sau khi cài đặt, bạn sẽ được trang bị một lệnh hệ thống t�
 ```bash
 dot install          # Chạy script cài đặt (giống ./install)
 dot install --force  # Ép cài đè (không tạo file .bak)
-dot uninstall        # Chạy lệnh gỡ cài đặt
+dot add <path>       # ⚡ Thu nạp một config mới vào kho (vd: dot add ~/.config/tmux)
+dot eject            # ⚡ Gỡ bỏ symlink, copy file thật trả lại máy tính (An toàn)
+dot uninstall        # Chạy lệnh gỡ cài đặt hoàn toàn
 dot theme reload     # Biên dịch và áp dụng màu mới từ theme.json
 dot update           # Kéo (pull) bản cập nhật mới nhất từ GitHub
 dot help             # Hiển thị menu trợ giúp
@@ -170,6 +178,18 @@ Dotfiles này được trang bị một "Theme Engine" mini giúp đồng bộ m
 | `Get-AppSizeReport` | Liệt kê dung lượng các ứng dụng đang chiếm dụng ổ cứng |
 | `ll` / `la` | Liệt kê file với icon & thông tin chi tiết (`eza`) |
 | `cd...` / `cd....` | Di chuyển lên 2 / 3 cấp thư mục |
+
+---
+
+## 🤝 Dành cho cộng đồng (Mã nguồn mở)
+
+Dự án này là mã nguồn mở. Bạn hoàn toàn có thể Fork dự án này về để tạo ra bộ Dotfiles mang đậm dấu ấn cá nhân của riêng bạn!
+
+**Cách tạo bộ dotfiles của riêng bạn:**
+1. Nhấn nút **Fork** ở góc trên cùng bên phải của Repository này.
+2. Mở file `scripts/install.sh` và `scripts/install.ps1`, tìm kiếm chuỗi `kachitaro/dotfiles` và thay bằng `<username_của_bạn>/dotfiles`.
+3. Khi bạn cài phần mềm mới trên máy, chỉ cần chạy lệnh `dot add <đường_dẫn>` (ví dụ `dot add ~/.config/tmux`) để thu nạp cấu hình mới.
+4. Push lên GitHub, và từ nay bạn cũng có lệnh cài đặt 1 chạm cho riêng mình!
 
 ---
 

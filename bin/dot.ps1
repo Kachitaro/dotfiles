@@ -15,6 +15,8 @@ function Show-Help {
     Write-Host "  install          Run the installation script."
     Write-Host "                   Options: -ForceInstall (Overwrite existing configs)"
     Write-Host "  uninstall        Remove dotfiles symlinks and configurations."
+    Write-Host "  add <path>       Adopt a new config folder into dotfiles."
+    Write-Host "  eject            Restore real files to your system (unlink)."
     Write-Host "  theme reload     Recompile theme.json and apply dynamically."
     Write-Host "  update           Pull the latest changes from GitHub."
     Write-Host "  help             Show this help menu.`n"
@@ -31,6 +33,12 @@ switch ($Command) {
     }
     "uninstall" {
         & "$DotfilesDir\scripts\uninstall.ps1"
+    }
+    "add" {
+        & "$DotfilesDir\scripts\add.ps1" -TargetPath $RestArgs[0]
+    }
+    "eject" {
+        & "$DotfilesDir\scripts\eject.ps1"
     }
     "theme" {
         if ($RestArgs[0] -eq "reload") {

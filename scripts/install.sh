@@ -214,13 +214,15 @@ create_link() {
     write_succ "Linked: $link -> $target"
 }
 
-# 7.1 WezTerm
-create_link "$DOTFILES_DIR/wezterm" "$HOME/.config/wezterm"
+# 7.1 Cấu hình tự động liên kết các ứng dụng chuẩn
+CONFIG_APPS=("wezterm" "nvim" "alacritty" "tmux" "starship")
+for app in "${CONFIG_APPS[@]}"; do
+    if [ -d "$DOTFILES_DIR/$app" ] || [ -f "$DOTFILES_DIR/$app" ]; then
+        create_link "$DOTFILES_DIR/$app" "$HOME/.config/$app"
+    fi
+done
 
-# 7.2 Neovim
-create_link "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
-
-# 7.3 Dotfiles CLI (dot)
+# 7.2 Dotfiles CLI (dot)
 create_link "$DOTFILES_DIR/bin/dot" "$HOME/.local/bin/dot"
 
 # 7.3 Bash / Zsh Profiles
