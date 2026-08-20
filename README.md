@@ -4,6 +4,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 ![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![Neovim](https://img.shields.io/badge/Neovim-57A143?style=for-the-badge&logo=neovim&logoColor=white)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/anhtai2k)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 
 Bộ dotfiles cá nhân giúp dựng lại toàn bộ môi trường phát triển trên **Windows 11/10** và **Linux / WSL / macOS** chỉ với một lệnh duy nhất — gồm shell (PowerShell 7 / Bash / Zsh), terminal **WezTerm**, editor **Neovim (NvChad)**, và một CLI quản trị (`dot`) để cài đặt, đồng bộ và gỡ cấu hình an toàn.
@@ -19,6 +20,7 @@ Bộ dotfiles cá nhân giúp dựng lại toàn bộ môi trường phát tri�
 - [Theme Engine](#-theme-engine-đồng-bộ-màu-sắc-toàn-hệ-thống)
 - [Phím tắt & tiện ích](#-phím-tắt--tiện-ích)
 - [Đóng góp / Fork lại cho riêng bạn](#-đóng-góp--fork-lại-cho-riêng-bạn)
+- [Ủng hộ / Donate](#-ủng-hộ--donate)
 - [License](#-license)
 
 ---
@@ -192,6 +194,16 @@ Theme mặc định hiện tại: **Catppuccin Mocha**.
 | `Get-AppSizeReport` | Liệt kê dung lượng các ứng dụng đang chiếm ổ cứng |
 | `ll` / `la` | Liệt kê file với icon & chi tiết (`eza`) |
 | `cd...` / `cd....` | Di chuyển lên 2 / 3 cấp thư mục |
+
+---
+
+## ☕ Ủng hộ / Donate
+
+Nếu bạn thấy bộ dotfiles này hữu ích, hãy ủng hộ mình một tách cà phê nhé!
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/anhtai2k)
+
+👉 **Ko-fi:** [https://ko-fi.com/anhtai2k](https://ko-fi.com/anhtai2k)
 
 ---
 
