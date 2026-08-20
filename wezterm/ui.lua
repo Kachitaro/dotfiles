@@ -7,10 +7,18 @@ function module.setup(config)
   -- config.hide_tab_bar_if_only_one_tab = true
   config.scrollback_lines = 10000
   config.adjust_window_size_when_changing_font_size = false
-  -- config.color_scheme = 'OneHalfDark'
+  -- Load dynamically generated theme
+  local theme_path = os.getenv("HOME") .. "/Desktop/Work/dotfiles/themes/generated/theme.lua"
+  -- Fallback for Windows if HOME is not set exactly right (though wezterm usually sets it or provides wezterm.home_dir)
+  local success, theme = pcall(dofile, theme_path)
 
-  config.colors = {
-    tab_bar = {
+  if success then
+    config.colors = {
+      background = theme.bg,
+      foreground = theme.fg,
+      ansi = { theme.black, theme.red, theme.green, theme.yellow, theme.blue, theme.magenta, theme.cyan, theme.white },
+      brights = { theme.black, theme.red, theme.green, theme.yellow, theme.blue, theme.magenta, theme.cyan, theme.white },
+      tab_bar = {
       background = 'rgba(0, 0, 0, 0)',
       active_tab = {
         bg_color = 'rgba(43, 32, 66, 0.8)',
@@ -36,6 +44,7 @@ function module.setup(config)
       },
     },
   }
+  end
 end
 
 return module

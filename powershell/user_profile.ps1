@@ -46,3 +46,8 @@ if (Test-Path -Path $funcPath) {
 } else {
     Write-Warning "Không tìm thấy file functions.ps1 tại: $funcPath"
 }
+# Load theme environment variables on startup
+$theme_path = "$env:USERPROFILE\Desktop\Work\dotfiles\themes\generated\theme.ps1"
+if (Test-Path $theme_path) {
+    . $theme_path
+}

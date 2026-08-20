@@ -42,6 +42,11 @@ dotfiles/
 │   └── .bashrc
 ├── scoop/                      # Scoop config
 │   └── config.json
+├── themes/                     # Theme Engine (JSON Source of Truth)
+│   ├── theme.json
+│   └── generated/              # Chứa các file màu đã biên dịch (Lua, sh, ps1)
+├── scripts/                    # Scripts tiện ích
+│   └── generate_theme.py       # Trình biên dịch màu (reload theme)
 ├── wezterm/                    # Cấu hình WezTerm (Cross-platform)
 │   ├── wezterm.lua             # Entry point
 │   ├── core.lua                # Cấu hình font, phím tắt
@@ -86,6 +91,19 @@ curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh 
 > [!IMPORTANT]
 > Sau khi cài đặt trên Windows, hãy **khởi động lại máy tính (Restart)** để áp dụng kích hoạt Hyper-V, WSL và Font.
 > Trên Linux, hãy chạy `source ~/.bashrc` hoặc mở tab terminal mới.
+
+---
+
+## 🎨 Hệ thống Theme Engine (Dùng chung bộ màu)
+
+Dotfiles này được trang bị một "Theme Engine" mini giúp đồng bộ màu sắc cho toàn bộ hệ thống (Neovim, WezTerm, Starship, Bash, PowerShell).
+
+- **Nguồn sự thật:** Định nghĩa/Thay đổi màu trong file `themes/theme.json`.
+- **Áp dụng:** Mở terminal và chạy lệnh:
+  ```bash
+  reload theme
+  ```
+- **Kết quả:** Script Python (`scripts/generate_theme.py`) sẽ tự động biên dịch bảng màu JSON ra Lua, Shell, PS1. WezTerm sẽ bắt sự kiện thay đổi và tự động load lại màu (không cần khởi động lại), Neovim và môi trường Shell cũng áp dụng bộ màu mới tức thì ở phiên làm việc tiếp theo.
 
 ---
 
