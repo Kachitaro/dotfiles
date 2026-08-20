@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CONFIG_APPS=("wezterm" "nvim" "alacritty" "tmux" "starship")
+CONFIG_APPS=("wezterm" "nvim" "starship")
 
 echo -e "\033[0;36m🔹 Đang phục hồi (eject) cấu hình về máy thực...\033[0m"
 

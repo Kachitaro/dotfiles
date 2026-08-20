@@ -13,7 +13,7 @@ function Show-Help {
     Write-Host "Usage: dot <command> [options]`n"
     Write-Host "Commands:"
     Write-Host "  install          Run the installation script."
-    Write-Host "                   Options: -ForceInstall (Overwrite existing configs)"
+    Write-Host "                   Options: -ForceInstall, -SkipHeavyApps, -SkipEditor, -SkipFeatures"
     Write-Host "  uninstall        Remove dotfiles symlinks and configurations."
     Write-Host "  add <path>       Adopt a new config folder into dotfiles."
     Write-Host "  eject            Restore real files to your system (unlink)."
@@ -25,11 +25,20 @@ function Show-Help {
 switch ($Command) {
     "install" {
         $installScript = "$DotfilesDir\scripts\install.ps1"
+        $installArgs = @()
         if ($RestArgs -contains "-ForceInstall" -or $RestArgs -contains "--force") {
-            & $installScript -ForceInstall
-        } else {
-            & $installScript
+            $installArgs += "-ForceInstall"
         }
+        if ($RestArgs -contains "-SkipHeavyApps" -or $RestArgs -contains "--skip-heavy") {
+            $installArgs += "-SkipHeavyApps"
+        }
+        if ($RestArgs -contains "-SkipEditor" -or $RestArgs -contains "--skip-editor") {
+            $installArgs += "-SkipEditor"
+        }
+        if ($RestArgs -contains "-SkipFeatures" -or $RestArgs -contains "--skip-features") {
+            $installArgs += "-SkipFeatures"
+        }
+        & $installScript @installArgs
     }
     "uninstall" {
         & "$DotfilesDir\scripts\uninstall.ps1"

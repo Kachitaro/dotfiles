@@ -10,6 +10,7 @@ $links = @(
     "$env:USERPROFILE\.wezterm.lua",
     "$env:USERPROFILE\.config\wezterm",
     "$env:LOCALAPPDATA\nvim",
+    "$env:USERPROFILE\.config\starship",
     "$env:USERPROFILE\.config\powershell\functions.ps1",
     "$env:USERPROFILE\.config\scoop\config.json"
 )

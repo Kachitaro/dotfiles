@@ -9,6 +9,8 @@ echo -e "\033[0;31mBắt đầu gỡ cài đặt (Uninstall) Dotfiles...\033[0m"
 echo "Xóa các symlink cấu hình..."
 rm -f "$HOME/.config/wezterm"
 rm -f "$HOME/.config/nvim"
+rm -f "$HOME/.config/starship"
+rm -f "$HOME/.local/bin/dot"
 
 # 2. Xóa cấu hình khỏi bashrc / zshrc
 echo "Gỡ bỏ cấu hình dotfiles khỏi .bashrc / .zshrc..."

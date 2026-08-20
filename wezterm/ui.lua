@@ -1,4 +1,49 @@
+local wezterm = require 'wezterm'
 local module = {}
+
+local function get_theme_path()
+  local candidates = {}
+
+  -- 1. Check DOTFILES_DIR environment variable
+  local dotfiles_dir = os.getenv("DOTFILES_DIR")
+  if dotfiles_dir and dotfiles_dir ~= "" then
+    table.insert(candidates, dotfiles_dir .. "/themes/generated/theme.lua")
+  end
+
+  -- 2. Resolve via wezterm.config_dir
+  if wezterm.config_dir then
+    table.insert(candidates, wezterm.config_dir .. "/../themes/generated/theme.lua")
+    table.insert(candidates, wezterm.config_dir .. "/themes/generated/theme.lua")
+  end
+
+  -- 3. Resolve via wezterm.config_file (if available)
+  if wezterm.config_file then
+    local config_dir = wezterm.config_file:match("^(.*)[/\\]")
+    if config_dir then
+      table.insert(candidates, config_dir .. "/../themes/generated/theme.lua")
+    end
+  end
+
+  -- 4. Fallback paths (home directory & legacy path)
+  local home = os.getenv("HOME") or os.getenv("USERPROFILE") or (wezterm.home_dir or "")
+  if home ~= "" then
+    table.insert(candidates, home .. "/.dotfiles/themes/generated/theme.lua")
+    table.insert(candidates, home .. "/Desktop/Work/dotfiles/themes/generated/theme.lua")
+  end
+
+  for _, path in ipairs(candidates) do
+    local f = io.open(path, "r")
+    if f then
+      f:close()
+      return path
+    end
+  end
+
+  if wezterm.config_dir then
+    return wezterm.config_dir .. "/../themes/generated/theme.lua"
+  end
+  return home .. "/Desktop/Work/dotfiles/themes/generated/theme.lua"
+end
 
 function module.setup(config)
   config.tab_bar_at_bottom = true
@@ -8,11 +53,10 @@ function module.setup(config)
   config.scrollback_lines = 10000
   config.adjust_window_size_when_changing_font_size = false
   -- Load dynamically generated theme
-  local theme_path = os.getenv("HOME") .. "/Desktop/Work/dotfiles/themes/generated/theme.lua"
-  -- Fallback for Windows if HOME is not set exactly right (though wezterm usually sets it or provides wezterm.home_dir)
+  local theme_path = get_theme_path()
   local success, theme = pcall(dofile, theme_path)
 
-  if success then
+  if success and type(theme) == "table" then
     config.colors = {
       background = theme.bg,
       foreground = theme.fg,

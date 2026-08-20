@@ -118,7 +118,20 @@ function Get-SystemSizeReport {
 # Dotfiles CLI (dot)
 # ------------------------------------------------------------------------------
 function dot {
-    # Dynamically find the dot.ps1 based on this file's location
-    $DotfilesDir = Split-Path -Path (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) -Parent
-    & "$DotfilesDir\bin\dot.ps1" @args
+    $dotScript = ""
+    if ($env:DOTFILES_DIR -and (Test-Path (Join-Path $env:DOTFILES_DIR "bin\dot.ps1"))) {
+        $dotScript = Join-Path $env:DOTFILES_DIR "bin\dot.ps1"
+    } elseif (Test-Path "$PSScriptRoot\..\bin\dot.ps1") {
+        $dotScript = "$PSScriptRoot\..\bin\dot.ps1"
+    } elseif (Test-Path "$env:USERPROFILE\.dotfiles\bin\dot.ps1") {
+        $dotScript = "$env:USERPROFILE\.dotfiles\bin\dot.ps1"
+    } elseif (Test-Path "D:\work\dotfiles\bin\dot.ps1") {
+        $dotScript = "D:\work\dotfiles\bin\dot.ps1"
+    }
+
+    if ($dotScript) {
+        & $dotScript @args
+    } else {
+        Write-Error "Không tìm thấy dot.ps1. Vui lòng kiểm tra lại `$env:DOTFILES_DIR"
+    }
 }

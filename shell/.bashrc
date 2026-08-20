@@ -85,6 +85,15 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Load theme environment variables on startup
-if [ -f ~/Desktop/Work/dotfiles/themes/generated/theme.sh ]; then
+if [ -z "$DOTFILES_DIR" ]; then
+    if [ -n "${BASH_SOURCE[0]}" ]; then
+        DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
+    fi
+fi
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+
+if [ -f "$DOTFILES_DIR/themes/generated/theme.sh" ]; then
+    source "$DOTFILES_DIR/themes/generated/theme.sh"
+elif [ -f ~/Desktop/Work/dotfiles/themes/generated/theme.sh ]; then
     source ~/Desktop/Work/dotfiles/themes/generated/theme.sh
 fi

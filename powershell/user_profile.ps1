@@ -49,8 +49,25 @@ if (Test-Path -Path $funcPath) {
 } else {
     Write-Warning "Không tìm thấy file functions.ps1 tại: $funcPath"
 }
-# Load theme environment variables on startup
-$theme_path = "$env:USERPROFILE\Desktop\Work\dotfiles\themes\generated\theme.ps1"
-if (Test-Path $theme_path) {
-    . $theme_path
+# Set DOTFILES_DIR
+if (-not $env:DOTFILES_DIR) {
+    if ($PSScriptRoot) {
+        $env:DOTFILES_DIR = Split-Path -Path $PSScriptRoot -Parent
+    }
+}
+if ($env:DOTFILES_DIR -and (Test-Path "$env:DOTFILES_DIR\bin")) {
+    if ($env:PATH -notlike "*$env:DOTFILES_DIR\bin*") {
+        $env:PATH = "$env:DOTFILES_DIR\bin;" + $env:PATH
+    }
+}
+$theme_candidates = @(
+    (if ($env:DOTFILES_DIR) { Join-Path $env:DOTFILES_DIR "themes\generated\theme.ps1" }),
+    "$env:USERPROFILE\.dotfiles\themes\generated\theme.ps1",
+    "$env:USERPROFILE\Desktop\Work\dotfiles\themes\generated\theme.ps1"
+)
+foreach ($t_path in $theme_candidates) {
+    if ($t_path -and (Test-Path $t_path)) {
+        . $t_path
+        break
+    }
 }

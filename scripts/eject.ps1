@@ -4,7 +4,6 @@ Write-Host "`n🔹 Đang phục hồi (eject) cấu hình về máy thực..." -
 $configApps = @{
     "wezterm" = "$env:USERPROFILE\.config\wezterm"
     "nvim" = "$env:LOCALAPPDATA\nvim"
-    "alacritty" = "$env:APPDATA\alacritty"
     "starship" = "$env:USERPROFILE\.config\starship"
 }
 
@@ -28,6 +27,28 @@ if (Test-Path "$env:USERPROFILE\.wezterm.lua") {
         Remove-Item "$env:USERPROFILE\.wezterm.lua" -Force
         Copy-Item -Path "$DotfilesDir\wezterm\wezterm.lua" -Destination "$env:USERPROFILE\.wezterm.lua" -Force
         Write-Host "  ✅ Đã phục hồi: wezterm.lua -> $env:USERPROFILE\.wezterm.lua" -ForegroundColor Green
+    }
+}
+
+# Functions file
+$funcDest = "$env:USERPROFILE\.config\powershell\functions.ps1"
+if (Test-Path $funcDest) {
+    $item = Get-Item $funcDest -Force
+    if ($item.LinkType -eq "SymbolicLink") {
+        Remove-Item $funcDest -Force
+        Copy-Item -Path "$DotfilesDir\powershell\functions.ps1" -Destination $funcDest -Force
+        Write-Host "  ✅ Đã phục hồi: functions.ps1 -> $funcDest" -ForegroundColor Green
+    }
+}
+
+# Scoop Config
+$scoopDest = "$env:USERPROFILE\.config\scoop\config.json"
+if (Test-Path $scoopDest) {
+    $item = Get-Item $scoopDest -Force
+    if ($item.LinkType -eq "SymbolicLink") {
+        Remove-Item $scoopDest -Force
+        Copy-Item -Path "$DotfilesDir\scoop\config.json" -Destination $scoopDest -Force
+        Write-Host "  ✅ Đã phục hồi: config.json -> $scoopDest" -ForegroundColor Green
     }
 }
 

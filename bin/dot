@@ -48,7 +48,7 @@ case "$COMMAND" in
                 # Usually users will need a shell function wrapper if they want environment variables exported to current shell.
                 # But for Wezterm & Nvim, they reload dynamically via files.
                 echo "Theme compiled! (WezTerm & Neovim reload automatically)"
-                echo "Note: Để apply màu mới vào Shell hiện tại, chạy thủ công: source ~/.cache/theme.sh (hoặc mở terminal mới)"
+                echo "Note: Để apply màu mới vào Shell hiện tại, chạy thủ công: source $DOTFILES_DIR/themes/generated/theme.sh (hoặc mở terminal mới)"
             fi
         else
             echo -e "\033[0;31mLệnh không hợp lệ. Ý bạn là: dot theme reload?\033[0m"

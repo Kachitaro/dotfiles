@@ -11,6 +11,7 @@ param (
     [string]$DotfilesDir = "",
     [switch]$SkipFeatures,
     [switch]$SkipHeavyApps,
+    [switch]$SkipEditor,
     [switch]$ForceInstall
 )
 
@@ -99,7 +100,7 @@ Write-Succ "Đã cấu hình xong Scoop buckets."
 # 6. Install Packages via Scoop
 Write-Step "Cài đặt các ứng dụng và công cụ qua Scoop..."
 
-# Danh sách CLI và Utilities bắt buộc
+# Danh sách CLI và Utilities cốt lõi bắt buộc
 $corePackages = @(
     "main/git",
     "main/7zip",
@@ -117,15 +118,19 @@ $corePackages = @(
     "main/fnm",
     "main/bun",
     "main/yarn",
-    "java/temurin17-jdk",
-    "nerd-fonts/JetBrainsMono-NF",
     "vcredist-aio",
     "extras/wezterm",
+    "nerd-fonts/JetBrainsMono-NF"
+)
+
+# Danh sách GUI Editor tuỳ chọn
+$editorPackages = @(
     "extras/vscode"
 )
 
-# Danh sách ứng dụng lớn (Mobile / Container / Heavy Dev)
+# Danh sách ứng dụng nặng / Mobile / Java / Container
 $heavyPackages = @(
+    "java/temurin17-jdk",
     "extras/gradle",
     "extras/flutter",
     "extras/android-studio",
@@ -133,6 +138,11 @@ $heavyPackages = @(
 )
 
 $packagesToInstall = $corePackages
+
+if (-not $SkipEditor) {
+    $packagesToInstall += $editorPackages
+}
+
 if (-not $SkipHeavyApps) {
     $packagesToInstall += $heavyPackages
 }
@@ -235,7 +245,6 @@ function Create-SafeLink {
 $configApps = @{
     "wezterm" = "$env:USERPROFILE\.config\wezterm"
     "nvim" = "$env:LOCALAPPDATA\nvim"
-    "alacritty" = "$env:APPDATA\alacritty"
     "starship" = "$env:USERPROFILE\.config\starship"
 }
 
@@ -287,6 +296,25 @@ foreach ($pPath in $profiles) {
     } else {
         Write-Succ "Profile $pPath đã được cấu hình trước đó."
     }
+}
+
+# 9.6 Cấu hình biến môi trường & PATH cho Dotfiles CLI (dot)
+[Environment]::SetEnvironmentVariable("DOTFILES_DIR", $DotfilesDir, "User")
+$env:DOTFILES_DIR = $DotfilesDir
+
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+$dotBinDir = "$DotfilesDir\bin"
+if ($userPath -notlike "*$dotBinDir*") {
+    [Environment]::SetEnvironmentVariable("Path", "$dotBinDir;$userPath", "User")
+}
+if ($env:Path -notlike "*$dotBinDir*") {
+    $env:Path = "$dotBinDir;" + $env:Path
+}
+
+# Nạp trực tiếp profile vào phiên làm việc hiện tại để lệnh 'dot' dùng được ngay
+if (Test-Path "$DotfilesDir\powershell\user_profile.ps1") {
+    . "$DotfilesDir\powershell\user_profile.ps1"
+    Write-Succ "Đã nạp dot CLI và cấu hình môi trường vào phiên hiện tại."
 }
 
 # 10. Node.js & React Native Setup (qua FNM)

@@ -165,7 +165,7 @@ if ! command -v bun >/dev/null 2>&1; then
     curl -fsSL https://bun.sh/install | bash
     write_succ "Bun đã được cài đặt."
 else
-    write_succ "Bun đã được cài đặt."
+    write_succ "Bun đã có sẵn."
 fi
 
 
@@ -215,7 +215,7 @@ create_link() {
 }
 
 # 7.1 Cấu hình tự động liên kết các ứng dụng chuẩn
-CONFIG_APPS=("wezterm" "nvim" "alacritty" "tmux" "starship")
+CONFIG_APPS=("wezterm" "nvim" "starship")
 for app in "${CONFIG_APPS[@]}"; do
     if [ -d "$DOTFILES_DIR/$app" ] || [ -f "$DOTFILES_DIR/$app" ]; then
         create_link "$DOTFILES_DIR/$app" "$HOME/.config/$app"
