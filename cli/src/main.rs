@@ -49,8 +49,6 @@ pub enum Commands {
         #[command(subcommand)]
         action: ThemeCommands,
     },
-    /// Pull the latest changes from GitHub.
-    Update,
 }
 
 #[derive(Subcommand, Debug)]
@@ -74,9 +72,8 @@ fn main() -> Result<()> {
             ThemeCommands::Reload => commands::theme::reload()?,
             ThemeCommands::Path => commands::theme::print_path()?,
         },
-        Commands::Update => commands::update::execute()?,
     }
-
 
     Ok(())
 }
+
