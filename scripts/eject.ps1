@@ -5,6 +5,8 @@ $configApps = @{
     "wezterm" = "$env:USERPROFILE\.config\wezterm"
     "nvim" = "$env:LOCALAPPDATA\nvim"
     "starship" = "$env:USERPROFILE\.config\starship"
+    "atuin" = "$env:USERPROFILE\.config\atuin"
+    "carapace" = "$env:USERPROFILE\.config\carapace"
 }
 
 foreach ($app in $configApps.GetEnumerator()) {
@@ -49,6 +51,22 @@ if (Test-Path $scoopDest) {
         Remove-Item $scoopDest -Force
         Copy-Item -Path "$DotfilesDir\scoop\config.json" -Destination $scoopDest -Force
         Write-Host "  ✅ Đã phục hồi: config.json -> $scoopDest" -ForegroundColor Green
+    }
+}
+
+# Gỡ cấu hình khỏi PowerShell profile
+Write-Host "`n🔹 Gỡ cấu hình khỏi PowerShell Profile..." -ForegroundColor Cyan
+$profiles = @(
+    "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
+    "$env:USERPROFILE\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+)
+
+foreach ($pPath in $profiles) {
+    if (Test-Path $pPath) {
+        $content = Get-Content $pPath -Raw
+        $content = $content -replace "(?ms)# Load dotfiles user profile.*?user_profile\.ps1`".*?`n", ""
+        Set-Content -Path $pPath -Value $content -Force
+        Write-Host "  ✅ Đã gỡ cấu hình khỏi: $pPath" -ForegroundColor Green
     }
 }
 

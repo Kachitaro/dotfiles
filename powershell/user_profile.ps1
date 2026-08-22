@@ -22,11 +22,9 @@ Import-Module PSFzf -ErrorAction SilentlyContinue
 Import-Module PSReadLine -ErrorAction SilentlyContinue
 
 if (Get-Module -Name PSReadLine) {
-    Set-PSReadLineOption -EditMode Emacs -ErrorAction SilentlyContinue
     Set-PSReadLineOption -BellStyle None -ErrorAction SilentlyContinue
     Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
     Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
-    Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar -ErrorAction SilentlyContinue
 }
 
 if (Get-Module -Name PSFzf -ListAvailable) {

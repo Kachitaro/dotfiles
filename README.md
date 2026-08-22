@@ -181,7 +181,6 @@ Theme mặc định hiện tại: **Catppuccin Mocha**.
 | `<Tab>` | Carapace Auto-completion (Gợi ý lệnh chi tiết cho `git`, `docker`, `kubectl`...) |
 | `Ctrl + R` | Tra cứu lịch sử dòng lệnh (Atuin SQLite History / FZF) |
 | `Ctrl + F` | Tìm kiếm đường dẫn file/thư mục tương tác bằng FZF |
-| `Ctrl + D` | Xoá ký tự hiện tại (Emacs keybinding) |
 | `z <thư-mục>` | Nhảy nhanh tới thư mục bất kỳ bằng Zoxide |
 | `Get-SystemSizeReport` | Xem báo cáo dung lượng ổ đĩa Windows |
 | `Get-AppSizeReport` | Liệt kê dung lượng các ứng dụng đang chiếm ổ cứng |
