@@ -130,13 +130,13 @@ foreach ($pkg in $corePackages) {
 Write-Succ "Hoàn tất cài đặt các gói Scoop."
 
 # 7. Install PowerShell Modules
-Write-Step "Cài đặt các module PowerShell (PSReadLine, PSFzf, Terminal-Icons)..."
+Write-Step "Cài đặt các module PowerShell (PSReadLine, PSFzf)..."
 if (!(Get-PackageProvider -Name NuGet -ListAvailable -ErrorAction SilentlyContinue)) {
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
 }
 Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted -ErrorAction SilentlyContinue
 
-$psModules = @("PSReadLine", "PSFzf", "Terminal-Icons")
+$psModules = @("PSReadLine", "PSFzf")
 foreach ($mod in $psModules) {
     if (!(Get-Module -Name $mod -ListAvailable)) {
         Write-Host "  Đang cài module: $mod..." -ForegroundColor Gray

@@ -18,7 +18,6 @@ if (Get-Command carapace -ErrorAction SilentlyContinue) {
     carapace _carapace powershell | Out-String | Invoke-Expression
 }
 
-Import-Module Terminal-Icons -ErrorAction SilentlyContinue
 Import-Module PSFzf -ErrorAction SilentlyContinue
 Import-Module PSReadLine -ErrorAction SilentlyContinue
 
