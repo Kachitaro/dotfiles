@@ -2,6 +2,27 @@ local wezterm = require 'wezterm'
 local module = {}
 
 local function get_theme_path()
+  -- 0. Resolve dynamically via `dot theme path` (or `k-dot theme path`)
+  local ok, dynamic_path = pcall(function()
+    local success, out, _ = wezterm.run_child_process({ "dot", "theme", "path" })
+    if success and out and out ~= "" then
+      return out:gsub("[\r\n]+$", "") .. "/theme.lua"
+    end
+    local k_success, k_out, _ = wezterm.run_child_process({ "k-dot", "theme", "path" })
+    if k_success and k_out and k_out ~= "" then
+      return k_out:gsub("[\r\n]+$", "") .. "/theme.lua"
+    end
+    return nil
+  end)
+
+  if ok and dynamic_path then
+    local f = io.open(dynamic_path, "r")
+    if f then
+      f:close()
+      return dynamic_path
+    end
+  end
+
   local candidates = {}
 
   -- 1. Check DOTFILES_DIR environment variable
@@ -44,6 +65,7 @@ local function get_theme_path()
   end
   return home .. "/Desktop/Work/dotfiles/themes/generated/theme.lua"
 end
+
 
 function module.setup(config)
   config.tab_bar_at_bottom = true

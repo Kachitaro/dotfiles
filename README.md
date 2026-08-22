@@ -88,46 +88,40 @@ dotfiles/
 
 ## 🚀 Installation Guide
 
-### 1. Windows
+### 1. Windows (PowerShell)
 
-Open **PowerShell 7** and run:
+Open **PowerShell** (Run as Administrator recommended for full setup) and run:
 
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+# ⚡ Fast Install: Downloads dot CLI binary & syncs configs immediately
 irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1 | iex
+
+# 🚀 Full Machine Setup: Installs Scoop, Neovim, WezTerm, Font, Node, Tools & virtualization
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1))) -Full
 ```
 
-> The script automatically installs Scoop, Git, Neovim, JetBrainsMono NF, WezTerm, FNM (Node 22), Bun, creates symlinks, and loads the PowerShell profile.
-> The `dot` CLI becomes globally available immediately after installation.
-
-**Installation Flags:**
-
-| Flag            | Description                                                                     |
-| :-------------- | :------------------------------------------------------------------------------ |
-| `-SkipFeatures` | Skip enabling Windows virtualization features (`Hyper-V`, `WSL2`, `Containers`) |
-| `-ForceInstall` | Force overwrite existing configs without creating `.bak_*` backups              |
-
-### 2. Linux / WSL / macOS
+### 2. Linux / macOS
 
 Open **Terminal** and run:
 
 ```bash
+# ⚡ Fast Install: Downloads pre-built dot binary & syncs configs immediately
 curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash
-```
 
-> The script automatically installs `neovim`, `ripgrep`, `fd`, `fzf`, `bat`, `eza`, `carapace`, JetBrainsMono NF, `starship`, `fnm` (Node 22), Bun, and creates symlinks for `nvim`, `wezterm`, `starship`, `atuin`, `carapace`, `bashrc`/`zshrc`.
+# 🚀 Full Machine Setup: Installs system packages (apt/brew/pacman), Neovim, WezTerm, Font, Node & Tools
+curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash -s -- --full
+```
 
 ### 3. Run Directly from Cloned Repo
 
 ```bash
 # Windows
-.\install.ps1
-# or using dot CLI
-.\bin\dot.ps1 install
+.\install.ps1        # or .\install.ps1 -Full
 
 # Linux/macOS
-chmod +x ./install.sh && ./install.sh
+./install.sh         # or ./install.sh --full
 ```
+
 
 > [!IMPORTANT]
 > After installing on Windows, **restart your machine** to apply Hyper-V, WSL, and font settings. On Linux/macOS, run `source ~/.bashrc` or open a new terminal tab.
@@ -141,20 +135,36 @@ chmod +x ./install.sh && ./install.sh
 
 ---
 
-## 🧰 Management with `dot` CLI
+## 🧰 Management with `dot` CLI (Rust-powered)
 
-After installation, use the `dot` command to manage your environment:
+The management CLI (`k-dot` / `dot`) is written in **Rust** for blazing-fast startup, robust cross-platform path resolution, and native symlink handling without runtime dependencies.
 
 ```bash
-dot install                      # Run system installer
-dot install -ForceInstall        # Force reinstall without backup
+dot install                      # Run system installer (Options: --force / -ForceInstall)
 dot add <path>                   # Adopt a config folder into repo (e.g. dot add ~/.config/alacritty)
-dot eject                        # Unlink dotfiles and restore independent files to system
+dot eject                        # Unlink dotfiles and restore independent real files to system
+dot inject                       # Re-link dotfiles symlinks and configurations into system (Options: --force)
 dot uninstall                    # Fully uninstall dotfiles
 dot theme reload                 # Recompile and apply theme from theme.json
+dot theme path                   # Print absolute path of themes/generated directory (for dynamic scripts)
 dot update                       # Pull the latest updates from GitHub
-dot help                         # Display help menu
+dot --help                       # Display help menu
 ```
+
+### 🦀 Build CLI from Source
+
+To compile the CLI binary manually:
+
+```bash
+cd cli
+cargo build --release
+```
+
+#### Cross-compilation Targets:
+- **Windows (MSVC)**: `cargo build --release --target x86_64-pc-windows-msvc`
+- **Linux (x86_64)**: `cargo build --release --target x86_64-unknown-linux-gnu`
+- **macOS (Apple Silicon)**: `cargo build --release --target aarch64-apple-darwin`
+
 
 ---
 
@@ -164,7 +174,7 @@ All colors across Neovim, WezTerm, Starship, Bash, Zsh, and PowerShell are synch
 
 1. Edit colors in `themes/theme.json`.
 2. Run `dot theme reload`.
-3. `scripts/generate_theme.py` compiles JSON into `theme.lua`, `theme.sh`, `theme.ps1` under `themes/generated/`.
+3. The built-in Rust Theme Engine compiles JSON into `theme.lua`, `theme.sh`, `theme.ps1`, `theme.toml`, and `atuin/themes/theme.toml` under `themes/generated/`.
 4. WezTerm, Neovim, and Shell dynamically pick up the new colors instantly.
 
 Current default theme: **Catppuccin Mocha**.

@@ -39,3 +39,10 @@ secrets.json
 
 # Logs
 *.log
+
+# Rust / Cargo build artifacts
+target/
+cli/target/
+bin/*.exe
+
+

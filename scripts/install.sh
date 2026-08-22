@@ -222,8 +222,20 @@ for app in "${CONFIG_APPS[@]}"; do
     fi
 done
 
-# 7.2 Dotfiles CLI (dot)
-create_link "$DOTFILES_DIR/bin/dot" "$HOME/.local/bin/dot"
+# 7.2 Dotfiles CLI (dot) - Build or Link Rust Binary
+CLI_BIN="$DOTFILES_DIR/cli/target/release/dot"
+if command -v cargo >/dev/null 2>&1 && [ ! -f "$CLI_BIN" ]; then
+    echo "  Đang biên dịch Dotfiles CLI (Rust)..."
+    cargo build --release --manifest-path "$DOTFILES_DIR/cli/Cargo.toml" || true
+fi
+
+if [ -f "$CLI_BIN" ]; then
+    create_link "$CLI_BIN" "$HOME/.local/bin/dot"
+elif [ -f "$DOTFILES_DIR/bin/dot" ]; then
+    create_link "$DOTFILES_DIR/bin/dot" "$HOME/.local/bin/dot"
+fi
+
+
 
 # 7.3 Bash / Zsh Profiles
 BASH_SOURCE_LINE="[ -f \"$DOTFILES_DIR/shell/.bashrc\" ] && source \"$DOTFILES_DIR/shell/.bashrc\""

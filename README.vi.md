@@ -88,46 +88,40 @@ dotfiles/
 
 ## 🚀 Hướng dẫn cài đặt
 
-### 1. Windows
+### 1. Windows (PowerShell)
 
-Mở **PowerShell 7** và chạy:
+Mở **PowerShell** (Khuyến khích Run as Administrator nếu cài đặt toàn diện) và chạy:
 
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+# ⚡ Cài đặt nhanh: Tự động tải binary dot release & gắn symlink cấu hình ngay lập tức
 irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1 | iex
+
+# 🚀 Cài đặt máy mới toàn diện: Tự động cài Scoop, Neovim, WezTerm, Font, Node, Tools & ảo hoá
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1))) -Full
 ```
 
-> Script tự động cài Scoop, Git, Neovim, font JetBrainsMono NF, WezTerm, FNM (Node 22), Bun, tạo symlink và nạp profile PowerShell.
-> Lệnh `dot` sẽ tự động khả dụng trên toàn hệ thống ngay sau khi cài đặt.
-
-**Các tuỳ chọn cài đặt:**
-
-| Tham số         | Ý nghĩa                                                                     |
-| :-------------- | :-------------------------------------------------------------------------- |
-| `-SkipFeatures` | Bỏ qua kích hoạt tính năng ảo hoá Windows (`Hyper-V`, `WSL2`, `Containers`) |
-| `-ForceInstall` | Ép ghi đè các cấu hình hiện có, không tạo backup `.bak_*`                   |
-
-### 2. Linux / WSL / macOS
+### 2. Linux / macOS
 
 Mở **Terminal** và chạy:
 
 ```bash
+# ⚡ Cài đặt nhanh: Tự động tải binary dot release & gắn symlink cấu hình ngay lập tức
 curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash
-```
 
-> Script tự động cài `neovim`, `ripgrep`, `fd`, `fzf`, `bat`, `eza`, `carapace`, font JetBrainsMono NF, `starship`, `fnm` (Node 22), Bun, và tạo symlink cấu hình `nvim`, `wezterm`, `starship`, `atuin`, `carapace`, `bashrc`/`zshrc`.
+# 🚀 Cài đặt máy mới toàn diện: Tự động cài package hệ thống (apt/brew/pacman), Neovim, WezTerm, Font, Tools
+curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash -s -- --full
+```
 
 ### 3. Chạy trực tiếp từ repo đã clone
 
 ```bash
 # Windows
-.\install.ps1
-# hoặc dùng dot CLI
-.\bin\dot.ps1 install
+.\install.ps1        # hoặc .\install.ps1 -Full
 
 # Linux/macOS
-chmod +x ./install.sh && ./install.sh
+./install.sh         # hoặc ./install.sh --full
 ```
+
 
 > [!IMPORTANT]
 > Sau khi cài trên Windows, **khởi động lại máy** để áp dụng Hyper-V, WSL và font. Trên Linux/macOS, chạy `source ~/.bashrc` hoặc mở tab terminal mới.
@@ -141,20 +135,36 @@ chmod +x ./install.sh && ./install.sh
 
 ---
 
-## 🧰 Quản lý bằng CLI `dot`
+## 🧰 Quản lý bằng CLI `dot` (Rust)
 
-Sau khi cài đặt, bạn có sẵn lệnh `dot` để quản lý toàn bộ dotfiles:
+Công cụ dòng lệnh quản lý (`k-dot` / `dot`) được viết hoàn toàn bằng **Rust** cho tốc độ khởi động siêu nhanh, xử lý đường dẫn / symlink an toàn và không phụ thuộc runtime bên ngoài.
 
 ```bash
-dot install                      # Chạy script cài đặt hệ thống
-dot install -ForceInstall        # Ép cài đè, không tạo backup
+dot install                      # Chạy script cài đặt hệ thống (Tùy chọn: --force / -ForceInstall)
 dot add <path>                   # Thu nạp một config từ ~/.config vào kho (vd: dot add ~/.config/alacritty)
 dot eject                        # Gỡ symlink, trả file thực về máy (hoạt động độc lập)
+dot inject                       # Đồng bộ / gắn lại symlink và nạp cấu hình dotfiles vào hệ thống (Tùy chọn: --force)
 dot uninstall                    # Gỡ cài đặt hoàn toàn
 dot theme reload                 # Biên dịch và áp dụng theme mới từ theme.json
+dot theme path                   # In ra đường dẫn tuyệt đối của themes/generated (để script lấy path động)
 dot update                       # Pull bản cập nhật mới nhất từ GitHub
-dot help                         # Hiển thị menu trợ giúp
+dot --help                       # Hiển thị menu trợ giúp
 ```
+
+### 🦀 Tự biên dịch CLI từ mã nguồn (Build from source)
+
+Để tự biên dịch binary CLI:
+
+```bash
+cd cli
+cargo build --release
+```
+
+#### Các lệnh build mẫu cho từng nền tảng (Cross-compilation):
+- **Windows (MSVC)**: `cargo build --release --target x86_64-pc-windows-msvc`
+- **Linux (x86_64)**: `cargo build --release --target x86_64-unknown-linux-gnu`
+- **macOS (Apple Silicon)**: `cargo build --release --target aarch64-apple-darwin`
+
 
 ---
 
@@ -164,7 +174,7 @@ Toàn bộ màu sắc của Neovim, WezTerm, Starship, Bash, Zsh và PowerShell 
 
 1. Sửa màu trong `themes/theme.json`.
 2. Chạy `dot theme reload`.
-3. `scripts/generate_theme.py` biên dịch JSON ra `theme.lua`, `theme.sh`, `theme.ps1` trong `themes/generated/`.
+3. Rust Theme Engine tự động biên dịch JSON ra `theme.lua`, `theme.sh`, `theme.ps1`, `theme.toml` trong `themes/generated/` và `atuin/themes/theme.toml`.
 4. WezTerm, Neovim và Shell tự động nhận diện vị trí dotfiles động và áp dụng màu mới ngay lập tức.
 
 Theme mặc định hiện tại: **Catppuccin Mocha**.

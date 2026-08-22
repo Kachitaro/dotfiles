@@ -304,6 +304,19 @@ foreach ($pPath in $profiles) {
 }
 
 # 9.6 Cấu hình biến môi trường & PATH cho Dotfiles CLI (dot)
+Write-Step "Biên dịch / Thiết lập Dotfiles CLI (Rust)..."
+$cliTargetRelease = "$DotfilesDir\cli\target\release\dot.exe"
+if ((Get-Command cargo -ErrorAction SilentlyContinue) -and !(Test-Path $cliTargetRelease)) {
+    Write-Host "  Đang biên dịch Dotfiles CLI (dot)..." -ForegroundColor Gray
+    cargo build --release --manifest-path "$DotfilesDir\cli\Cargo.toml" | Out-Null
+}
+
+if (Test-Path $cliTargetRelease) {
+    Copy-Item -Path $cliTargetRelease -Destination "$DotfilesDir\bin\dot.exe" -Force
+    Write-Succ "Đã thiết lập binary Rust CLI tại $DotfilesDir\bin\dot.exe"
+}
+
+
 [Environment]::SetEnvironmentVariable("DOTFILES_DIR", $DotfilesDir, "User")
 $env:DOTFILES_DIR = $DotfilesDir
 
@@ -315,6 +328,7 @@ if ($userPath -notlike "*$dotBinDir*") {
 if ($env:Path -notlike "*$dotBinDir*") {
     $env:Path = "$dotBinDir;" + $env:Path
 }
+
 
 # Nạp trực tiếp profile vào phiên làm việc hiện tại để lệnh 'dot' dùng được ngay
 if (Test-Path "$DotfilesDir\powershell\user_profile.ps1") {

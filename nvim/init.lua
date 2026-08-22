@@ -39,10 +39,30 @@ end)
 -- Apply dynamically generated custom theme overrides
 local function get_theme_path()
   local uv = vim.uv or vim.loop
+
+  -- 0. Try dynamic path resolution via `dot theme path` (or `k-dot theme path`)
+  local out = vim.fn.system { "dot", "theme", "path" }
+  if vim.v.shell_error == 0 and out and out ~= "" then
+    local trimmed = vim.trim(out)
+    local candidate = trimmed .. "/theme.lua"
+    if uv.fs_stat(candidate) then
+      return candidate
+    end
+  end
+
+  local k_out = vim.fn.system { "k-dot", "theme", "path" }
+  if vim.v.shell_error == 0 and k_out and k_out ~= "" then
+    local trimmed = vim.trim(k_out)
+    local candidate = trimmed .. "/theme.lua"
+    if uv.fs_stat(candidate) then
+      return candidate
+    end
+  end
+
   local candidates = {}
 
   -- 1. Check DOTFILES_DIR environment variable
-  local env_dotfiles = os.getenv("DOTFILES_DIR")
+  local env_dotfiles = os.getenv "DOTFILES_DIR"
   if env_dotfiles and env_dotfiles ~= "" then
     table.insert(candidates, env_dotfiles .. "/themes/generated/theme.lua")
   end
@@ -62,7 +82,7 @@ local function get_theme_path()
   end
 
   -- 3. Resolve via stdpath("config") realpath
-  local std_config = vim.fn.stdpath("config")
+  local std_config = vim.fn.stdpath "config"
   if std_config then
     local real_config = uv.fs_realpath(std_config) or std_config
     local dotfiles_dir = vim.fs.dirname(real_config)
@@ -72,7 +92,7 @@ local function get_theme_path()
   end
 
   -- 4. Fallback paths (home directory & legacy path)
-  local home = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
+  local home = os.getenv "HOME" or os.getenv "USERPROFILE" or ""
   if home ~= "" then
     table.insert(candidates, home .. "/.dotfiles/themes/generated/theme.lua")
     table.insert(candidates, home .. "/Desktop/Work/dotfiles/themes/generated/theme.lua")
@@ -86,6 +106,7 @@ local function get_theme_path()
 
   return candidates[1] or (home .. "/Desktop/Work/dotfiles/themes/generated/theme.lua")
 end
+
 
 local theme_path = get_theme_path()
 local success, theme = pcall(dofile, theme_path)
