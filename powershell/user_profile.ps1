@@ -1,10 +1,47 @@
+# ==============================================================================
+# Dotfiles PowerShell Configuration
+# ==============================================================================
+
+# Ngăn chặn load trùng lặp trong cùng một phiên (do PowerShell gọi cả profile.ps1 lẫn Microsoft.PowerShell_profile.ps1)
+if ($global:__DOTFILES_PROFILE_LOADED -and -not $env:FORCE_DOTFILES_RELOAD) {
+    return
+}
+$global:__DOTFILES_PROFILE_LOADED = $true
+
+# ------------------------------------------------------------------------------
+# 1. Environment & Encodings
+# ------------------------------------------------------------------------------
 [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 $env:LESSCHARSET = 'utf-8'
-$env:EZA_COLORS = "di=36" 
-$usrBinPath = Join-Path $env:USERPROFILE "scoop\apps\git\current\usr\bin"
-$tigPath = Join-Path $usrBinPath "tig.exe"
-$lessPath = Join-Path $usrBinPath "less.exe"
 
+# Eza & Fzf Environment Variables
+$env:EZA_COLORS = "di=36"
+$env:FZF_DEFAULT_OPTS = "--height 50% --layout=reverse --border --info=inline"
+$env:FZF_ALT_C_OPTS   = "--preview 'eza -a --tree --level=2 --color=always --icons=always {}' --preview-window 'right:55%,border-left'"
+
+# ------------------------------------------------------------------------------
+# 2. PSReadLine Foundation (Bắt buộc load ĐẦU TIÊN)
+# ------------------------------------------------------------------------------
+Import-Module PSReadLine -ErrorAction SilentlyContinue
+if (Get-Module -Name PSReadLine) {
+    try {
+        Set-PSReadLineOption -BellStyle None -ErrorAction SilentlyContinue
+        Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+    } catch {}
+}
+
+# ------------------------------------------------------------------------------
+# 3. PSFzf (Chỉ lấy Ctrl+F, NHƯỜNG Ctrl+R cho Atuin)
+# ------------------------------------------------------------------------------
+Import-Module PSFzf -ErrorAction SilentlyContinue
+if (Get-Module -Name PSFzf) {
+    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f'
+}
+
+# ------------------------------------------------------------------------------
+# 4. Modern CLI Tools (Phải load SAU PSReadLine để ghi đè phím)
+# ------------------------------------------------------------------------------
 if (Get-Command starship -ErrorAction SilentlyContinue) {
     Invoke-Expression (&starship init powershell)
 }
@@ -13,57 +50,73 @@ if (Get-Command fnm -ErrorAction SilentlyContinue) {
     fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
 }
 
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    zoxide init powershell | Out-String | Invoke-Expression
+}
+
+# Carapace (Ghi đè phím TAB)
 if (Get-Command carapace -ErrorAction SilentlyContinue) {
     $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
-    carapace _carapace powershell | Out-String | Invoke-Expression
+    Set-PSReadLineOption -Colors @{ "Selection" = "`e[7m" }
+    Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+    carapace _carapace | Out-String | Invoke-Expression
 }
 
-Import-Module PSFzf -ErrorAction SilentlyContinue
-Import-Module PSReadLine -ErrorAction SilentlyContinue
-
-if (Get-Module -Name PSReadLine) {
-    Set-PSReadLineOption -BellStyle None -ErrorAction SilentlyContinue
-    Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
-    Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+# Atuin (Ghi đè phím Mũi tên lên và Ctrl+R)
+if (Get-Command atuin -ErrorAction SilentlyContinue) {
+   Invoke-Expression ((&atuin init powershell --disable-up-arrow) -join "`n")
 }
 
-if (Get-Module -Name PSFzf -ListAvailable) {
-    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
-}
-
+# ------------------------------------------------------------------------------
+# 5. Aliases & Functions
+# ------------------------------------------------------------------------------
 Set-Alias g git -ErrorAction SilentlyContinue
 Set-Alias vim nvim -ErrorAction SilentlyContinue
 Set-Alias vi nvim -ErrorAction SilentlyContinue
-Set-Alias ls eza -ErrorAction SilentlyContinue
-Set-Alias cat bat -ErrorAction SilentlyContinue
-    
-if (Test-Path $tigPath) { Set-Alias tig $tigPath -ErrorAction SilentlyContinue }
-if (Test-Path $lessPath) { Set-Alias less $lessPath -ErrorAction SilentlyContinue }
 
-# Dynamic load functions.ps1
-$funcPath = Join-Path $PSScriptRoot "functions.ps1"
-if (-not (Test-Path $funcPath)) {
-    $funcPath = Join-Path -Path $env:USERPROFILE -ChildPath ".config\powershell\functions.ps1"
-}
+$usrBinPath = Join-Path $env:USERPROFILE "scoop\apps\git\current\usr\bin"
+if (Test-Path (Join-Path $usrBinPath "tig.exe")) { Set-Alias tig (Join-Path $usrBinPath "tig.exe") -ErrorAction SilentlyContinue }
+if (Test-Path (Join-Path $usrBinPath "less.exe")) { Set-Alias less (Join-Path $usrBinPath "less.exe") -ErrorAction SilentlyContinue }
 
-if (Test-Path -Path $funcPath) {
-    . $funcPath
-} else {
-    Write-Warning "Không tìm thấy file functions.ps1 tại: $funcPath"
-}
-# Set DOTFILES_DIR
-if (-not $env:DOTFILES_DIR) {
-    if ($PSScriptRoot) {
-        $env:DOTFILES_DIR = Split-Path -Path $PSScriptRoot -Parent
-    }
+# --- Thay thế 'cat' bằng 'bat' ---
+Remove-Item alias:cat -Force -ErrorAction SilentlyContinue
+function cat { bat --paging=never $args }
+function b { bat $args }
+
+# --- Thay thế 'ls' bằng 'eza' ---
+Remove-Item alias:ls -Force -ErrorAction SilentlyContinue
+function ls { eza --color=always --icons=always --group-directories-first $args }
+function ll { eza -al --color=always --icons=always --group-directories-first --git --time-style=long-iso --color-scale $args }
+function la { eza -a --color=always --icons=always --group-directories-first $args }
+function lt { eza -a --tree --level=3 --color=always --icons=always --group-directories-first $args }
+
+# ------------------------------------------------------------------------------
+# 6. Load External Scripts & Themes
+# ------------------------------------------------------------------------------
+# Thiết lập biến DOTFILES_DIR
+if (-not $env:DOTFILES_DIR -and $PSScriptRoot) {
+    $env:DOTFILES_DIR = Split-Path -Path $PSScriptRoot -Parent
 }
 if ($env:DOTFILES_DIR -and (Test-Path "$env:DOTFILES_DIR\bin")) {
     if ($env:PATH -notlike "*$env:DOTFILES_DIR\bin*") {
         $env:PATH = "$env:DOTFILES_DIR\bin;" + $env:PATH
     }
 }
+
+# Load functions.ps1
+$funcPath = Join-Path $PSScriptRoot "functions.ps1"
+if (-not (Test-Path $funcPath)) {
+    $funcPath = Join-Path -Path $env:USERPROFILE -ChildPath ".config\powershell\functions.ps1"
+}
+if (Test-Path -Path $funcPath) {
+    . $funcPath
+} else {
+    Write-Warning "Không tìm thấy file functions.ps1 tại: $funcPath"
+}
+
+# Load Themes
 $theme_candidates = @(
-    (if ($env:DOTFILES_DIR) { Join-Path $env:DOTFILES_DIR "themes\generated\theme.ps1" }),
+    $(if ($env:DOTFILES_DIR) { Join-Path $env:DOTFILES_DIR "themes\generated\theme.ps1" }),
     "$env:USERPROFILE\.dotfiles\themes\generated\theme.ps1",
     "$env:USERPROFILE\Desktop\Work\dotfiles\themes\generated\theme.ps1"
 )

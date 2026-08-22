@@ -223,6 +223,8 @@ $configApps = @{
     "starship"    = "$env:USERPROFILE\.config\starship"
     "atuin"       = "$env:USERPROFILE\.config\atuin"
     "carapace"    = "$env:USERPROFILE\.config\carapace"
+    "powershell"  = "$env:USERPROFILE\.config\powershell"
+    "scoop"       = "$env:USERPROFILE\.config\scoop"
 }
 
 foreach ($app in $configApps.GetEnumerator()) {
@@ -232,24 +234,50 @@ foreach ($app in $configApps.GetEnumerator()) {
         Create-SafeLink -LinkPath $dest -TargetPath $src -Type "Directory"
     }
 }
+
+# Symlink .config\nvim để đồng bộ cả khi truy cập ~/.config/nvim lẫn AppData\Local\nvim
+if (Test-Path "$DotfilesDir\nvim") {
+    Create-SafeLink -LinkPath "$env:USERPROFILE\.config\nvim" -TargetPath "$DotfilesDir\nvim" -Type "Directory"
+}
+
 # Riêng WezTerm trên Windows thường cần file lua ở thư mục gốc
 if (Test-Path "$DotfilesDir\wezterm\wezterm.lua") {
     Create-SafeLink -LinkPath "$env:USERPROFILE\.wezterm.lua" -TargetPath "$DotfilesDir\wezterm\wezterm.lua" -Type "File"
 }
 
-# 9.3 Functions file
-Create-SafeLink -LinkPath "$env:USERPROFILE\.config\powershell\functions.ps1" -TargetPath "$DotfilesDir\powershell\functions.ps1"
+# 9.5 PowerShell Profile Configuration (Hỗ trợ pwsh, Windows PowerShell 5.1 và OneDrive Documents)
+$myDocs = [Environment]::GetFolderPath('MyDocuments')
 
-# 9.4 Scoop Config
-if (Test-Path "$DotfilesDir\scoop\config.json") {
-    Create-SafeLink -LinkPath "$env:USERPROFILE\.config\scoop\config.json" -TargetPath "$DotfilesDir\scoop\config.json"
+# Dọn dẹp profile.ps1 (AllHosts) nếu đã nạp trước đó để tránh load đúp
+$genericProfiles = @(
+    "$myDocs\PowerShell\profile.ps1",
+    "$myDocs\WindowsPowerShell\profile.ps1",
+    "$env:USERPROFILE\Documents\PowerShell\profile.ps1",
+    "$env:USERPROFILE\Documents\WindowsPowerShell\profile.ps1"
+)
+foreach ($gp in $genericProfiles) {
+    if (Test-Path $gp) {
+        $content = Get-Content $gp -Raw -ErrorAction SilentlyContinue
+        if ($content) {
+            $cleaned = $content -replace "(?ms)# Load dotfiles user profile.*?user_profile\.ps1`".*?`r?`n?", ""
+            $cleaned = $cleaned -replace "(?m)^\s*\.\s*[`"']?.*?[\\/]powershell[\\/]user_profile\.ps1[`"']?\s*`r?`n?", ""
+            if ($cleaned.Trim() -ne $content.Trim()) {
+                Set-Content -Path $gp -Value $cleaned.Trim() -Force
+            }
+        }
+    }
 }
 
-# 9.5 PowerShell Profile Configuration (Hỗ trợ cả pwsh và Windows PowerShell 5.1)
 $profiles = @(
+    "$myDocs\PowerShell\Microsoft.PowerShell_profile.ps1",
+    "$myDocs\WindowsPowerShell\Microsoft.PowerShell_profile.ps1",
     "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
     "$env:USERPROFILE\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
 )
+if ($PROFILE -and $PROFILE.CurrentUserCurrentHost) {
+    $profiles += $PROFILE.CurrentUserCurrentHost
+}
+$profiles = $profiles | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
 
 $profileSourceLine = ". `"$DotfilesDir\powershell\user_profile.ps1`""
 

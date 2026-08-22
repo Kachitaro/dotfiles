@@ -2,11 +2,13 @@ $DotfilesDir = Split-Path -Path $PSScriptRoot -Parent
 Write-Host "`n🔹 Đang phục hồi (eject) cấu hình về máy thực..." -ForegroundColor Cyan
 
 $configApps = @{
-    "wezterm" = "$env:USERPROFILE\.config\wezterm"
-    "nvim" = "$env:LOCALAPPDATA\nvim"
-    "starship" = "$env:USERPROFILE\.config\starship"
-    "atuin" = "$env:USERPROFILE\.config\atuin"
-    "carapace" = "$env:USERPROFILE\.config\carapace"
+    "wezterm"    = "$env:USERPROFILE\.config\wezterm"
+    "nvim"       = "$env:LOCALAPPDATA\nvim"
+    "starship"   = "$env:USERPROFILE\.config\starship"
+    "atuin"      = "$env:USERPROFILE\.config\atuin"
+    "carapace"   = "$env:USERPROFILE\.config\carapace"
+    "powershell" = "$env:USERPROFILE\.config\powershell"
+    "scoop"      = "$env:USERPROFILE\.config\scoop"
 }
 
 foreach ($app in $configApps.GetEnumerator()) {
@@ -22,6 +24,16 @@ foreach ($app in $configApps.GetEnumerator()) {
     }
 }
 
+# ~/.config/nvim nếu là symlink
+if (Test-Path "$env:USERPROFILE\.config\nvim") {
+    $item = Get-Item "$env:USERPROFILE\.config\nvim" -Force
+    if ($item.LinkType -eq "SymbolicLink") {
+        Remove-Item "$env:USERPROFILE\.config\nvim" -Force
+        Copy-Item -Path "$DotfilesDir\nvim" -Destination "$env:USERPROFILE\.config\nvim" -Recurse -Force
+        Write-Host "  ✅ Đã phục hồi: nvim -> $env:USERPROFILE\.config\nvim" -ForegroundColor Green
+    }
+}
+
 # Riêng WezTerm file lua
 if (Test-Path "$env:USERPROFILE\.wezterm.lua") {
     $wzItem = Get-Item "$env:USERPROFILE\.wezterm.lua"
@@ -32,39 +44,28 @@ if (Test-Path "$env:USERPROFILE\.wezterm.lua") {
     }
 }
 
-# Functions file
-$funcDest = "$env:USERPROFILE\.config\powershell\functions.ps1"
-if (Test-Path $funcDest) {
-    $item = Get-Item $funcDest -Force
-    if ($item.LinkType -eq "SymbolicLink") {
-        Remove-Item $funcDest -Force
-        Copy-Item -Path "$DotfilesDir\powershell\functions.ps1" -Destination $funcDest -Force
-        Write-Host "  ✅ Đã phục hồi: functions.ps1 -> $funcDest" -ForegroundColor Green
-    }
-}
-
-# Scoop Config
-$scoopDest = "$env:USERPROFILE\.config\scoop\config.json"
-if (Test-Path $scoopDest) {
-    $item = Get-Item $scoopDest -Force
-    if ($item.LinkType -eq "SymbolicLink") {
-        Remove-Item $scoopDest -Force
-        Copy-Item -Path "$DotfilesDir\scoop\config.json" -Destination $scoopDest -Force
-        Write-Host "  ✅ Đã phục hồi: config.json -> $scoopDest" -ForegroundColor Green
-    }
-}
-
 # Gỡ cấu hình khỏi PowerShell profile
 Write-Host "`n🔹 Gỡ cấu hình khỏi PowerShell Profile..." -ForegroundColor Cyan
+$myDocs = [Environment]::GetFolderPath('MyDocuments')
 $profiles = @(
+    "$myDocs\PowerShell\Microsoft.PowerShell_profile.ps1",
+    "$myDocs\PowerShell\profile.ps1",
+    "$myDocs\WindowsPowerShell\Microsoft.PowerShell_profile.ps1",
+    "$myDocs\WindowsPowerShell\profile.ps1",
     "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
     "$env:USERPROFILE\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
 )
+if ($PROFILE) {
+    if ($PROFILE.CurrentUserCurrentHost) { $profiles += $PROFILE.CurrentUserCurrentHost }
+    if ($PROFILE.CurrentUserAllHosts) { $profiles += $PROFILE.CurrentUserAllHosts }
+}
+$profiles = $profiles | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
 
 foreach ($pPath in $profiles) {
     if (Test-Path $pPath) {
         $content = Get-Content $pPath -Raw
         $content = $content -replace "(?ms)# Load dotfiles user profile.*?user_profile\.ps1`".*?`n", ""
+        $content = $content -replace "(?m)^\s*\.\s*[`"']?.*?[\\/]powershell[\\/]user_profile\.ps1[`"']?\s*`r?`n?", ""
         Set-Content -Path $pPath -Value $content -Force
         Write-Host "  ✅ Đã gỡ cấu hình khỏi: $pPath" -ForegroundColor Green
     }

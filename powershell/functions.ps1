@@ -34,11 +34,6 @@ function touch {
     }
 }
 
-function cd... { Set-Location ..\.. }
-function cd.... { Set-Location ..\..\.. }
-function ll { eza -l -g --icons }
-function la { eza -a -l -g --icons }
-
 # ------------------------------------------
 # 2. SYSTEM SIZE UTILITIES
 # ------------------------------------------
