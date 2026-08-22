@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🚀 Dotfiles One-Command Fast Installer (Linux / macOS)
+# 🚀 Linux / macOS Dotfiles & Dev Environment Installer
 # Usage:
+#   # ⚡ Fast Install: Tải CLI dot và gắn cấu hình ngay
 #   curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash
-# Or with options:
+#
+#   # 🚀 Full Machine Setup: Cài đặt toàn bộ môi trường phần mềm
 #   curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash -s -- --full
 # ==============================================================================
 set -e
 
-# Color definitions
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
@@ -31,17 +32,27 @@ for arg in "$@"; do
 done
 
 echo -e "${MAGENTA}====================================================================${NC}"
-echo -e "${MAGENTA}  🚀 KACHITARO DOTFILES CLI BOOTSTRAPPER (Unix)                    ${NC}"
+echo -e "${MAGENTA}  🚀 KACHITARO DOTFILES & DEV ENVIRONMENT INSTALLER                ${NC}"
+echo -e "${MAGENTA}  Repository: https://github.com/kachitaro/dotfiles                ${NC}"
 echo -e "${MAGENTA}====================================================================${NC}\n"
 
-# 1. Prepare ~/.local/bin
+# 1. Determine Dotfiles Directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/wezterm/wezterm.lua" ]; then
+    DOTFILES_DIR="$SCRIPT_DIR"
+else
+    DOTFILES_DIR="$HOME/.dotfiles"
+fi
+
+# 2. Prepare ~/.local/bin
 BIN_DIR="$HOME/.local/bin"
 mkdir -p "$BIN_DIR"
 export PATH="$BIN_DIR:$PATH"
+export DOTFILES_DIR="$DOTFILES_DIR"
 
 DOT_BIN="$BIN_DIR/dot"
 
-# 2. Detect Platform & Download Binary Release
+# 3. Detect Platform & Download Binary Release
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
 
@@ -71,22 +82,21 @@ if [ -n "$TARGET" ]; then
         chmod +x "$DOT_BIN"
         rm -f "$TEMP_TAR"
         INSTALLED_FROM_RELEASE=true
-        echo -e "  ${GREEN}✅ Đã tải và thiết lập binary 'dot' thành công tại $DOT_BIN${NC}"
+        echo -e "  ${GREEN}✅ Đã tải và thiết lập binary 'dot' tại $DOT_BIN${NC}"
     else
-        echo -e "  ${YELLOW}⚠️ Không thể tải binary release từ GitHub (có thể chưa phát hành).${NC}"
+        echo -e "  ${YELLOW}⚠️ Không thể tải binary release từ GitHub (offline hoặc chưa phát hành).${NC}"
     fi
 fi
 
 if [ "$INSTALLED_FROM_RELEASE" = false ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
-    LOCAL_RELEASE="$SCRIPT_DIR/cli/target/release/dot"
+    LOCAL_RELEASE="$DOTFILES_DIR/cli/target/release/dot"
     if [ -f "$LOCAL_RELEASE" ]; then
         cp "$LOCAL_RELEASE" "$DOT_BIN"
         chmod +x "$DOT_BIN"
         echo -e "  ${GREEN}✅ Đã dùng binary có sẵn tại $DOT_BIN${NC}"
-    elif command -v cargo >/dev/null 2>&1 && [ -f "$SCRIPT_DIR/cli/Cargo.toml" ]; then
+    elif command -v cargo >/dev/null 2>&1 && [ -f "$DOTFILES_DIR/cli/Cargo.toml" ]; then
         echo -e "${CYAN}🔹 Biên dịch CLI từ mã nguồn qua Cargo...${NC}"
-        cargo build --release --manifest-path "$SCRIPT_DIR/cli/Cargo.toml"
+        cargo build --release --manifest-path "$DOTFILES_DIR/cli/Cargo.toml"
         if [ -f "$LOCAL_RELEASE" ]; then
             cp "$LOCAL_RELEASE" "$DOT_BIN"
             chmod +x "$DOT_BIN"
@@ -95,9 +105,24 @@ if [ "$INSTALLED_FROM_RELEASE" = false ]; then
     fi
 fi
 
-# 3. Handle Full Installation vs Standalone CLI install
+# 4. Full Machine Environment Setup (--full)
 if [ "$FULL_INSTALL" = true ]; then
-    DOTFILES_DIR="$HOME/.dotfiles"
+    echo -e "${CYAN}🔹 Đang cài đặt các công cụ hệ thống...${NC}"
+    if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update -y
+        sudo apt-get install -y git curl wget unzip build-essential ripgrep fzf zoxide
+    elif command -v pacman >/dev/null 2>&1; then
+        sudo pacman -Syu --noconfirm git curl wget unzip base-devel ripgrep fd fzf bat eza zoxide
+    elif command -v brew >/dev/null 2>&1; then
+        brew install git curl ripgrep fd fzf bat eza zoxide starship neovim
+    fi
+
+    # Starship
+    if ! command -v starship >/dev/null 2>&1; then
+        curl -sS https://starship.rs/install.sh | sh -s -- -y --bin-dir "$BIN_DIR"
+    fi
+
+    # Clone dotfiles repo if missing
     if [ ! -d "$DOTFILES_DIR/.git" ]; then
         echo -e "${CYAN}🔹 Đang clone dotfiles repository về $DOTFILES_DIR...${NC}"
         if command -v git >/dev/null 2>&1; then
@@ -106,31 +131,19 @@ if [ "$FULL_INSTALL" = true ]; then
             echo -e "  ${GREEN}✅ Dotfiles đã sẵn sàng tại $DOTFILES_DIR${NC}"
         fi
     fi
-
-    echo -e "${CYAN}🔹 Tiến hành cài đặt toàn bộ công cụ môi trường (apt/brew/pacman, Neovim, WezTerm, Font, Node...)...${NC}"
-    if [ -f "$DOTFILES_DIR/scripts/install.sh" ]; then
-        INSTALL_ARGS=()
-        if [ "$FORCE_INSTALL" = true ]; then INSTALL_ARGS+=("--force"); fi
-        bash "$DOTFILES_DIR/scripts/install.sh" "${INSTALL_ARGS[@]}"
-    fi
-else
-    # If running inside an existing dotfiles repo, auto-inject
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
-    if [ -f "$SCRIPT_DIR/wezterm/wezterm.lua" ] && [ -x "$DOT_BIN" ]; then
-        echo -e "${CYAN}🔹 Đang đồng bộ kho dotfiles hiện tại qua 'dot inject'...${NC}"
-        "$DOT_BIN" inject
-    fi
-
-    echo -e "\n${GREEN}====================================================================${NC}"
-    echo -e "${GREEN}  🎉 ĐÃ CÀI ĐẶT THÀNH CÔNG DOTFILES CLI ('dot')!                   ${NC}"
-    echo -e "${GREEN}====================================================================${NC}"
-    echo -e "  📍 Vị trí binary: ${CYAN}$DOT_BIN${NC}"
-    echo -e "  🛠️ Bạn có thể sử dụng ngay 'dot' cho kho dotfile của riêng mình:"
-    echo -e "     - ${CYAN}dot inject${NC}       : Đồng bộ / gắn symlink vào hệ thống"
-    echo -e "     - ${CYAN}dot eject${NC}        : Gỡ symlink, khôi phục file thực"
-    echo -e "     - ${CYAN}dot add <path>${NC}   : Thu nạp thêm config mới"
-    echo -e "     - ${CYAN}dot theme reload${NC} : Biên dịch theme sang Lua, Shell, PS1"
-    echo -e "     - ${CYAN}dot theme path${NC}   : Lấy đường dẫn theme động"
-    echo -e "     - ${CYAN}dot --help${NC}       : Xem toàn bộ hướng dẫn"
-    echo -e "${GREEN}====================================================================${NC}\n"
 fi
+
+# 5. Inject Configurations
+if [ -x "$DOT_BIN" ]; then
+    echo -e "${CYAN}🔹 Đồng bộ liên kết cấu hình qua 'dot inject'...${NC}"
+    INJECT_ARGS=("inject")
+    if [ "$FORCE_INSTALL" = true ]; then INJECT_ARGS+=("--force"); fi
+    "$DOT_BIN" "${INJECT_ARGS[@]}"
+fi
+
+echo -e "\n${GREEN}====================================================================${NC}"
+echo -e "${GREEN}  🎉 HOÀN TẤT THIẾT LẬP KACHITARO DOTFILES!                        ${NC}"
+echo -e "${GREEN}====================================================================${NC}"
+echo -e "  👉 Lệnh 'dot' đã sẵn sàng trong PATH (~/.local/bin)."
+echo -e "  👉 Bạn có thể dùng 'dot --help' để xem toàn bộ hướng dẫn."
+echo -e "${GREEN}====================================================================${NC}\n"

@@ -8,7 +8,7 @@ pub fn execute(force: bool) -> Result<()> {
 
     #[cfg(windows)]
     {
-        let script_path = dotfiles_dir.join("scripts").join("install.ps1");
+        let script_path = dotfiles_dir.join("install.ps1");
         if !script_path.exists() {
             bail!("Không tìm thấy script cài đặt: {}", script_path.display());
         }
@@ -23,7 +23,8 @@ pub fn execute(force: bool) -> Result<()> {
         cmd.arg("-ExecutionPolicy")
             .arg("Bypass")
             .arg("-File")
-            .arg(&script_path);
+            .arg(&script_path)
+            .arg("-Full");
 
         if force {
             cmd.arg("-ForceInstall");
@@ -40,13 +41,13 @@ pub fn execute(force: bool) -> Result<()> {
 
     #[cfg(unix)]
     {
-        let script_path = dotfiles_dir.join("scripts").join("install.sh");
+        let script_path = dotfiles_dir.join("install.sh");
         if !script_path.exists() {
             bail!("Không tìm thấy script cài đặt: {}", script_path.display());
         }
 
         let mut cmd = Command::new("bash");
-        cmd.arg(&script_path);
+        cmd.arg(&script_path).arg("--full");
 
         if force {
             cmd.arg("--force");
@@ -60,6 +61,7 @@ pub fn execute(force: bool) -> Result<()> {
             bail!("Script cài đặt kết thúc với lỗi (exit code: {:?})", status.code());
         }
     }
+
 
     Ok(())
 }
