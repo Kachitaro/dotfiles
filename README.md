@@ -7,36 +7,43 @@
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/anhtai2k)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 
-Bộ dotfiles cá nhân được thiết kế theo **kiến trúc phân lớp từ trong ra ngoài (Inside-Out Architecture)** — xuất phát từ lõi **Core Shell** (PowerShell 7 / Bash / Zsh), mở rộng sang các công cụ dòng lệnh hiện đại, Terminal **WezTerm**, Editor **Neovim (NvChad)**, và được quản lý toàn cục bằng CLI `dot` cùng **Theme Engine**.
+🌐 **Language**: **English** | [Tiếng Việt](README.vi.md)
 
-Dựng lại toàn bộ môi trường phát triển trên **Windows 11/10** và **Linux / WSL / macOS** chỉ với một lệnh duy nhất.
+A personal dotfiles suite engineered with an **Inside-Out Architecture** — starting from the core **Core Shell** (PowerShell 7 / Bash / Zsh), extending to modern command-line tools, **WezTerm** GPU terminal emulator, **Neovim (NvChad)** IDE, and globally managed via the custom `dot` CLI & **Theme Engine**.
+
+Rebuild your entire development environment on **Windows 11/10** and **Linux / WSL / macOS** with a single command.
 
 ---
 
-## 📑 Mục lục
+## 📸 Showcase & Preview
 
-- [🏗️ Kiến trúc phân lớp (Inside-Out)](#️-kiến-trúc-phân-lớp-inside-out)
-- [📂 Cấu trúc thư mục](#-cấu-trúc-thư-mục)
-- [🚀 Hướng dẫn cài đặt](#-hướng-dẫn-cài-đặt)
-- [🧰 Quản lý bằng CLI `dot`](#-quản-lý-bằng-cli-dot)
-- [🎨 Theme Engine (Đồng bộ màu toàn hệ thống)](#-theme-engine-đồng-bộ-màu-toàn-hệ-thống)
-- [⌨️ Phím tắt & Tiện ích](#-phím-tắt--tiện-ích)
-- [☕ Ủng hộ / Donate](#-ủng-hộ--donate)
+## ![Dotfiles Terminal & Neovim Preview](assets/showcase.png)
+
+## 📑 Table of Contents
+
+- [📸 Showcase & Preview](#-showcase--preview)
+- [🏗️ Inside-Out Architecture](#️-inside-out-architecture)
+- [📂 Directory Structure](#-directory-structure)
+- [🚀 Installation Guide](#-installation-guide)
+- [🧰 Management with `dot` CLI](#-management-with-dot-cli)
+- [🎨 Theme Engine (System-wide Color Sync)](#-theme-engine-system-wide-color-sync)
+- [⌨️ Keybindings & Utilities](#️-keybindings--utilities)
+- [☕ Support / Donate](#-support--donate)
 - [📜 License](#-license)
 
 ---
 
-## 🏗️ Kiến trúc phân lớp (Inside-Out)
+## 🏗️ Inside-Out Architecture
 
-Hệ thống dotfiles được sắp xếp từ lõi thực thi sâu nhất ra ngoài lớp giao diện:
+The dotfiles system is organized from the deepest execution core out to the UI presentation layer:
 
 ```mermaid
 graph TD
-    L1["<b>Tầng 1: Core Shell</b><br/>PowerShell 7 / Bash / Zsh<br/><i>(PATH, Aliases, Envs, Functions)</i>"]
-    L2["<b>Tầng 2: Shell Tools & Prompt</b><br/>Starship, Atuin, Carapace, Zoxide, FZF, eza, bat"]
-    L3["<b>Tầng 3: Terminal Emulator</b><br/>WezTerm (GPU Render, Split Pane, Status Bar)"]
-    L4["<b>Tầng 4: Editor & Runtime</b><br/>Neovim (NvChad v2.5), FNM (Node 22), Bun"]
-    L5["<b>Tầng 5: Management & Theme Engine</b><br/>CLI `dot` & `themes/theme.json`"]
+    L1["<b>Layer 1: Core Shell</b><br/>PowerShell 7 / Bash / Zsh<br/><i>(PATH, Aliases, Envs, Functions)</i>"]
+    L2["<b>Layer 2: Shell Tools & Prompt</b><br/>Starship, Atuin, Carapace, Zoxide, FZF, eza, bat"]
+    L3["<b>Layer 3: Terminal Emulator</b><br/>WezTerm (GPU Render, Split Pane, Status Bar)"]
+    L4["<b>Layer 4: Editor & Runtime</b><br/>Neovim (NvChad v2.5), FNM (Node 22), Bun"]
+    L5["<b>Layer 5: Management & Theme Engine</b><br/>CLI `dot` & `themes/theme.json`"]
 
     L1 --> L2
     L2 --> L3
@@ -44,79 +51,78 @@ graph TD
     L4 --> L5
 ```
 
-### 🎯 Chi tiết 5 tầng hệ thống:
+### 🎯 5-Layer Breakdown:
 
-| Tầng | Tên tầng | Thành phần chính | Vai trò & Chức năng |
-| :--- | :--- | :--- | :--- |
-| **1** | **Core Shell** (Lõi) | `powershell/`, `shell/.bashrc`, `shell/.zshrc` | Quản lý biến môi trường (`PATH`), alias chuẩn (`g`, `ls`→`eza`, `cat`→`bat`), hàm hệ thống (`Get-SystemSizeReport`), nạp JS Runtime (`FNM`, `Bun`). |
-| **2** | **Shell Tools & Prompt** | `starship/`, `atuin/`, `carapace/` | **Starship** hiển thị prompt ngữ cảnh nhanh; **Atuin** quản lý lịch sử dòng lệnh SQLite (`Ctrl+R`); **Carapace** gợi ý lệnh tự động; **Zoxide** chuyển thư mục thông minh (`z`); **FZF** tìm kiếm file/lịch sử. |
-| **3** | **Terminal Emulator** | `wezterm/` | Giả lập Terminal bằng GPU, chia màn hình linh hoạt, hiển thị RAM realtime trên tab bar, nạp font **JetBrainsMono Nerd Font**. |
-| **4** | **Editor & Dev Stack** | `nvim/` | **Neovim** cấu hình sẵn trên nền **NvChad v2.5** (LSP, Treesitter, Auto-format), tích hợp sẵn Node 22 (FNM) và Bun. |
-| **5** | **Management & Theme Engine** | `bin/dot`, `themes/` | CLI `dot` thu nạp (`add`), hoàn trả (`eject`), cài đặt/gỡ bỏ; **Theme Engine** đồng bộ màu sắc toàn bộ hệ thống từ `themes/theme.json`. |
+| Layer | Name                          | Core Components                                | Roles & Features                                                                                                                                                                                         |
+| :---- | :---------------------------- | :--------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | **Core Shell**                | `powershell/`, `shell/.bashrc`, `shell/.zshrc` | Manages environment variables (`PATH`), standard aliases (`g`, `ls`→`eza`, `cat`→`bat`), system functions (`Get-SystemSizeReport`), and JS Runtimes (`FNM`, `Bun`).                                      |
+| **2** | **Shell Tools & Prompt**      | `starship/`, `atuin/`, `carapace/`             | **Starship** fast contextual prompt; **Atuin** SQLite shell history (`Ctrl+R`); **Carapace** multi-shell auto-completion; **Zoxide** smart directory navigation (`z`); **FZF** interactive fuzzy finder. |
+| **3** | **Terminal Emulator**         | `wezterm/`                                     | GPU-accelerated terminal emulator, flexible pane splitting, real-time RAM usage in status bar, bundled **JetBrainsMono Nerd Font**.                                                                      |
+| **4** | **Editor & Dev Stack**        | `nvim/`                                        | **Neovim** pre-configured on **NvChad v2.5** (LSP, Treesitter, Auto-format), pre-integrated with Node 22 (FNM) and Bun.                                                                                  |
+| **5** | **Management & Theme Engine** | `bin/dot`, `themes/`                           | `dot` CLI for adoption (`add`), unlinking (`eject`), install/uninstall; **Theme Engine** synchronizes system-wide colors from `themes/theme.json`.                                                       |
 
 ---
 
-## 📂 Cấu trúc thư mục
-
-Thư mục repository được tổ chức tương ứng theo các tầng kiến trúc:
+## 📂 Directory Structure
 
 ```text
 dotfiles/
-├── shell/                   # [Tầng 1] Cấu hình Bash (.bashrc) và Zsh (.zshrc)
-├── powershell/              # [Tầng 1] Cấu hình PowerShell 7 (user_profile.ps1, functions.ps1)
-├── starship/                # [Tầng 2] Cấu hình Starship Prompt (starship.toml)
-├── atuin/                   # [Tầng 2] Cấu hình Atuin SQLite Shell History (config.toml)
-├── carapace/                # [Tầng 2] Cấu hình Carapace Multi-shell Completion (overlays/)
-├── wezterm/                 # [Tầng 3] Cấu hình WezTerm Terminal (Lua GPU Engine)
-├── nvim/                    # [Tầng 4] Cấu hình Neovim (NvChad v2.5 IDE)
-├── scoop/                   # [Tầng 4] Cấu hình Scoop Package Manager (Windows)
-├── bin/                     # [Tầng 5] CLI quản trị `dot` (Bash / PowerShell / Batch)
-├── themes/                  # [Tầng 5] Theme Engine (Nguồn sự thật: theme.json)
-├── scripts/                 # Scripts tự động hoá (install, uninstall, add, eject, generate_theme)
-├── install.ps1              # One-liner Installer cho Windows
-├── install.sh               # One-liner Installer cho Linux / macOS
+├── shell/                   # [Layer 1] Bash (.bashrc) and Zsh (.zshrc) configurations
+├── powershell/              # [Layer 1] PowerShell 7 configurations (user_profile.ps1, functions.ps1)
+├── starship/                # [Layer 2] Starship Prompt configuration (starship.toml)
+├── atuin/                   # [Layer 2] Atuin SQLite Shell History configuration (config.toml)
+├── carapace/                # [Layer 2] Carapace Multi-shell Completion overlays
+├── wezterm/                 # [Layer 3] WezTerm Terminal configuration (Lua GPU Engine)
+├── nvim/                    # [Layer 4] Neovim configuration (NvChad v2.5 IDE)
+├── scoop/                   # [Layer 4] Scoop Package Manager configuration (Windows)
+├── bin/                     # [Layer 5] `dot` management CLI (Bash / PowerShell / Batch)
+├── themes/                  # [Layer 5] Theme Engine (Single Source of Truth: theme.json)
+├── assets/                  # Documentation images and previews
+├── scripts/                 # Automation scripts (install, uninstall, add, eject, generate_theme)
+├── install.ps1              # One-liner Installer for Windows
+├── install.sh               # One-liner Installer for Linux / macOS
 └── README.md
 ```
 
 ---
 
-## 🚀 Hướng dẫn cài đặt
+## 🚀 Installation Guide
 
 ### 1. Windows
 
-Mở **PowerShell 7** và chạy:
+Open **PowerShell 7** and run:
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1 | iex
 ```
 
-> Script tự động cài Scoop, Git, Neovim, font JetBrainsMono NF, WezTerm, FNM (Node 22), Bun, tạo symlink và nạp profile PowerShell.
-> Lệnh `dot` sẽ tự động khả dụng trên toàn hệ thống ngay sau khi cài đặt.
+> The script automatically installs Scoop, Git, Neovim, JetBrainsMono NF, WezTerm, FNM (Node 22), Bun, creates symlinks, and loads the PowerShell profile.
+> The `dot` CLI becomes globally available immediately after installation.
 
-**Các tuỳ chọn cài đặt:**
+**Installation Flags:**
 
-| Tham số | Ý nghĩa |
-| :--- | :--- |
-| `-SkipFeatures` | Bỏ qua kích hoạt tính năng ảo hoá Windows (`Hyper-V`, `WSL2`, `Containers`) |
-| `-ForceInstall` | Ép ghi đè các cấu hình hiện có, không tạo backup `.bak_*` |
+| Flag            | Description                                                                     |
+| :-------------- | :------------------------------------------------------------------------------ |
+| `-SkipFeatures` | Skip enabling Windows virtualization features (`Hyper-V`, `WSL2`, `Containers`) |
+| `-ForceInstall` | Force overwrite existing configs without creating `.bak_*` backups              |
 
 ### 2. Linux / WSL / macOS
 
-Mở **Terminal** và chạy:
+Open **Terminal** and run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh | bash
 ```
 
-> Script tự động cài `neovim`, `ripgrep`, `fd`, `fzf`, `bat`, `eza`, `carapace`, font JetBrainsMono NF, `starship`, `fnm` (Node 22), Bun, và tạo symlink cấu hình `nvim`, `wezterm`, `starship`, `atuin`, `carapace`, `bashrc`/`zshrc`.
+> The script automatically installs `neovim`, `ripgrep`, `fd`, `fzf`, `bat`, `eza`, `carapace`, JetBrainsMono NF, `starship`, `fnm` (Node 22), Bun, and creates symlinks for `nvim`, `wezterm`, `starship`, `atuin`, `carapace`, `bashrc`/`zshrc`.
 
-### 3. Chạy trực tiếp từ repo đã clone
+### 3. Run Directly from Cloned Repo
 
 ```bash
 # Windows
 .\install.ps1
-# hoặc dùng dot CLI
+# or using dot CLI
 .\bin\dot.ps1 install
 
 # Linux/macOS
@@ -124,74 +130,74 @@ chmod +x ./install.sh && ./install.sh
 ```
 
 > [!IMPORTANT]
-> Sau khi cài trên Windows, **khởi động lại máy** để áp dụng Hyper-V, WSL và font. Trên Linux/macOS, chạy `source ~/.bashrc` hoặc mở tab terminal mới.
+> After installing on Windows, **restart your machine** to apply Hyper-V, WSL, and font settings. On Linux/macOS, run `source ~/.bashrc` or open a new terminal tab.
 
-### 4. Cài đè & gỡ cài đặt
+### 4. Overwrite & Uninstall
 
-| Thao tác | Windows | Linux/macOS |
-| :--- | :--- | :--- |
-| Cài đè, bỏ qua sao lưu | `.\install.ps1 -ForceInstall` | `./install.sh --force` |
-| Gỡ cài đặt (xoá symlink, khôi phục môi trường gốc) | `.\scripts\uninstall.ps1` | `./scripts\uninstall.sh` |
+| Action                                              | Windows                       | Linux/macOS              |
+| :-------------------------------------------------- | :---------------------------- | :----------------------- |
+| Overwrite (skip backup)                             | `.\install.ps1 -ForceInstall` | `./install.sh --force`   |
+| Uninstall (remove symlinks, restore original shell) | `.\scripts\uninstall.ps1`     | `./scripts/uninstall.sh` |
 
 ---
 
-## 🧰 Quản lý bằng CLI `dot`
+## 🧰 Management with `dot` CLI
 
-Sau khi cài đặt, bạn có sẵn lệnh `dot` để quản lý toàn bộ dotfiles:
+After installation, use the `dot` command to manage your environment:
 
 ```bash
-dot install                      # Chạy script cài đặt hệ thống
-dot install -ForceInstall        # Ép cài đè, không tạo backup
-dot add <path>                   # Thu nạp một config từ ~/.config vào kho (vd: dot add ~/.config/alacritty)
-dot eject                        # Gỡ symlink, trả file thực về máy (hoạt động độc lập)
-dot uninstall                    # Gỡ cài đặt hoàn toàn
-dot theme reload                 # Biên dịch và áp dụng theme mới từ theme.json
-dot update                       # Pull bản cập nhật mới nhất từ GitHub
-dot help                         # Hiển thị menu trợ giúp
+dot install                      # Run system installer
+dot install -ForceInstall        # Force reinstall without backup
+dot add <path>                   # Adopt a config folder into repo (e.g. dot add ~/.config/alacritty)
+dot eject                        # Unlink dotfiles and restore independent files to system
+dot uninstall                    # Fully uninstall dotfiles
+dot theme reload                 # Recompile and apply theme from theme.json
+dot update                       # Pull the latest updates from GitHub
+dot help                         # Display help menu
 ```
 
 ---
 
-## 🎨 Theme Engine — đồng bộ màu toàn hệ thống
+## 🎨 Theme Engine (System-wide Color Sync)
 
-Toàn bộ màu sắc của Neovim, WezTerm, Starship, Bash, Zsh và PowerShell được đồng bộ từ **một nguồn sự thật duy nhất**: `themes/theme.json`.
+All colors across Neovim, WezTerm, Starship, Bash, Zsh, and PowerShell are synchronized from a **single source of truth**: `themes/theme.json`.
 
-1. Sửa màu trong `themes/theme.json`.
-2. Chạy `dot theme reload`.
-3. `scripts/generate_theme.py` biên dịch JSON ra `theme.lua`, `theme.sh`, `theme.ps1` trong `themes/generated/`.
-4. WezTerm, Neovim và Shell tự động nhận diện vị trí dotfiles động (hỗ trợ mọi đường dẫn clone tuỳ chỉnh hoặc symlink) và áp dụng màu mới ngay lập tức.
+1. Edit colors in `themes/theme.json`.
+2. Run `dot theme reload`.
+3. `scripts/generate_theme.py` compiles JSON into `theme.lua`, `theme.sh`, `theme.ps1` under `themes/generated/`.
+4. WezTerm, Neovim, and Shell dynamically pick up the new colors instantly.
 
-Theme mặc định hiện tại: **Catppuccin Mocha**.
-
----
-
-## ⌨️ Phím tắt & Tiện ích
-
-### WezTerm (Tầng 3)
-
-| Phím tắt | Thao tác |
-| :--- | :--- |
-| `Ctrl + Shift + \|` | Chia màn hình theo chiều dọc |
-| `Ctrl + Shift + D` | Chia màn hình theo chiều ngang |
-
-### Core Shell & Shell Tools (Tầng 1 & 2)
-
-| Phím tắt / Lệnh | Mô tả |
-| :--- | :--- |
-| `<Tab>` | Carapace Auto-completion (Gợi ý lệnh chi tiết cho `git`, `docker`, `kubectl`...) |
-| `Ctrl + R` | Tra cứu lịch sử dòng lệnh (Atuin SQLite History / FZF) |
-| `Ctrl + F` | Tìm kiếm đường dẫn file/thư mục tương tác bằng FZF |
-| `z <thư-mục>` | Nhảy nhanh tới thư mục bất kỳ bằng Zoxide |
-| `Get-SystemSizeReport` | Xem báo cáo dung lượng ổ đĩa Windows |
-| `Get-AppSizeReport` | Liệt kê dung lượng các ứng dụng đang chiếm ổ cứng |
-| `ll` / `la` | Liệt kê file với icon & chi tiết (`eza`) |
-| `cd...` / `cd....` | Di chuyển lên 2 / 3 cấp thư mục |
+Current default theme: **Catppuccin Mocha**.
 
 ---
 
-## ☕ Ủng hộ / Donate
+## ⌨️ Keybindings & Utilities
 
-Nếu bạn thấy bộ dotfiles này hữu ích, hãy ủng hộ mình một tách cà phê nhé!
+### WezTerm (Layer 3)
+
+| Keybinding          | Action                  |
+| :------------------ | :---------------------- |
+| `Ctrl + Shift + \|` | Split pane vertically   |
+| `Ctrl + Shift + D`  | Split pane horizontally |
+
+### Core Shell & Shell Tools (Layers 1 & 2)
+
+| Keybinding / Command   | Description                                                                       |
+| :--------------------- | :-------------------------------------------------------------------------------- |
+| `<Tab>`                | Carapace Auto-completion (Detailed suggestions for `git`, `docker`, `kubectl`...) |
+| `Ctrl + R`             | Command history search (Atuin SQLite History / FZF)                               |
+| `Ctrl + F`             | Interactive file/folder path search using FZF                                     |
+| `z <dir>`              | Quick jump to directory via Zoxide                                                |
+| `Get-SystemSizeReport` | View Windows disk usage report                                                    |
+| `Get-AppSizeReport`    | List installed applications by disk size                                          |
+| `ll` / `la`            | List files with icons & details (`eza`)                                           |
+| `cd...` / `cd....`     | Navigate up 2 / 3 directory levels                                                |
+
+---
+
+## ☕ Support / Donate
+
+If you find this dotfiles setup helpful, feel free to support with a coffee!
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/anhtai2k)
 
