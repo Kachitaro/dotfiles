@@ -3,9 +3,9 @@
 # Resolve dotfiles directory safely even if symlinked
 if [ -L "${BASH_SOURCE[0]}" ]; then
     REAL_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
-    DOTFILES_DIR=$(dirname $(dirname "$REAL_SCRIPT"))
+    DOTFILES_DIR="$(cd "$(dirname "$REAL_SCRIPT")/.." && pwd)"
 else
-    DOTFILES_DIR=$(dirname $(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"))
+    DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
 
 show_help() {

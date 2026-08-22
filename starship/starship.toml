@@ -4,11 +4,12 @@ palette = 'catppuccin_frappe'
 add_newline = false
 
 format = """
-$os\
-$username\
 $directory\
 $git_branch\
 $git_status\
+$character"""
+
+right_format = """
 $c\
 $rust\
 $golang\
@@ -20,16 +21,7 @@ $kotlin\
 $haskell\
 $python\
 $conda\
-$cmd_duration\
-$character"""
-
-right_format = "$time"
-
-[username]
-show_always = true
-style_user = "red"
-style_root = "bold red"
-format = '[$user ]($style)'
+$time"""
 
 [directory]
 style = "peach"
@@ -127,14 +119,6 @@ vimcmd_symbol = '[⬅](bold green)'
 vimcmd_replace_one_symbol = '[⬅](bold lavender)'
 vimcmd_replace_symbol = '[⬅](bold lavender)'
 vimcmd_visual_symbol = '[⬅](bold yellow)'
-
-[cmd_duration]
-show_milliseconds = true
-format = "[ in $duration ]($style)"
-style = "lavender"
-disabled = false
-show_notifications = true
-min_time_to_notify = 45000
 
 
 [palettes.catppuccin_frappe]

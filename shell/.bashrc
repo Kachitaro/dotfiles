@@ -2,53 +2,120 @@
 # Dotfiles Shell Configuration (Bash & Zsh compatible for Linux / macOS)
 # ==============================================================================
 
+# ------------------------------------------------------------------------------
+# 1. Environment Variables & Paths
+# ------------------------------------------------------------------------------
 # UTF-8 Encoding
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export LESSCHARSET='utf-8'
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+export LESSCHARSET="utf-8"
+
+# Xử lý PATH cho local bin (Quan trọng để chạy các tool như bat qua symlink)
+export PATH="$HOME/.local/bin:$PATH"
+
+# Bun (Thêm vào PATH an toàn)
+export BUN_INSTALL="$HOME/.bun"
+[ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Eza colors
 export EZA_COLORS="di=36"
 
-# Preferred Editor
+# Dotfiles Directory Logic
+if [ -z "$DOTFILES_DIR" ]; then
+    if [ -n "$BASH_VERSION" ] && [ -n "${BASH_SOURCE[0]}" ]; then
+        DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
+    elif [ -n "$ZSH_VERSION" ]; then
+        DOTFILES_DIR="$(cd "$(dirname "${(%):-%x}")/.." 2>/dev/null && pwd)"
+    fi
+fi
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+
+# ------------------------------------------------------------------------------
+# 2. Base Configuration & Editors
+# ------------------------------------------------------------------------------
 if command -v nvim >/dev/null 2>&1; then
     export EDITOR='nvim'
     export VISUAL='nvim'
+    alias vi='nvim'
+    alias vim='nvim'
 fi
 
 # ------------------------------------------------------------------------------
-# Aliases
+# 3. Aliases
 # ------------------------------------------------------------------------------
 alias g='git'
-alias vi='nvim'
-alias vim='nvim'
+alias cd..='cd ..'
+alias cd...='cd ../..'
+alias cd....='cd ../../..'
 
+# --- Eza (Modern ls) ---
 if command -v eza >/dev/null 2>&1; then
-    alias ls='eza'
-    alias ll='eza -l -g --icons'
-    alias la='eza -a -l -g --icons'
-    alias lt='eza --tree --level=2 --icons'
+    export EZA_STANDARD_OPTIONS="--color=always --icons=always --group-directories-first"
+    alias ls="eza $EZA_STANDARD_OPTIONS"
+    alias ll="eza -al $EZA_STANDARD_OPTIONS --git --time-style=long-iso --color-scale"
+    alias la="eza -a $EZA_STANDARD_OPTIONS"
+    alias lt="eza -a --tree --level=3 $EZA_STANDARD_OPTIONS"
 else
     alias ll='ls -lh'
     alias la='ls -lah'
 fi
 
-if command -v bat >/dev/null 2>&1; then
-    alias cat='bat --paging=never'
-elif command -v batcat >/dev/null 2>&1; then
-    alias cat='batcat --paging=never'
+# --- Bat (Modern cat) ---
+# Xử lý trường hợp Ubuntu cài thành batcat
+if ! command -v bat >/dev/null 2>&1 && command -v batcat >/dev/null 2>&1; then
     alias bat='batcat'
 fi
 
-# Navigation shortcuts
-alias cd..='cd ..'
-alias cd...='cd ../..'
-alias cd....='cd ../../..'
+if command -v bat >/dev/null 2>&1 || command -v batcat >/dev/null 2>&1; then
+    alias cat='bat --paging=never'
+    alias b='bat'
+fi
 
 # ------------------------------------------------------------------------------
-# Functions
+# 4. Tool Initializations (Lazy Load / Check)
 # ------------------------------------------------------------------------------
-# System size utilities (Linux)
+
+# Detect current shell (zsh or bash)
+CURRENT_SHELL=$(basename "$SHELL")
+
+# --- FNM (Fast Node Manager) ---
+if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --use-on-cd --shell $CURRENT_SHELL)"
+fi
+
+# --- Starship Prompt ---
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init $CURRENT_SHELL)"
+fi
+
+# --- Fzf ---
+if command -v fzf >/dev/null 2>&1; then
+    # Cấu hình FZF nâng cao với eza và bat
+    export FZF_DEFAULT_OPTS="--height 50% --layout=reverse --border --info=inline"
+    export FZF_CTRL_T_OPTS="--preview 'if [ -d {} ]; then eza -a --tree --level=2 --color=always --icons=always {}; else bat --color=always --style=numbers,changes {}; fi' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+    export FZF_ALT_C_OPTS="--preview 'eza -a --tree --level=2 --color=always --icons=always {}' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+
+    # Load Keybindings & Completions
+    if [ "$CURRENT_SHELL" = "zsh" ]; then
+        for f in /usr/share/doc/fzf/examples/key-bindings.zsh /usr/share/fzf/key-bindings.zsh /usr/share/fzf/shell/key-bindings.zsh ~/.fzf.zsh; do
+            [ -f "$f" ] && source "$f" && break
+        done
+        for f in /usr/share/doc/fzf/examples/completion.zsh /usr/share/fzf/completion.zsh /usr/share/fzf/shell/completion.zsh; do
+            [ -f "$f" ] && source "$f" && break
+        done
+    elif [ "$CURRENT_SHELL" = "bash" ]; then
+        for f in /usr/share/doc/fzf/examples/key-bindings.bash /usr/share/fzf/key-bindings.bash /usr/share/fzf/shell/key-bindings.bash ~/.fzf.bash; do
+            [ -f "$f" ] && source "$f" && break
+        done
+        for f in /usr/share/doc/fzf/examples/completion.bash /usr/share/fzf/completion.bash /usr/share/fzf/shell/completion.bash; do
+            [ -f "$f" ] && source "$f" && break
+        done
+    fi
+fi
+
+# ------------------------------------------------------------------------------
+# 5. Functions & Themes
+# ------------------------------------------------------------------------------
 get_system_size() {
     echo -e "\033[0;32m====== Disk Usage Report ======\033[0m"
     df -h /
@@ -57,43 +124,9 @@ get_system_size() {
     du -h -d 2 "$HOME" 2>/dev/null | sort -hr | head -n 10
 }
 
-# ------------------------------------------------------------------------------
-# FZF Keybindings & Fuzzy Finder
-# ------------------------------------------------------------------------------
-if command -v fzf >/dev/null 2>&1; then
-    # Load fzf key bindings if available
-    [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
-    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-fi
-
-# ------------------------------------------------------------------------------
-# Starship Prompt
-# ------------------------------------------------------------------------------
-if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init $(basename "$SHELL"))"
-fi
-
-# ------------------------------------------------------------------------------
-# FNM (Fast Node Manager) & Bun
-# ------------------------------------------------------------------------------
-if command -v fnm >/dev/null 2>&1; then
-    eval "$(fnm env --use-on-cd --shell $(basename "$SHELL"))"
-fi
-
-# Bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# Load theme environment variables on startup
-if [ -z "$DOTFILES_DIR" ]; then
-    if [ -n "${BASH_SOURCE[0]}" ]; then
-        DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
-    fi
-fi
-export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-
+# Load Themes
 if [ -f "$DOTFILES_DIR/themes/generated/theme.sh" ]; then
     source "$DOTFILES_DIR/themes/generated/theme.sh"
-elif [ -f ~/Desktop/Work/dotfiles/themes/generated/theme.sh ]; then
-    source ~/Desktop/Work/dotfiles/themes/generated/theme.sh
+elif [ -f "$HOME/Desktop/Work/dotfiles/themes/generated/theme.sh" ]; then
+    source "$HOME/Desktop/Work/dotfiles/themes/generated/theme.sh"
 fi

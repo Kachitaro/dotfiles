@@ -27,14 +27,14 @@ Bộ dotfiles cá nhân giúp dựng lại toàn bộ môi trường phát tri�
 
 ## 🌊 Tech Stack
 
-| Thành phần | Công cụ | Vai trò |
-| :--- | :--- | :--- |
-| Terminal | [WezTerm](https://wezfurlong.org/wezterm/) | Render bằng GPU, cấu hình Lua, hiển thị RAM realtime |
-| Core Shell | [PowerShell 7](https://github.com/PowerShell/PowerShell) (Windows) / Bash, Zsh (Linux, macOS) | Shell chính |
-| Prompt | [Starship](https://starship.rs/) | Prompt nhanh, viết bằng Rust, context-aware |
-| Editor | [Neovim](https://neovim.io/) + [NvChad](https://nvchad.com/) | IDE nhẹ với LSP, Treesitter, format-on-save |
-| JS Runtime | [FNM](https://github.com/Schniz/fnm) + [Bun](https://bun.sh/) | Quản lý version Node và chạy JS/TS tốc độ cao |
-| CLI hiện đại | `eza`, `bat`, `fzf`, `ripgrep` | Thay thế `ls`, `cat` và tìm kiếm file siêu tốc |
+| Thành phần   | Công cụ                                                                                       | Vai trò                                              |
+| :----------- | :-------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
+| Terminal     | [WezTerm](https://wezfurlong.org/wezterm/)                                                    | Render bằng GPU, cấu hình Lua, hiển thị RAM realtime |
+| Core Shell   | [PowerShell 7](https://github.com/PowerShell/PowerShell) (Windows) / Bash, Zsh (Linux, macOS) | Shell chính                                          |
+| Prompt       | [Starship](https://starship.rs/)                                                              | Prompt nhanh, viết bằng Rust, context-aware          |
+| Editor       | [Neovim](https://neovim.io/) + [NvChad](https://nvchad.com/)                                  | IDE nhẹ với LSP, Treesitter, format-on-save          |
+| JS Runtime   | [FNM](https://github.com/Schniz/fnm) + [Bun](https://bun.sh/)                                 | Quản lý version Node và chạy JS/TS tốc độ cao        |
+| CLI hiện đại | `eza`, `bat`, `fzf`, `ripgrep`                                                                | Thay thế `ls`, `cat` và tìm kiếm file siêu tốc       |
 
 ---
 
@@ -96,17 +96,18 @@ irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1 | iex
 > Lệnh `dot` sẽ tự động khả dụng trên toàn hệ thống ngay sau khi cài đặt.
 
 **Các tuỳ chọn cài đặt nâng cao:**
+
 ```powershell
 # Cài đặt nhẹ (chỉ terminal & core CLI, bỏ qua VSCode và Android/Flutter/Docker)
 irm https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.ps1 | iex -ArgumentList "-SkipEditor", "-SkipHeavyApps"
 ```
 
-| Tham số | Ý nghĩa |
-| :--- | :--- |
-| `-SkipEditor` | Bỏ qua cài đặt GUI Editor (`VSCode`) |
+| Tham số          | Ý nghĩa                                                                                |
+| :--------------- | :------------------------------------------------------------------------------------- |
+| `-SkipEditor`    | Bỏ qua cài đặt GUI Editor (`VSCode`)                                                   |
 | `-SkipHeavyApps` | Bỏ qua các stack nặng (`Java JDK 17`, `Gradle`, `Flutter`, `Android Studio`, `Docker`) |
-| `-SkipFeatures` | Bỏ qua kích hoạt tính năng ảo hoá Windows (`Hyper-V`, `WSL2`, `Containers`) |
-| `-ForceInstall` | Ép ghi đè các cấu hình hiện có, không tạo backup `.bak_*` |
+| `-SkipFeatures`  | Bỏ qua kích hoạt tính năng ảo hoá Windows (`Hyper-V`, `WSL2`, `Containers`)            |
+| `-ForceInstall`  | Ép ghi đè các cấu hình hiện có, không tạo backup `.bak_*`                              |
 
 ### 2. Linux / WSL / macOS
 
@@ -135,10 +136,10 @@ chmod +x ./install.sh && ./install.sh
 
 ### 4. Cài đè & gỡ cài đặt
 
-| Thao tác | Windows | Linux/macOS |
-| :--- | :--- | :--- |
-| Cài đè, bỏ qua sao lưu | `.\install.ps1 -ForceInstall` | `./install.sh --force` |
-| Gỡ cài đặt (xoá symlink, khôi phục môi trường gốc) | `.\scripts\uninstall.ps1` | `./scripts\uninstall.sh` |
+| Thao tác                                           | Windows                       | Linux/macOS              |
+| :------------------------------------------------- | :---------------------------- | :----------------------- |
+| Cài đè, bỏ qua sao lưu                             | `.\install.ps1 -ForceInstall` | `./install.sh --force`   |
+| Gỡ cài đặt (xoá symlink, khôi phục môi trường gốc) | `.\scripts\uninstall.ps1`     | `./scripts\uninstall.sh` |
 
 ---
 
@@ -178,22 +179,22 @@ Theme mặc định hiện tại: **Catppuccin Mocha**.
 
 ### WezTerm
 
-| Phím tắt | Thao tác |
-| :--- | :--- |
-| `Ctrl + Shift + \|` | Chia màn hình theo chiều dọc |
-| `Ctrl + Shift + D` | Chia màn hình theo chiều ngang |
+| Phím tắt            | Thao tác                       |
+| :------------------ | :----------------------------- |
+| `Ctrl + Shift + \|` | Chia màn hình theo chiều dọc   |
+| `Ctrl + Shift + D`  | Chia màn hình theo chiều ngang |
 
 ### PowerShell & FZF
 
-| Phím tắt / Lệnh | Mô tả |
-| :--- | :--- |
-| `Ctrl + R` | Tìm kiếm lịch sử dòng lệnh (FZF History) |
-| `Ctrl + F` | Tìm kiếm đường dẫn file/thư mục (FZF Provider) |
-| `Ctrl + D` | Xoá ký tự hiện tại (Emacs keybinding) |
-| `Get-SystemSizeReport` | Xem báo cáo dung lượng ổ đĩa Windows |
-| `Get-AppSizeReport` | Liệt kê dung lượng các ứng dụng đang chiếm ổ cứng |
-| `ll` / `la` | Liệt kê file với icon & chi tiết (`eza`) |
-| `cd...` / `cd....` | Di chuyển lên 2 / 3 cấp thư mục |
+| Phím tắt / Lệnh        | Mô tả                                             |
+| :--------------------- | :------------------------------------------------ |
+| `Ctrl + R`             | Tìm kiếm lịch sử dòng lệnh (FZF History)          |
+| `Ctrl + F`             | Tìm kiếm đường dẫn file/thư mục (FZF Provider)    |
+| `Ctrl + D`             | Xoá ký tự hiện tại (Emacs keybinding)             |
+| `Get-SystemSizeReport` | Xem báo cáo dung lượng ổ đĩa Windows              |
+| `Get-AppSizeReport`    | Liệt kê dung lượng các ứng dụng đang chiếm ổ cứng |
+| `ll` / `la`            | Liệt kê file với icon & chi tiết (`eza`)          |
+| `cd...` / `cd....`     | Di chuyển lên 2 / 3 cấp thư mục                   |
 
 ---
 
@@ -202,8 +203,6 @@ Theme mặc định hiện tại: **Catppuccin Mocha**.
 Nếu bạn thấy bộ dotfiles này hữu ích, hãy ủng hộ mình một tách cà phê nhé!
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/anhtai2k)
-
-👉 **Ko-fi:** [https://ko-fi.com/anhtai2k](https://ko-fi.com/anhtai2k)
 
 ---
 
