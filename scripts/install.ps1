@@ -10,8 +10,6 @@
 param (
     [string]$DotfilesDir = "",
     [switch]$SkipFeatures,
-    [switch]$SkipHeavyApps,
-    [switch]$SkipEditor,
     [switch]$ForceInstall
 )
 
@@ -90,7 +88,7 @@ if (Get-Command scoop -ErrorAction SilentlyContinue) {
 
 # 5. Configure Scoop Buckets
 Write-Step "Cấu hình Scoop Buckets..."
-$buckets = @("main", "extras", "nerd-fonts", "java", "nonportable")
+$buckets = @("main", "extras", "nerd-fonts", "nonportable")
 foreach ($bucket in $buckets) {
     scoop bucket add $bucket 2>$null
 }
@@ -114,6 +112,7 @@ $corePackages = @(
     "main/eza",
     "main/lazygit",
     "main/starship",
+    "main/carapace",
     "main/python",
     "main/fnm",
     "main/bun",
@@ -123,31 +122,7 @@ $corePackages = @(
     "nerd-fonts/JetBrainsMono-NF"
 )
 
-# Danh sách GUI Editor tuỳ chọn
-$editorPackages = @(
-    "extras/vscode"
-)
-
-# Danh sách ứng dụng nặng / Mobile / Java / Container
-$heavyPackages = @(
-    "java/temurin17-jdk",
-    "extras/gradle",
-    "extras/flutter",
-    "extras/android-studio",
-    "docker"
-)
-
-$packagesToInstall = $corePackages
-
-if (-not $SkipEditor) {
-    $packagesToInstall += $editorPackages
-}
-
-if (-not $SkipHeavyApps) {
-    $packagesToInstall += $heavyPackages
-}
-
-foreach ($pkg in $packagesToInstall) {
+foreach ($pkg in $corePackages) {
     $pkgName = $pkg.Split('/')[-1]
     Write-Host "  Đang kiểm tra / cài đặt: $pkg ..." -ForegroundColor Gray
     scoop install $pkg
@@ -243,9 +218,11 @@ function Create-SafeLink {
 
 # 9.1 Liên kết cấu hình tự động cho các ứng dụng chuẩn
 $configApps = @{
-    "wezterm" = "$env:USERPROFILE\.config\wezterm"
-    "nvim" = "$env:LOCALAPPDATA\nvim"
-    "starship" = "$env:USERPROFILE\.config\starship"
+    "wezterm"     = "$env:USERPROFILE\.config\wezterm"
+    "nvim"        = "$env:LOCALAPPDATA\nvim"
+    "starship"    = "$env:USERPROFILE\.config\starship"
+    "atuin"       = "$env:USERPROFILE\.config\atuin"
+    "carapace"    = "$env:USERPROFILE\.config\carapace"
 }
 
 foreach ($app in $configApps.GetEnumerator()) {

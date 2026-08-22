@@ -10,6 +10,8 @@ echo "Xóa các symlink cấu hình..."
 rm -f "$HOME/.config/wezterm"
 rm -f "$HOME/.config/nvim"
 rm -f "$HOME/.config/starship"
+rm -f "$HOME/.config/atuin"
+rm -f "$HOME/.config/carapace"
 rm -f "$HOME/.local/bin/dot"
 
 # 2. Xóa cấu hình khỏi bashrc / zshrc
@@ -21,6 +23,7 @@ fi
 if [ -f "$HOME/.zshrc" ]; then
     sed -i '/# Load dotfiles config/d' "$HOME/.zshrc"
     sed -i '\|dotfiles/shell/.bashrc|d' "$HOME/.zshrc"
+    sed -i '\|dotfiles/shell/.zshrc|d' "$HOME/.zshrc"
 fi
 
 # 3. Gỡ cấu hình pwsh (Linux)

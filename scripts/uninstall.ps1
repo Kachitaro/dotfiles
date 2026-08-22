@@ -11,6 +11,8 @@ $links = @(
     "$env:USERPROFILE\.config\wezterm",
     "$env:LOCALAPPDATA\nvim",
     "$env:USERPROFILE\.config\starship",
+    "$env:USERPROFILE\.config\atuin",
+    "$env:USERPROFILE\.config\carapace",
     "$env:USERPROFILE\.config\powershell\functions.ps1",
     "$env:USERPROFILE\.config\scoop\config.json"
 )

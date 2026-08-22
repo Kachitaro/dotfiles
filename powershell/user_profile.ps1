@@ -13,6 +13,11 @@ if (Get-Command fnm -ErrorAction SilentlyContinue) {
     fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
 }
 
+if (Get-Command carapace -ErrorAction SilentlyContinue) {
+    $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
+    carapace _carapace powershell | Out-String | Invoke-Expression
+}
+
 Import-Module Terminal-Icons -ErrorAction SilentlyContinue
 Import-Module PSFzf -ErrorAction SilentlyContinue
 Import-Module PSReadLine -ErrorAction SilentlyContinue

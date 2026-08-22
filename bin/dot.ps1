@@ -13,7 +13,7 @@ function Show-Help {
     Write-Host "Usage: dot <command> [options]`n"
     Write-Host "Commands:"
     Write-Host "  install          Run the installation script."
-    Write-Host "                   Options: -ForceInstall, -SkipHeavyApps, -SkipEditor, -SkipFeatures"
+    Write-Host "                   Options: -ForceInstall, -SkipFeatures"
     Write-Host "  uninstall        Remove dotfiles symlinks and configurations."
     Write-Host "  add <path>       Adopt a new config folder into dotfiles."
     Write-Host "  eject            Restore real files to your system (unlink)."
@@ -28,12 +28,6 @@ switch ($Command) {
         $installArgs = @()
         if ($RestArgs -contains "-ForceInstall" -or $RestArgs -contains "--force") {
             $installArgs += "-ForceInstall"
-        }
-        if ($RestArgs -contains "-SkipHeavyApps" -or $RestArgs -contains "--skip-heavy") {
-            $installArgs += "-SkipHeavyApps"
-        }
-        if ($RestArgs -contains "-SkipEditor" -or $RestArgs -contains "--skip-editor") {
-            $installArgs += "-SkipEditor"
         }
         if ($RestArgs -contains "-SkipFeatures" -or $RestArgs -contains "--skip-features") {
             $installArgs += "-SkipFeatures"

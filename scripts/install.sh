@@ -102,15 +102,15 @@ if command -v apt-get >/dev/null 2>&1; then
 
 elif command -v pacman >/dev/null 2>&1; then
     echo "  Phát hiện Arch Linux / Manjaro (pacman)..."
-    $SUDO_CMD pacman -Syu --noconfirm git curl wget base-devel unzip neovim ripgrep fd fzf bat eza lazygit wezterm || true
+    $SUDO_CMD pacman -Syu --noconfirm git curl wget base-devel unzip neovim ripgrep fd fzf bat eza lazygit wezterm carapace || true
 
 elif command -v dnf >/dev/null 2>&1; then
     echo "  Phát hiện Fedora / RHEL (dnf)..."
-    $SUDO_CMD dnf install -y git curl wget make gcc unzip neovim ripgrep fd-find fzf bat eza lazygit || true
+    $SUDO_CMD dnf install -y git curl wget make gcc unzip neovim ripgrep fd-find fzf bat eza lazygit carapace || true
 
 elif command -v brew >/dev/null 2>&1; then
     echo "  Phát hiện Homebrew..."
-    brew install git curl wget neovim ripgrep fd fzf bat eza lazygit
+    brew install git curl wget neovim ripgrep fd fzf bat eza lazygit carapace
 fi
 
 write_succ "Hoàn tất kiểm tra / cài đặt công cụ hệ thống."
@@ -215,7 +215,7 @@ create_link() {
 }
 
 # 7.1 Cấu hình tự động liên kết các ứng dụng chuẩn
-CONFIG_APPS=("wezterm" "nvim" "starship")
+CONFIG_APPS=("wezterm" "nvim" "starship" "atuin" "carapace")
 for app in "${CONFIG_APPS[@]}"; do
     if [ -d "$DOTFILES_DIR/$app" ] || [ -f "$DOTFILES_DIR/$app" ]; then
         create_link "$DOTFILES_DIR/$app" "$HOME/.config/$app"
@@ -226,19 +226,26 @@ done
 create_link "$DOTFILES_DIR/bin/dot" "$HOME/.local/bin/dot"
 
 # 7.3 Bash / Zsh Profiles
-SHELL_SOURCE_LINE="[ -f \"$DOTFILES_DIR/shell/.bashrc\" ] && source \"$DOTFILES_DIR/shell/.bashrc\""
+BASH_SOURCE_LINE="[ -f \"$DOTFILES_DIR/shell/.bashrc\" ] && source \"$DOTFILES_DIR/shell/.bashrc\""
+ZSH_SOURCE_LINE="[ -f \"$DOTFILES_DIR/shell/.zshrc\" ] && source \"$DOTFILES_DIR/shell/.zshrc\""
 
-for rc_file in "$HOME/.bashrc" "$HOME/.zshrc"; do
-    if [ -f "$rc_file" ] || [ "$(basename "$rc_file")" = ".bashrc" ]; then
-        touch "$rc_file"
-        if ! grep -q "dotfiles/shell/.bashrc" "$rc_file" 2>/dev/null; then
-            echo -e "\n# Load dotfiles config\n$SHELL_SOURCE_LINE" >> "$rc_file"
-            write_succ "Đã nạp dotfiles vào $rc_file"
-        else
-            write_succ "$rc_file đã được cấu hình trước đó."
-        fi
+touch "$HOME/.bashrc"
+if ! grep -q "dotfiles/shell/.bashrc" "$HOME/.bashrc" 2>/dev/null; then
+    echo -e "\n# Load dotfiles config\n$BASH_SOURCE_LINE" >> "$HOME/.bashrc"
+    write_succ "Đã nạp dotfiles vào ~/.bashrc"
+else
+    write_succ "~/.bashrc đã được cấu hình trước đó."
+fi
+
+if [ -f "$HOME/.zshrc" ] || command -v zsh >/dev/null 2>&1; then
+    touch "$HOME/.zshrc"
+    if ! grep -q "dotfiles/shell/.zshrc" "$HOME/.zshrc" 2>/dev/null; then
+        echo -e "\n# Load dotfiles config\n$ZSH_SOURCE_LINE" >> "$HOME/.zshrc"
+        write_succ "Đã nạp dotfiles vào ~/.zshrc"
+    else
+        write_succ "~/.zshrc đã được cấu hình trước đó."
     fi
-done
+fi
 
 # 7.4 PowerShell on Linux (if pwsh exists)
 if command -v pwsh >/dev/null 2>&1; then

@@ -13,9 +13,10 @@ export LESSCHARSET="utf-8"
 # Xử lý PATH cho local bin (Quan trọng để chạy các tool như bat qua symlink)
 export PATH="$HOME/.local/bin:$PATH"
 
-# Bun (Thêm vào PATH an toàn)
+# Bun & FNM (Thêm vào PATH an toàn)
 export BUN_INSTALL="$HOME/.bun"
 [ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
+[ -d "$HOME/.local/share/fnm" ] && export PATH="$HOME/.local/share/fnm:$PATH"
 
 # Eza colors
 export EZA_COLORS="di=36"
@@ -86,6 +87,16 @@ fi
 # --- Starship Prompt ---
 if command -v starship >/dev/null 2>&1; then
     eval "$(starship init $CURRENT_SHELL)"
+fi
+
+# --- Carapace Multi-shell Completion ---
+if command -v carapace >/dev/null 2>&1; then
+    export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
+    if [ "$CURRENT_SHELL" = "zsh" ]; then
+        source <(carapace _carapace zsh)
+    elif [ "$CURRENT_SHELL" = "bash" ]; then    
+        source <(carapace _carapace bash)
+    fi
 fi
 
 # --- Fzf ---

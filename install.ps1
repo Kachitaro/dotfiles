@@ -8,8 +8,6 @@
 param (
     [string]$DotfilesDir = "",
     [switch]$SkipFeatures,
-    [switch]$SkipHeavyApps,
-    [switch]$SkipEditor,
     [switch]$ForceInstall
 )
 
