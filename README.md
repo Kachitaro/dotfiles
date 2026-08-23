@@ -84,7 +84,9 @@ curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh 
 The management CLI (`k-dot` / `dot`) is written in **Rust** for blazing-fast startup, robust cross-platform path resolution, and native symlink handling without runtime dependencies.
 
 ```bash
+dot init [path]                  # Initialize standalone dotfiles workspace (default ~/.dotfiles) with starter theme.json
 dot install                      # Run system installer (Options: --force / -ForceInstall)
+dot update                       # Self-update CLI binary (dot) to latest version from GitHub Release
 dot add <path>                   # Adopt a config folder into repo (e.g. dot add ~/.config/alacritty)
 dot eject                        # Unlink dotfiles and restore independent real files to system
 dot inject                       # Re-link dotfiles symlinks and configurations into system (Options: --force)

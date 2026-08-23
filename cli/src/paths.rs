@@ -11,7 +11,8 @@ pub fn is_dotfiles_root(path: &Path) -> bool {
         && (path.join("scripts").is_dir()
             || path.join("bin").is_dir()
             || path.join(".git").exists()
-            || path.join("dotfiles.md").exists())
+            || path.join("dotfiles.md").exists()
+            || path.join("themes").join("theme.json").exists())
 }
 
 /// Find the dotfiles root directory by traversing upwards from an executable or file path.
@@ -60,6 +61,7 @@ pub fn strip_unc_prefix(path: PathBuf) -> PathBuf {
 /// 1. If DOTFILES_DIR environment variable is set and not empty, use it.
 /// 2. Otherwise, get current_exe() and canonicalize() to trace any symlinks to the real binary,
 ///    then walk up to find the dotfiles repository root.
+/// 3. Fallback: Check if ~/.dotfiles exists and is a valid dotfiles root.
 pub fn resolve_dotfiles_dir() -> Result<PathBuf> {
     if let Ok(env_val) = env::var(DOTFILES_DIR_ENV) {
         let trimmed = env_val.trim();
@@ -80,8 +82,43 @@ pub fn resolve_dotfiles_dir() -> Result<PathBuf> {
         .canonicalize()
         .context("Failed to canonicalize current executable path")?;
 
-    let root = find_dotfiles_root_from(&canonical_exe)?;
-    Ok(strip_unc_prefix(root))
+    if let Ok(root) = find_dotfiles_root_from(&canonical_exe) {
+        return Ok(strip_unc_prefix(root));
+    }
+
+    // Fallback 1: Check current directory or ./dotfiles
+    if let Ok(current) = env::current_dir() {
+        if is_dotfiles_root(&current) {
+            if let Ok(canonical) = current.canonicalize() {
+                return Ok(strip_unc_prefix(canonical));
+            }
+            return Ok(current);
+        }
+        let current_subdir = current.join("dotfiles");
+        if is_dotfiles_root(&current_subdir) {
+            if let Ok(canonical) = current_subdir.canonicalize() {
+                return Ok(strip_unc_prefix(canonical));
+            }
+            return Ok(current_subdir);
+        }
+    }
+
+    // Fallback 2: Check default ~/.dotfiles
+    if let Some(home) = dirs::home_dir() {
+        let default_dotfiles = home.join(".dotfiles");
+        if is_dotfiles_root(&default_dotfiles) || default_dotfiles.is_dir() {
+            if let Ok(canonical) = default_dotfiles.canonicalize() {
+                return Ok(strip_unc_prefix(canonical));
+            }
+            return Ok(default_dotfiles);
+        }
+    }
+
+    anyhow::bail!(
+        "Could not determine dotfiles root from path '{}'. Please run 'dot init' or set the {} environment variable.",
+        canonical_exe.display(),
+        DOTFILES_DIR_ENV
+    )
 }
 
 /// Return absolute path to `<DOTFILES_DIR>/themes/generated`.

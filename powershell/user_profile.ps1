@@ -26,8 +26,22 @@ Import-Module PSReadLine -ErrorAction SilentlyContinue
 if (Get-Module -Name PSReadLine) {
     try {
         Set-PSReadLineOption -BellStyle None -ErrorAction SilentlyContinue
+        Set-PSReadLineOption -MaximumHistoryCount 100 -ErrorAction SilentlyContinue
         Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
         Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+
+        # Tự động duy trì file lịch sử gọn nhẹ (100 dòng) vì đã có Atuin quản lý toàn bộ
+        $histPath = (Get-PSReadLineOption).HistorySavePath
+        if ($histPath -and (Test-Path $histPath)) {
+            $fileInfo = Get-Item $histPath -ErrorAction SilentlyContinue
+            if ($fileInfo -and $fileInfo.Length -gt 15KB) {
+                $lines = [System.IO.File]::ReadAllLines($histPath)
+                if ($lines.Length -gt 150) {
+                    $recent = $lines[($lines.Length - 100)..($lines.Length - 1)]
+                    [System.IO.File]::WriteAllLines($histPath, $recent)
+                }
+            }
+        }
     } catch {}
 }
 
@@ -100,6 +114,12 @@ if (-not $env:DOTFILES_DIR -and $PSScriptRoot) {
 if ($env:DOTFILES_DIR -and (Test-Path "$env:DOTFILES_DIR\bin")) {
     if ($env:PATH -notlike "*$env:DOTFILES_DIR\bin*") {
         $env:PATH = "$env:DOTFILES_DIR\bin;" + $env:PATH
+    }
+}
+$localBin = Join-Path $env:USERPROFILE ".local\bin"
+if (Test-Path $localBin) {
+    if ($env:PATH -notlike "*$localBin*") {
+        $env:PATH = "$localBin;" + $env:PATH
     }
 }
 

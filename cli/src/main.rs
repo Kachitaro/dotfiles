@@ -44,6 +44,16 @@ pub enum Commands {
         #[arg(short, long)]
         force: bool,
     },
+    /// Initialize a standalone dotfiles workspace.
+    Init {
+        /// Custom destination path for dotfiles directory (defaults to ~/.dotfiles)
+        path: Option<PathBuf>,
+        /// Overwrite existing default templates if already present
+        #[arg(short, long)]
+        force: bool,
+    },
+    /// Self-update dot binary to the latest version from GitHub Release.
+    Update,
     /// Theme engine and configuration management.
     Theme {
         #[command(subcommand)]
@@ -63,8 +73,10 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Init { path, force } => commands::init::execute(path, force)?,
         Commands::Install { force } => commands::install::execute(force)?,
         Commands::Uninstall => commands::uninstall::execute()?,
+        Commands::Update => commands::update::execute()?,
         Commands::Add { path } => commands::add::execute(path)?,
         Commands::Eject => commands::eject::execute()?,
         Commands::Inject { force } => commands::inject::execute(force)?,

@@ -84,7 +84,9 @@ curl -fsSL https://raw.githubusercontent.com/kachitaro/dotfiles/main/install.sh 
 Công cụ dòng lệnh quản lý (`k-dot` / `dot`) được viết hoàn toàn bằng **Rust** cho tốc độ khởi động siêu nhanh, xử lý đường dẫn / symlink an toàn và không phụ thuộc runtime bên ngoài.
 
 ```bash
+dot init [path]                  # Khởi tạo kho dotfiles độc lập (mặc định ~/.dotfiles) kèm theme.json mẫu
 dot install                      # Chạy script cài đặt hệ thống (Tùy chọn: --force / -ForceInstall)
+dot update                       # Tự động cập nhật CLI binary (dot) lên phiên bản mới nhất từ GitHub Release
 dot add <path>                   # Thu nạp một config từ ~/.config vào kho (vd: dot add ~/.config/alacritty)
 dot eject                        # Gỡ symlink, trả file thực về máy (hoạt động độc lập)
 dot inject                       # Đồng bộ / gắn lại symlink và nạp cấu hình dotfiles vào hệ thống (Tùy chọn: --force)

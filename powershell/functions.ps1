@@ -113,20 +113,29 @@ function Get-SystemSizeReport {
 # Dotfiles CLI (dot)
 # ------------------------------------------------------------------------------
 function dot {
-    $dotScript = ""
-    if ($env:DOTFILES_DIR -and (Test-Path (Join-Path $env:DOTFILES_DIR "bin\dot.ps1"))) {
-        $dotScript = Join-Path $env:DOTFILES_DIR "bin\dot.ps1"
-    } elseif (Test-Path "$PSScriptRoot\..\bin\dot.ps1") {
-        $dotScript = "$PSScriptRoot\..\bin\dot.ps1"
-    } elseif (Test-Path "$env:USERPROFILE\.dotfiles\bin\dot.ps1") {
-        $dotScript = "$env:USERPROFILE\.dotfiles\bin\dot.ps1"
-    } elseif (Test-Path "D:\work\dotfiles\bin\dot.ps1") {
-        $dotScript = "D:\work\dotfiles\bin\dot.ps1"
+    $dotExe = ""
+    if (Get-Command "dot.exe" -CommandType Application -ErrorAction SilentlyContinue) {
+        $dotExe = (Get-Command "dot.exe" -CommandType Application -ErrorAction SilentlyContinue).Source
+    } elseif (Test-Path "$env:USERPROFILE\.local\bin\dot.exe") {
+        $dotExe = "$env:USERPROFILE\.local\bin\dot.exe"
+    } elseif ($env:DOTFILES_DIR -and (Test-Path (Join-Path $env:DOTFILES_DIR "cli\target\release\dot.exe"))) {
+        $dotExe = Join-Path $env:DOTFILES_DIR "cli\target\release\dot.exe"
+    } elseif ($env:DOTFILES_DIR -and (Test-Path (Join-Path $env:DOTFILES_DIR "cli\target\debug\dot.exe"))) {
+        $dotExe = Join-Path $env:DOTFILES_DIR "cli\target\debug\dot.exe"
+    } elseif (Test-Path "$PSScriptRoot\..\cli\target\release\dot.exe") {
+        $dotExe = "$PSScriptRoot\..\cli\target\release\dot.exe"
+    } elseif (Test-Path "$PSScriptRoot\..\cli\target\debug\dot.exe") {
+        $dotExe = "$PSScriptRoot\..\cli\target\debug\dot.exe"
+    } elseif (Test-Path "$env:USERPROFILE\.dotfiles\cli\target\release\dot.exe") {
+        $dotExe = "$env:USERPROFILE\.dotfiles\cli\target\release\dot.exe"
+    } elseif (Test-Path "D:\work\dotfiles\cli\target\release\dot.exe") {
+        $dotExe = "D:\work\dotfiles\cli\target\release\dot.exe"
     }
 
-    if ($dotScript) {
-        & $dotScript @args
+    if ($dotExe) {
+        & $dotExe @args
     } else {
-        Write-Error "Không tìm thấy dot.ps1. Vui lòng kiểm tra lại `$env:DOTFILES_DIR"
+        Write-Error "Không tìm thấy dot.exe. Vui lòng chạy install.ps1 hoặc kiểm tra lại `$env:DOTFILES_DIR"
     }
 }
+
