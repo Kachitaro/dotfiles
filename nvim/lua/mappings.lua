@@ -8,3 +8,7 @@ map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 map("n", "<C-\\>", "<cmd>vsplit<CR>", { desc = "Chia dọc màn hình (Vertical Split)" })
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
+
+-- Bật/tắt gõ tiếng Việt trong Neovim
+map({ "n", "i" }, "<C-e>", "<cmd>VietnameseToggle<CR>", { desc = "Toggle tiếng Việt (Telex/VNI)" })
+

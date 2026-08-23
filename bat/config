@@ -1,0 +1,20 @@
+# ==============================================================================
+# 🦇 Bat Configuration File (Dotfiles)
+# ==============================================================================
+
+# Theme đồng bộ tự động từ theme.json (dot theme reload)
+--theme="Catppuccin Mocha"
+
+# Hiển thị số dòng, git modifications và header gọn gàng
+--style="numbers,changes,header"
+
+# Bật italic text nếu terminal hỗ trợ font Nerd Font
+--italic-text=always
+
+# Mặc định xuống dòng mềm (wrap) để không bị tràn màn hình
+--wrap=auto
+
+# Sử dụng UTF-8
+--map-syntax "*.ps1:PowerShell"
+--map-syntax "*.psm1:PowerShell"
+--map-syntax "*.psd1:PowerShell"

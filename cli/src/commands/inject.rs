@@ -15,66 +15,22 @@ pub fn execute(force: bool) -> Result<()> {
     );
 
     let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+    let targets = paths::discover_app_targets(&dotfiles_dir);
+
+    for target in targets {
+        if target.src.exists() {
+            create_safe_link(&target.dest, &target.src, target.is_dir, force)?;
+        }
+    }
 
     #[cfg(windows)]
     {
-        let local_appdata = dirs::data_local_dir().unwrap_or_else(|| home_dir.join("AppData").join("Local"));
-        let config_dir = home_dir.join(".config");
-
-        let app_configs = [
-            ("wezterm", config_dir.join("wezterm"), true),
-            ("nvim", local_appdata.join("nvim"), true),
-            ("nvim", config_dir.join("nvim"), true),
-            ("starship", config_dir.join("starship"), true),
-            ("atuin", config_dir.join("atuin"), true),
-            ("carapace", config_dir.join("carapace"), true),
-            ("powershell", config_dir.join("powershell"), true),
-            ("scoop", config_dir.join("scoop"), true),
-        ];
-
-        for (src_name, dest, is_dir) in app_configs {
-            let src = dotfiles_dir.join(src_name);
-            if src.exists() {
-                create_safe_link(&dest, &src, is_dir, force)?;
-            }
-        }
-
-        // Special: ~/.wezterm.lua
-        let wz_file_src = dotfiles_dir.join("wezterm").join("wezterm.lua");
-        let wz_file_dest = home_dir.join(".wezterm.lua");
-        if wz_file_src.exists() {
-            create_safe_link(&wz_file_dest, &wz_file_src, false, force)?;
-        }
-
         // Re-inject PowerShell profile loading
         inject_powershell_profiles(&dotfiles_dir, &home_dir)?;
     }
 
     #[cfg(unix)]
     {
-        let config_dir = home_dir.join(".config");
-        let app_configs = [
-            ("wezterm", config_dir.join("wezterm"), true),
-            ("nvim", config_dir.join("nvim"), true),
-            ("starship", config_dir.join("starship"), true),
-            ("atuin", config_dir.join("atuin"), true),
-            ("carapace", config_dir.join("carapace"), true),
-        ];
-
-        for (src_name, dest, is_dir) in app_configs {
-            let src = dotfiles_dir.join(src_name);
-            if src.exists() {
-                create_safe_link(&dest, &src, is_dir, force)?;
-            }
-        }
-
-        // Link CLI binary if built
-        let local_bin = home_dir.join(".local").join("bin");
-        let cli_bin = dotfiles_dir.join("cli").join("target").join("release").join("dot");
-        if cli_bin.exists() {
-            create_safe_link(&local_bin.join("dot"), &cli_bin, false, force)?;
-        }
-
         // Re-inject shell profiles
         inject_unix_shell_profiles(&dotfiles_dir, &home_dir)?;
     }

@@ -14,64 +14,20 @@ pub fn execute() -> Result<()> {
     );
 
     let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+    let targets = paths::discover_app_targets(&dotfiles_dir);
+
+    for target in targets {
+        restore_app_if_symlinked(&target.src, &target.dest, target.is_dir, &target.name)?;
+    }
 
     #[cfg(windows)]
     {
-        let local_appdata = dirs::data_local_dir().unwrap_or_else(|| home_dir.join("AppData").join("Local"));
-        let config_dir = home_dir.join(".config");
-
-        let app_configs = [
-            ("wezterm", config_dir.join("wezterm"), true),
-            ("nvim", local_appdata.join("nvim"), true),
-            ("starship", config_dir.join("starship"), true),
-            ("atuin", config_dir.join("atuin"), true),
-            ("carapace", config_dir.join("carapace"), true),
-            ("powershell", config_dir.join("powershell"), true),
-            ("scoop", config_dir.join("scoop"), true),
-            ("nvim (config)", config_dir.join("nvim"), true),
-        ];
-
-        for (name, dest, is_dir) in app_configs {
-            let src_name = if name == "nvim (config)" { "nvim" } else { name };
-            let src = dotfiles_dir.join(src_name);
-            restore_app_if_symlinked(&src, &dest, is_dir, name)?;
-        }
-
-        // Special: ~/.wezterm.lua file
-        let wz_file_dest = home_dir.join(".wezterm.lua");
-        let wz_file_src = dotfiles_dir.join("wezterm").join("wezterm.lua");
-        restore_app_if_symlinked(&wz_file_src, &wz_file_dest, false, "wezterm.lua")?;
-
         // Clean PowerShell profile scripts
         clean_powershell_profiles(&home_dir)?;
     }
 
     #[cfg(unix)]
     {
-        let config_dir = home_dir.join(".config");
-        let app_configs = [
-            ("wezterm", config_dir.join("wezterm"), true),
-            ("nvim", config_dir.join("nvim"), true),
-            ("starship", config_dir.join("starship"), true),
-            ("atuin", config_dir.join("atuin"), true),
-            ("carapace", config_dir.join("carapace"), true),
-        ];
-
-        for (name, dest, is_dir) in app_configs {
-            let src = dotfiles_dir.join(name);
-            restore_app_if_symlinked(&src, &dest, is_dir, name)?;
-        }
-
-        // Remove CLI symlink if present
-        let cli_symlink = home_dir.join(".local").join("bin").join("dot");
-        if is_symlink(&cli_symlink) {
-            let _ = remove_symlink(&cli_symlink, false);
-            println!(
-                "{}",
-                format!("  ✅ Đã gỡ symlink CLI: {}", cli_symlink.display()).green()
-            );
-        }
-
         // Clean bashrc, zshrc, pwsh
         clean_unix_shell_profiles(&home_dir)?;
     }

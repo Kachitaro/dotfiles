@@ -18,8 +18,11 @@ export BUN_INSTALL="$HOME/.bun"
 [ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
 [ -d "$HOME/.local/share/fnm" ] && export PATH="$HOME/.local/share/fnm:$PATH"
 
-# Eza colors
+# Eza colors & Custom Config Paths
 export EZA_COLORS="di=36"
+export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
+export BAT_CONFIG_DIR="$HOME/.config/bat"
+export BAT_CONFIG_PATH="$HOME/.config/bat/config"
 
 # Dotfiles Directory Logic
 if [ -z "$DOTFILES_DIR" ]; then
