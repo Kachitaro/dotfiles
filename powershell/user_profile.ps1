@@ -14,10 +14,13 @@ $global:__DOTFILES_PROFILE_LOADED = $true
 [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 $env:LESSCHARSET = 'utf-8'
 
-# Eza & Fzf Environment Variables
+# Eza, Bat & Fzf Environment Variables
 $env:EZA_COLORS = "di=36"
 $env:FZF_DEFAULT_OPTS = "--height 50% --layout=reverse --border --info=inline"
 $env:FZF_ALT_C_OPTS   = "--preview 'eza -a --tree --level=2 --color=always --icons=always {}' --preview-window 'right:55%,border-left'"
+$env:BAT_CONFIG_DIR   = "$env:USERPROFILE\.config\bat"
+$env:BAT_CONFIG_PATH  = "$env:USERPROFILE\.config\bat\config"
+
 
 # ------------------------------------------------------------------------------
 # 2. PSReadLine Foundation (Bắt buộc load ĐẦU TIÊN)

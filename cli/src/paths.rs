@@ -127,6 +127,198 @@ pub fn theme_generated_dir() -> Result<PathBuf> {
     Ok(dotfiles_dir.join("themes").join("generated"))
 }
 
+#[derive(Debug, Clone)]
+pub struct AppTarget {
+    pub name: String,
+    pub src: PathBuf,
+    pub dest: PathBuf,
+    pub is_dir: bool,
+}
+
+/// Dynamic auto-discovery of dotfiles packages (Stow-like dynamic scanning).
+/// Automatically detects any configuration folder in the repository and maps it
+/// to the proper OS destinations on Windows, macOS, and Linux.
+pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
+    let mut targets = Vec::new();
+    let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+
+    let entries = match std::fs::read_dir(dotfiles_dir) {
+        Ok(e) => e,
+        Err(_) => return targets,
+    };
+
+    let ignored_names = [
+        ".git",
+        ".github",
+        "target",
+        "cli",
+        "assets",
+        "themes",
+        "scripts",
+        "bin",
+        "scratch",
+        "node_modules",
+        "tests",
+        ".system_generated",
+    ];
+
+    #[cfg(windows)]
+    let config_dir = home_dir.join(".config");
+    #[cfg(windows)]
+    let local_appdata = dirs::data_local_dir().unwrap_or_else(|| home_dir.join("AppData").join("Local"));
+    #[cfg(windows)]
+    let roaming_appdata = dirs::config_dir().unwrap_or_else(|| home_dir.join("AppData").join("Roaming"));
+
+    #[cfg(unix)]
+    let config_dir = home_dir.join(".config");
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_dir() {
+            continue;
+        }
+
+        let folder_name = match path.file_name().and_then(|n| n.to_str()) {
+            Some(n) => n,
+            None => continue,
+        };
+
+        if ignored_names.contains(&folder_name) {
+            continue;
+        }
+
+        #[cfg(windows)]
+        {
+            match folder_name {
+                "nvim" => {
+                    targets.push(AppTarget {
+                        name: "nvim (LocalAppdata)".to_string(),
+                        src: path.clone(),
+                        dest: local_appdata.join("nvim"),
+                        is_dir: true,
+                    });
+                    targets.push(AppTarget {
+                        name: "nvim (.config)".to_string(),
+                        src: path.clone(),
+                        dest: config_dir.join("nvim"),
+                        is_dir: true,
+                    });
+                }
+                "bat" => {
+                    targets.push(AppTarget {
+                        name: "bat (AppData)".to_string(),
+                        src: path.clone(),
+                        dest: roaming_appdata.join("bat"),
+                        is_dir: true,
+                    });
+                    targets.push(AppTarget {
+                        name: "bat (.config)".to_string(),
+                        src: path.clone(),
+                        dest: config_dir.join("bat"),
+                        is_dir: true,
+                    });
+                }
+                "helix" => {
+                    targets.push(AppTarget {
+                        name: "helix (AppData)".to_string(),
+                        src: path.clone(),
+                        dest: roaming_appdata.join("helix"),
+                        is_dir: true,
+                    });
+                    targets.push(AppTarget {
+                        name: "helix (.config)".to_string(),
+                        src: path.clone(),
+                        dest: config_dir.join("helix"),
+                        is_dir: true,
+                    });
+                }
+                "wezterm" => {
+                    targets.push(AppTarget {
+                        name: "wezterm (.config)".to_string(),
+                        src: path.clone(),
+                        dest: config_dir.join("wezterm"),
+                        is_dir: true,
+                    });
+                    let wz_lua = path.join("wezterm.lua");
+                    if wz_lua.exists() {
+                        targets.push(AppTarget {
+                            name: "wezterm.lua (~/.wezterm.lua)".to_string(),
+                            src: wz_lua,
+                            dest: home_dir.join(".wezterm.lua"),
+                            is_dir: false,
+                        });
+                    }
+                }
+                "shell" => {
+                    // Shell profile scripts (bash/zsh) are injected directly into .bashrc / .zshrc
+                }
+                _ => {
+                    // Mọi thư mục khác (starship, atuin, carapace, powershell, scoop, git, lazygit, tmux, yazi...)
+                    // Tự động map vào ~/.config/<folder_name>
+                    targets.push(AppTarget {
+                        name: folder_name.to_string(),
+                        src: path.clone(),
+                        dest: config_dir.join(folder_name),
+                        is_dir: true,
+                    });
+                }
+            }
+        }
+
+        #[cfg(unix)]
+        {
+            match folder_name {
+                "wezterm" => {
+                    targets.push(AppTarget {
+                        name: "wezterm (.config)".to_string(),
+                        src: path.clone(),
+                        dest: config_dir.join("wezterm"),
+                        is_dir: true,
+                    });
+                    let wz_lua = path.join("wezterm.lua");
+                    if wz_lua.exists() {
+                        targets.push(AppTarget {
+                            name: "wezterm.lua (~/.wezterm.lua)".to_string(),
+                            src: wz_lua,
+                            dest: home_dir.join(".wezterm.lua"),
+                            is_dir: false,
+                        });
+                    }
+                }
+                "shell" => {
+                    // Handled by shell profile injector
+                }
+                _ => {
+                    targets.push(AppTarget {
+                        name: folder_name.to_string(),
+                        src: path.clone(),
+                        dest: config_dir.join(folder_name),
+                        is_dir: true,
+                    });
+                }
+            }
+        }
+    }
+
+    #[cfg(unix)]
+    {
+        // Link CLI binary if built
+        let local_bin = home_dir.join(".local").join("bin");
+        let cli_bin = dotfiles_dir.join("cli").join("target").join("release").join("dot");
+        if cli_bin.exists() {
+            targets.push(AppTarget {
+                name: "dot (CLI binary)".to_string(),
+                src: cli_bin,
+                dest: local_bin.join("dot"),
+                is_dir: false,
+            });
+        }
+    }
+
+    targets
+}
+
+
 
 #[cfg(test)]
 mod tests {
@@ -217,5 +409,22 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_discover_app_targets_dynamic() {
+        let fake_repo = setup_fake_dotfiles_repo();
+        let root = fake_repo.path();
+
+        // Create sample configs in fake repo
+        fs::create_dir_all(root.join("bat")).unwrap();
+        fs::create_dir_all(root.join("starship")).unwrap();
+        fs::create_dir_all(root.join("custom_app")).unwrap();
+
+        let targets = discover_app_targets(root);
+        let names: Vec<String> = targets.iter().map(|t| t.name.clone()).collect();
+
+        assert!(names.iter().any(|n| n.contains("bat")));
+        assert!(names.iter().any(|n| n.contains("starship")));
+        assert!(names.iter().any(|n| n == "custom_app"));
+    }
 }
 

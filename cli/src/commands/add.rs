@@ -55,10 +55,13 @@ pub fn execute(path: PathBuf) -> Result<()> {
     create_safe_link(&canonical_path, &dotfiles_dest, is_dir, false)?;
 
     println!("{}", "  ✅ Thu nạp thành công!".green());
-    println!("\n{}", "⚠️  LƯU Ý QUAN TRỌNG:".yellow().bold());
     println!(
-        "Hãy nhớ thêm \"{}\" vào danh sách cấu hình ứng dụng để nó được tự động cài đặt vào lần sau nhé!",
-        basename_str.green().bold()
+        "{}",
+        format!(
+            "🎉 Thư mục \"{}\" đã được tích hợp và sẽ tự động đồng bộ (Auto-Discover) trong các lần chạy sau!",
+            basename_str
+        )
+        .cyan()
     );
 
     Ok(())

@@ -6,13 +6,47 @@
 # 1. LINUX ALIASES & UTILITIES
 # ------------------------------------------
 function grep {
-    param ([string]$regex, [string]$dir)
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline = $true)]
+        $InputObject,
+        [Parameter(Position = 0)]
+        [string]$Pattern,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$ArgumentList
+    )
+    begin {
+        $pipelineItems = [System.Collections.Generic.List[string]]::new()
+    }
     process {
-        if ($dir) {
-            Get-ChildItem -Path $dir -Recurse -File | Select-String -Pattern $regex
-        } else {
-            $input | Select-String -Pattern $regex
+        if ($null -ne $InputObject) {
+            $pipelineItems.Add($InputObject.ToString())
         }
+    }
+    end {
+        if ($pipelineItems.Count -gt 0) {
+            if (Get-Command rg -ErrorAction SilentlyContinue) {
+                $pipelineItems | rg $Pattern @ArgumentList
+            } else {
+                $pipelineItems | Select-String -Pattern $Pattern
+            }
+        } else {
+            if (Get-Command rg -ErrorAction SilentlyContinue) {
+                rg $Pattern @ArgumentList
+            } elseif ($ArgumentList.Count -ge 1) {
+                Get-ChildItem -Path $ArgumentList[0] -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern $Pattern
+            } else {
+                Select-String -Pattern $Pattern
+            }
+        }
+    }
+}
+
+function find {
+    if (Get-Command fd -ErrorAction SilentlyContinue) {
+        fd @args
+    } else {
+        Get-ChildItem @args
     }
 }
 
