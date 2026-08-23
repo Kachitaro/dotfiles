@@ -4,6 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::linker::{is_symlink, remove_symlink};
+use crate::paths;
 
 pub fn execute() -> Result<()> {
     println!(
