@@ -8,7 +8,8 @@ pub const DOTFILES_DIR_ENV: &str = "DOTFILES_DIR";
 /// Check if a directory looks like the root of the dotfiles repository.
 pub fn is_dotfiles_root(path: &Path) -> bool {
     path.join("themes").is_dir()
-        && (path.join("scripts").is_dir()
+        && (path.join("apps").is_dir()
+            || path.join("scripts").is_dir()
             || path.join("bin").is_dir()
             || path.join(".git").exists()
             || path.join("dotfiles.md").exists()
@@ -167,14 +168,15 @@ fn build_wezterm_targets(path: &Path, config_dir: &Path, home_dir: &Path) -> Vec
     targets
 }
 
-/// Dynamic auto-discovery of dotfiles packages (Stow-like dynamic scanning).
-/// Automatically detects any configuration folder in the repository and maps it
+/// Dynamic auto-discovery of dotfiles packages in the apps/ directory (Stow-like dynamic scanning).
+/// Automatically detects any configuration folder in the apps/ folder and maps it
 /// to the proper OS destinations on Windows, macOS, and Linux.
 pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
     let mut targets = Vec::new();
     let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
 
-    let entries = match std::fs::read_dir(dotfiles_dir) {
+    let apps_dir = dotfiles_dir.join("apps");
+    let entries = match std::fs::read_dir(&apps_dir) {
         Ok(e) => e,
         Err(_) => return targets,
     };
@@ -183,15 +185,10 @@ pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
         ".git",
         ".github",
         "target",
-        "cli",
-        "assets",
-        "themes",
-        "scripts",
-        "bin",
-        "scratch",
         "node_modules",
         "tests",
         ".system_generated",
+        ".gitkeep",
     ];
 
     let config_dir = home_dir.join(".config");
@@ -401,10 +398,10 @@ mod tests {
         let fake_repo = setup_fake_dotfiles_repo();
         let root = fake_repo.path();
 
-        // Create sample configs in fake repo
-        fs::create_dir_all(root.join("bat")).unwrap();
-        fs::create_dir_all(root.join("starship")).unwrap();
-        fs::create_dir_all(root.join("custom_app")).unwrap();
+        // Create sample configs in apps/ of fake repo
+        fs::create_dir_all(root.join("apps").join("bat")).unwrap();
+        fs::create_dir_all(root.join("apps").join("starship")).unwrap();
+        fs::create_dir_all(root.join("apps").join("custom_app")).unwrap();
 
         let targets = discover_app_targets(root);
         let names: Vec<String> = targets.iter().map(|t| t.name.clone()).collect();
@@ -412,5 +409,9 @@ mod tests {
         assert!(names.iter().any(|n| n.contains("bat")));
         assert!(names.iter().any(|n| n.contains("starship")));
         assert!(names.iter().any(|n| n == "custom_app"));
+
+        for target in &targets {
+            assert!(target.src.starts_with(root.join("apps")));
+        }
     }
 }
