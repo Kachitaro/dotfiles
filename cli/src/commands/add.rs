@@ -26,7 +26,10 @@ pub fn execute(path: PathBuf) -> Result<()> {
         .ok_or_else(|| anyhow::anyhow!("Đường dẫn không hợp lệ: {}", canonical_path.display()))?;
 
     let dotfiles_dir = paths::resolve_dotfiles_dir()?;
-    let dotfiles_dest = dotfiles_dir.join(basename);
+    let apps_dir = dotfiles_dir.join("apps");
+    fs::create_dir_all(&apps_dir)
+        .with_context(|| format!("Không thể tạo thư mục: {}", apps_dir.display()))?;
+    let dotfiles_dest = apps_dir.join(basename);
 
     if dotfiles_dest.exists() {
         bail!(
@@ -38,7 +41,7 @@ pub fn execute(path: PathBuf) -> Result<()> {
     let basename_str = basename.to_string_lossy();
     println!(
         "{}",
-        format!("🔹 Đang thu nạp '{}' vào kho dotfiles...", basename_str).cyan()
+        format!("🔹 Đang thu nạp '{}' vào apps/ trong kho dotfiles...", basename_str).cyan()
     );
 
     // Try rename/move first. If cross-device move fails, copy and delete.
@@ -58,7 +61,7 @@ pub fn execute(path: PathBuf) -> Result<()> {
     println!(
         "{}",
         format!(
-            "🎉 Thư mục \"{}\" đã được tích hợp và sẽ tự động đồng bộ (Auto-Discover) trong các lần chạy sau!",
+            "🎉 Thư mục \"apps/{}\" đã được tích hợp và sẽ tự động đồng bộ (Auto-Discover) trong các lần chạy sau!",
             basename_str
         )
         .cyan()
