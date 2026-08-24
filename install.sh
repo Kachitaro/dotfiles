@@ -38,7 +38,7 @@ echo -e "${MAGENTA}=============================================================
 
 # 1. Determine Dotfiles Directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
-if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/wezterm/wezterm.lua" ]; then
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/apps/wezterm/wezterm.lua" ]; then
     DOTFILES_DIR="$SCRIPT_DIR"
 else
     DOTFILES_DIR="$HOME/.dotfiles"
