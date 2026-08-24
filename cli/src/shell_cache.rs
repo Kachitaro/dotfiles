@@ -104,7 +104,7 @@ pub fn generate_bash_cache(out_dir: &Path) -> Result<()> {
 
 /// Sinh file cache init.ps1 đóng băng output các lệnh khởi tạo cho PowerShell
 pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
-    let mut content = String::from(
+    let header = String::from(
         "# Auto-generated PowerShell init cache by 'dot inject' / 'dot theme reload'\n# Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'\n\n",
     );
 
@@ -124,18 +124,38 @@ pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
         ),
     ];
 
+    let mut using_statements = Vec::new();
+    let mut body = String::new();
+
     for (name, prog, args) in &tools {
         if let Some(out) = run_tool_init(name, prog, args) {
-            content.push_str(&format!("# --- {} init ---\n", name));
-            content.push_str(&out);
-            if !out.ends_with('\n') {
-                content.push('\n');
+            body.push_str(&format!("# --- {} init ---\n", name));
+            for line in out.lines() {
+                let trimmed = line.trim();
+                if trimmed.starts_with("using namespace ") || trimmed.starts_with("using module ") {
+                    if !using_statements.contains(&trimmed.to_string()) {
+                        using_statements.push(trimmed.to_string());
+                    }
+                } else {
+                    body.push_str(line);
+                    body.push('\n');
+                }
             }
-            content.push('\n');
+            body.push('\n');
         }
     }
 
-    fs::write(out_dir.join("init.ps1"), content).with_context(|| "Không thể ghi tệp init.ps1")?;
+    let mut full_content = header;
+    if !using_statements.is_empty() {
+        for u in using_statements {
+            full_content.push_str(&u);
+            full_content.push('\n');
+        }
+        full_content.push('\n');
+    }
+    full_content.push_str(&body);
+
+    fs::write(out_dir.join("init.ps1"), full_content).with_context(|| "Không thể ghi tệp init.ps1")?;
     Ok(())
 }
 

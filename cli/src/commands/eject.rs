@@ -22,13 +22,11 @@ pub fn execute() -> Result<()> {
 
     #[cfg(windows)]
     {
-        // Clean PowerShell profile scripts
         clean_powershell_profiles(&home_dir)?;
     }
 
     #[cfg(unix)]
     {
-        // Clean bashrc, zshrc, pwsh
         clean_unix_shell_profiles(&home_dir)?;
     }
 
@@ -157,3 +155,36 @@ fn clean_unix_shell_profiles(home_dir: &Path) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::linker::create_safe_link;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_restore_app_if_symlinked_dir() {
+        let temp = tempdir().unwrap();
+        let src_dir = temp.path().join("apps").join("nvim");
+        let config_dir = temp.path().join(".config");
+        let dest_dir = config_dir.join("nvim");
+
+        fs::create_dir_all(&src_dir).unwrap();
+        fs::write(src_dir.join("init.lua"), "print('hello nvim')").unwrap();
+
+        // Create symlink
+        create_safe_link(&dest_dir, &src_dir, true, false).unwrap();
+
+        // Eject / restore
+        restore_app_if_symlinked(&src_dir, &dest_dir, true, "nvim").unwrap();
+
+        // Check that dest_dir still exists and contains the file
+        assert!(dest_dir.exists());
+        assert!(dest_dir.join("init.lua").exists());
+        let content = fs::read_to_string(dest_dir.join("init.lua")).unwrap();
+        assert_eq!(content, "print('hello nvim')");
+        // And is no longer a symlink
+        assert!(!is_symlink(&dest_dir));
+    }
+}
+
