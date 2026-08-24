@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use owo_colors::OwoColorize;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs;
@@ -257,10 +258,14 @@ pub fn generate_themes(dotfiles_dir: &Path) -> Result<ThemeData> {
     .with_context(|| "Không thể ghi tệp atuin theme.toml")?;
 
     // Synchronize Starship prompt palette
-    let _ = update_starship_config(dotfiles_dir, &theme_data);
+    if let Err(e) = update_starship_config(dotfiles_dir, &theme_data) {
+        eprintln!("{}", format!("  ⚠️ Không thể cập nhật Starship config: {}", e).yellow());
+    }
 
     // Synchronize Bat theme
-    let _ = update_bat_config(dotfiles_dir, &theme_data);
+    if let Err(e) = update_bat_config(dotfiles_dir, &theme_data) {
+        eprintln!("{}", format!("  ⚠️ Không thể cập nhật Bat config: {}", e).yellow());
+    }
 
     Ok(theme_data)
 }
