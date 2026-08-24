@@ -138,9 +138,9 @@ fn clean_unix_shell_profiles(home_dir: &Path) -> Result<()> {
                     .lines()
                     .filter(|line| {
                         !line.contains("# Load dotfiles config")
-                            && !line.contains("dotfiles/shell/.bashrc")
-                            && !line.contains("dotfiles/shell/.zshrc")
-                            && !line.contains("user_profile.ps1")
+                        && !line.contains("shell/.bashrc")
+                        && !line.contains("shell/.zshrc")
+                        && !line.contains("user_profile.ps1")
                     })
                     .collect();
                 let new_content = cleaned_lines.join("\n");

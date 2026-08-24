@@ -49,7 +49,14 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
         println!("  ✅ Đã tạo thư mục: {}", dotfiles_dir.display());
     }
 
-    // 2. Tạo thư mục themes và ghi default theme.json nếu chưa có
+    // 2. Tạo thư mục apps và themes
+    let apps_dir = dotfiles_dir.join("apps");
+    if !apps_dir.exists() {
+        fs::create_dir_all(&apps_dir)
+            .with_context(|| format!("Không thể tạo thư mục {}", apps_dir.display()))?;
+        println!("  ✅ Đã tạo thư mục: {}", apps_dir.display());
+    }
+
     let themes_dir = dotfiles_dir.join("themes");
     if !themes_dir.exists() {
         fs::create_dir_all(&themes_dir)

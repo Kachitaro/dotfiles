@@ -89,7 +89,7 @@ pub fn generate_ps1(theme: &ThemeData) -> String {
 }
 
 pub fn update_bat_config(dotfiles_dir: &Path, theme: &ThemeData) -> Result<()> {
-    let bat_config_path = dotfiles_dir.join("bat").join("config");
+    let bat_config_path = dotfiles_dir.join("apps").join("bat").join("config");
     if !bat_config_path.exists()
         && let Some(parent) = bat_config_path.parent()
     {
@@ -198,7 +198,7 @@ overlay0 = "{white}"
 }
 
 pub fn update_starship_config(dotfiles_dir: &Path, theme: &ThemeData) -> Result<()> {
-    let starship_path = dotfiles_dir.join("starship").join("starship.toml");
+    let starship_path = dotfiles_dir.join("apps").join("starship").join("starship.toml");
     if !starship_path.exists() {
         return Ok(());
     }
@@ -241,8 +241,8 @@ pub fn update_starship_config(dotfiles_dir: &Path, theme: &ThemeData) -> Result<
 /// - themes/generated/theme.lua (Neovim, WezTerm)
 /// - themes/generated/theme.sh (Bash, Zsh)
 /// - themes/generated/theme.ps1 (PowerShell)
-/// - atuin/themes/theme.toml (Atuin)
-/// - starship/starship.toml (Starship Prompt palette)
+/// - apps/atuin/themes/theme.toml (Atuin)
+/// - apps/starship/starship.toml (Starship Prompt palette)
 pub fn generate_themes(dotfiles_dir: &Path) -> Result<ThemeData> {
     let theme_json_path = dotfiles_dir.join("themes").join("theme.json");
     let content = fs::read_to_string(&theme_json_path)
@@ -252,7 +252,7 @@ pub fn generate_themes(dotfiles_dir: &Path) -> Result<ThemeData> {
         .with_context(|| format!("Lỗi phân tích JSON từ: {}", theme_json_path.display()))?;
 
     let out_dir = dotfiles_dir.join("themes").join("generated");
-    let atuin_themes_dir = dotfiles_dir.join("atuin").join("themes");
+    let atuin_themes_dir = dotfiles_dir.join("apps").join("atuin").join("themes");
 
     fs::create_dir_all(&out_dir)
         .with_context(|| format!("Không thể tạo thư mục: {}", out_dir.display()))?;

@@ -83,7 +83,7 @@ fn inject_powershell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
     ];
 
     let source_line = format!(
-        "\r\n# Load dotfiles user profile\r\n. \"{}\\powershell\\user_profile.ps1\"\r\n",
+        "\r\n# Load dotfiles user profile\r\n. \"{}\\apps\\powershell\\user_profile.ps1\"\r\n",
         dotfiles_dir.display()
     );
 
@@ -126,20 +126,20 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
     println!("{}", "\n🔹 Nạp cấu hình vào Shell Profiles...".cyan());
 
     let bash_line = format!(
-        "\n# Load dotfiles config\n[ -f \"{}/shell/.bashrc\" ] && source \"{}/shell/.bashrc\"\n",
+        "\n# Load dotfiles config\n[ -f \"{}/apps/shell/.bashrc\" ] && source \"{}/apps/shell/.bashrc\"\n",
         dotfiles_dir.display(),
         dotfiles_dir.display()
     );
 
     let zsh_line = format!(
-        "\n# Load dotfiles config\n[ -f \"{}/shell/.zshrc\" ] && source \"{}/shell/.zshrc\"\n",
+        "\n# Load dotfiles config\n[ -f \"{}/apps/shell/.zshrc\" ] && source \"{}/apps/shell/.zshrc\"\n",
         dotfiles_dir.display(),
         dotfiles_dir.display()
     );
 
     let bashrc = home_dir.join(".bashrc");
     let existing_bash = fs::read_to_string(&bashrc).unwrap_or_default();
-    if !existing_bash.contains("dotfiles/shell/.bashrc") {
+    if !existing_bash.contains("apps/shell/.bashrc") && !existing_bash.contains("dotfiles/shell/.bashrc") {
         let mut new_content = existing_bash;
         new_content.push_str(&bash_line);
         fs::write(&bashrc, new_content)?;
@@ -148,7 +148,7 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
 
     let zshrc = home_dir.join(".zshrc");
     let existing_zsh = fs::read_to_string(&zshrc).unwrap_or_default();
-    if !existing_zsh.contains("dotfiles/shell/.zshrc") {
+    if !existing_zsh.contains("apps/shell/.zshrc") && !existing_zsh.contains("dotfiles/shell/.zshrc") {
         let mut new_content = existing_zsh;
         new_content.push_str(&zsh_line);
         fs::write(&zshrc, new_content)?;
@@ -159,7 +159,7 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
     let pwsh_profile_dir = home_dir.join(".config").join("powershell");
     let pwsh_profile = pwsh_profile_dir.join("Microsoft.PowerShell_profile.ps1");
     let pwsh_line = format!(
-        "\n# Load dotfiles config\n. \"{}/powershell/user_profile.ps1\"\n",
+        "\n# Load dotfiles config\n. \"{}/apps/powershell/user_profile.ps1\"\n",
         dotfiles_dir.display()
     );
 

@@ -31,7 +31,13 @@ export BAT_CONFIG_PATH="$HOME/.config/bat/config"
 # Dotfiles Directory Logic
 if [ -z "$DOTFILES_DIR" ]; then
     if [ -n "${(%):-%x}" ]; then
-        DOTFILES_DIR="$(cd "$(dirname "${(%):-%x}")/.." 2>/dev/null && pwd)"
+        _CURRENT_DIR="$(dirname "${(%):-%x}")"
+        if [ -d "$_CURRENT_DIR/../../themes" ]; then
+            DOTFILES_DIR="$(cd "$_CURRENT_DIR/../.." 2>/dev/null && pwd)"
+        else
+            DOTFILES_DIR="$(cd "$_CURRENT_DIR/.." 2>/dev/null && pwd)"
+        fi
+        unset _CURRENT_DIR
     fi
 fi
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"

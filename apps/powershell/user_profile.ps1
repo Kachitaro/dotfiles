@@ -122,7 +122,17 @@ function lt { eza -a --tree --level=3 --color=always --icons=always --group-dire
 # ------------------------------------------------------------------------------
 # Thiết lập biến DOTFILES_DIR
 if (-not $env:DOTFILES_DIR -and $PSScriptRoot) {
-    $env:DOTFILES_DIR = Split-Path -Path $PSScriptRoot -Parent
+    $parentDir = Split-Path -Path $PSScriptRoot -Parent
+    if (Test-Path (Join-Path $parentDir "themes")) {
+        $env:DOTFILES_DIR = $parentDir
+    } else {
+        $grandParent = Split-Path -Path $parentDir -Parent
+        if ($grandParent -and (Test-Path (Join-Path $grandParent "themes"))) {
+            $env:DOTFILES_DIR = $grandParent
+        } else {
+            $env:DOTFILES_DIR = $parentDir
+        }
+    }
 }
 if ($env:DOTFILES_DIR -and (Test-Path "$env:DOTFILES_DIR\bin")) {
     if ($env:PATH -notlike "*$env:DOTFILES_DIR\bin*") {
