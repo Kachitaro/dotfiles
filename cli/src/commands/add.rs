@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use owo_colors::OwoColorize;
 use std::fs;
 use std::path::PathBuf;
@@ -42,7 +42,7 @@ pub fn execute(path: PathBuf) -> Result<()> {
     );
 
     // Try rename/move first. If cross-device move fails, copy and delete.
-    if let Err(_) = fs::rename(&canonical_path, &dotfiles_dest) {
+    if fs::rename(&canonical_path, &dotfiles_dest).is_err() {
         if is_dir {
             copy_dir_all(&canonical_path, &dotfiles_dest)?;
             fs::remove_dir_all(&canonical_path)?;

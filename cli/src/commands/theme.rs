@@ -19,7 +19,10 @@ pub fn reload() -> Result<()> {
         );
     }
 
-    let _sh_path = dotfiles_dir.join("themes").join("generated").join("theme.sh");
+    let _sh_path = dotfiles_dir
+        .join("themes")
+        .join("generated")
+        .join("theme.sh");
 
     println!(
         "{}",
@@ -34,7 +37,8 @@ pub fn reload() -> Result<()> {
     {
         println!(
             "{}",
-            "Note: Khởi động lại terminal hoặc mở tab mới để biến môi trường áp dụng cho prompt.".yellow()
+            "Note: Khởi động lại terminal hoặc mở tab mới để biến môi trường áp dụng cho prompt."
+                .yellow()
         );
     }
 
@@ -49,7 +53,6 @@ pub fn reload() -> Result<()> {
             .yellow()
         );
     }
-
 
     Ok(())
 }

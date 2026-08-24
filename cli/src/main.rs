@@ -12,11 +12,7 @@ mod shell_cache;
 mod theme_engine;
 
 #[derive(Parser, Debug)]
-#[command(
-    name = "dot",
-    about = "Kachitaro Dotfiles CLI",
-    version
-)]
+#[command(name = "dot", about = "Kachitaro Dotfiles CLI", version)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -89,4 +85,3 @@ fn main() -> Result<()> {
 
     Ok(())
 }
-

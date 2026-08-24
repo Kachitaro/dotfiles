@@ -10,13 +10,11 @@ const DEFAULT_THEME_JSON: &str = include_str!("../../../themes/theme.json");
 
 pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
     let dotfiles_dir = match target_path {
-        Some(p) => paths::strip_unc_prefix(
-            if p.is_absolute() {
-                p
-            } else {
-                std::env::current_dir()?.join(p)
-            }
-        ),
+        Some(p) => paths::strip_unc_prefix(if p.is_absolute() {
+            p
+        } else {
+            std::env::current_dir()?.join(p)
+        }),
         None => {
             let current = std::env::current_dir()?;
             let is_already_dotfiles = current
@@ -42,8 +40,12 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
 
     // 1. Tạo thư mục dotfiles nếu chưa tồn tại
     if !dotfiles_dir.exists() {
-        fs::create_dir_all(&dotfiles_dir)
-            .with_context(|| format!("Không thể tạo thư mục dotfiles tại {}", dotfiles_dir.display()))?;
+        fs::create_dir_all(&dotfiles_dir).with_context(|| {
+            format!(
+                "Không thể tạo thư mục dotfiles tại {}",
+                dotfiles_dir.display()
+            )
+        })?;
         println!("  ✅ Đã tạo thư mục: {}", dotfiles_dir.display());
     }
 
@@ -79,22 +81,34 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
             .args(["DOTFILES_DIR", &dotfiles_dir.to_string_lossy()])
             .output();
 
-        if let Ok(output) = setx_status {
-            if output.status.success() {
-                println!("  ✅ Đã tự động cấu hình biến môi trường DOTFILES_DIR.");
-            }
+        if let Ok(output) = setx_status
+            && output.status.success()
+        {
+            println!("  ✅ Đã tự động cấu hình biến môi trường DOTFILES_DIR.");
         }
     }
 
     println!("\n{}", "🎉 KHỞI TẠO THÀNH CÔNG!".green().bold());
     println!("Bây giờ bạn có thể bắt đầu sử dụng các lệnh:");
-    println!("  • {} : Thu nạp một cấu hình vào kho dotfiles", "dot add <path>".yellow());
-    println!("  • {} : Biên dịch lại khi bạn chỉnh sửa theme.json", "dot theme reload".yellow());
-    println!("  • {} : In đường dẫn chứa theme đã biên dịch", "dot theme path".yellow());
+    println!(
+        "  • {} : Thu nạp một cấu hình vào kho dotfiles",
+        "dot add <path>".yellow()
+    );
+    println!(
+        "  • {} : Biên dịch lại khi bạn chỉnh sửa theme.json",
+        "dot theme reload".yellow()
+    );
+    println!(
+        "  • {} : In đường dẫn chứa theme đã biên dịch",
+        "dot theme path".yellow()
+    );
 
     #[cfg(unix)]
     {
-        println!("\n{}", "💡 Gợi ý cấu hình biến môi trường trên Linux/macOS:".bold());
+        println!(
+            "\n{}",
+            "💡 Gợi ý cấu hình biến môi trường trên Linux/macOS:".bold()
+        );
         println!("Thêm dòng sau vào ~/.bashrc hoặc ~/.zshrc:");
         println!("  export DOTFILES_DIR=\"{}\"", dotfiles_dir.display());
     }

@@ -68,39 +68,46 @@ fn restore_app_if_symlinked(src: &Path, dest: &Path, is_dir: bool, name: &str) -
 
 #[cfg(windows)]
 fn clean_powershell_profiles(home_dir: &Path) -> Result<()> {
-    println!(
-        "{}",
-        "\n🔹 Gỡ cấu hình khỏi PowerShell Profile...".cyan()
-    );
+    println!("{}", "\n🔹 Gỡ cấu hình khỏi PowerShell Profile...".cyan());
 
     let doc_dir = dirs::document_dir().unwrap_or_else(|| home_dir.join("Documents"));
     let candidate_profiles = [
-        doc_dir.join("PowerShell").join("Microsoft.PowerShell_profile.ps1"),
+        doc_dir
+            .join("PowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
         doc_dir.join("PowerShell").join("profile.ps1"),
-        doc_dir.join("WindowsPowerShell").join("Microsoft.PowerShell_profile.ps1"),
+        doc_dir
+            .join("WindowsPowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
         doc_dir.join("WindowsPowerShell").join("profile.ps1"),
-        home_dir.join("Documents").join("PowerShell").join("Microsoft.PowerShell_profile.ps1"),
-        home_dir.join("Documents").join("WindowsPowerShell").join("Microsoft.PowerShell_profile.ps1"),
+        home_dir
+            .join("Documents")
+            .join("PowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
+        home_dir
+            .join("Documents")
+            .join("WindowsPowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
     ];
 
     for profile in candidate_profiles {
-        if profile.is_file() {
-            if let Ok(content) = fs::read_to_string(&profile) {
-                let cleaned_lines: Vec<&str> = content
-                    .lines()
-                    .filter(|line| {
-                        !line.contains("# Load dotfiles user profile")
-                            && !line.contains("user_profile.ps1")
-                    })
-                    .collect();
-                let new_content = cleaned_lines.join("\r\n");
-                if new_content != content {
-                    fs::write(&profile, new_content)?;
-                    println!(
-                        "{}",
-                        format!("  ✅ Đã gỡ cấu hình khỏi: {}", profile.display()).green()
-                    );
-                }
+        if profile.is_file()
+            && let Ok(content) = fs::read_to_string(&profile)
+        {
+            let cleaned_lines: Vec<&str> = content
+                .lines()
+                .filter(|line| {
+                    !line.contains("# Load dotfiles user profile")
+                        && !line.contains("user_profile.ps1")
+                })
+                .collect();
+            let new_content = cleaned_lines.join("\r\n");
+            if new_content != content {
+                fs::write(&profile, new_content)?;
+                println!(
+                    "{}",
+                    format!("  ✅ Đã gỡ cấu hình khỏi: {}", profile.display()).green()
+                );
             }
         }
     }
@@ -118,7 +125,10 @@ fn clean_unix_shell_profiles(home_dir: &Path) -> Result<()> {
     let shell_profiles = [
         home_dir.join(".bashrc"),
         home_dir.join(".zshrc"),
-        home_dir.join(".config").join("powershell").join("Microsoft.PowerShell_profile.ps1"),
+        home_dir
+            .join(".config")
+            .join("powershell")
+            .join("Microsoft.PowerShell_profile.ps1"),
     ];
 
     for profile in shell_profiles {

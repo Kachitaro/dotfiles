@@ -69,8 +69,7 @@ pub fn generate_zsh_cache(out_dir: &Path) -> Result<()> {
         }
     }
 
-    fs::write(out_dir.join("init.zsh"), content)
-        .with_context(|| "Không thể ghi tệp init.zsh")?;
+    fs::write(out_dir.join("init.zsh"), content).with_context(|| "Không thể ghi tệp init.zsh")?;
     Ok(())
 }
 
@@ -99,8 +98,7 @@ pub fn generate_bash_cache(out_dir: &Path) -> Result<()> {
         }
     }
 
-    fs::write(out_dir.join("init.bash"), content)
-        .with_context(|| "Không thể ghi tệp init.bash")?;
+    fs::write(out_dir.join("init.bash"), content).with_context(|| "Không thể ghi tệp init.bash")?;
     Ok(())
 }
 
@@ -112,10 +110,18 @@ pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
 
     let tools: [(&str, &str, &[&str]); 5] = [
         ("starship", "starship", &["init", "powershell"]),
-        ("fnm", "fnm", &["env", "--use-on-cd", "--shell", "powershell"]),
+        (
+            "fnm",
+            "fnm",
+            &["env", "--use-on-cd", "--shell", "powershell"],
+        ),
         ("zoxide", "zoxide", &["init", "powershell"]),
         ("carapace", "carapace", &["_carapace"]),
-        ("atuin", "atuin", &["init", "powershell", "--disable-up-arrow"]),
+        (
+            "atuin",
+            "atuin",
+            &["init", "powershell", "--disable-up-arrow"],
+        ),
     ];
 
     for (name, prog, args) in &tools {
@@ -129,8 +135,7 @@ pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
         }
     }
 
-    fs::write(out_dir.join("init.ps1"), content)
-        .with_context(|| "Không thể ghi tệp init.ps1")?;
+    fs::write(out_dir.join("init.ps1"), content).with_context(|| "Không thể ghi tệp init.ps1")?;
     Ok(())
 }
 

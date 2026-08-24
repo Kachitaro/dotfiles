@@ -62,17 +62,24 @@ pub fn execute(force: bool) -> Result<()> {
 
 #[cfg(windows)]
 fn inject_powershell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()> {
-    println!(
-        "{}",
-        "\n🔹 Nạp cấu hình vào PowerShell Profile...".cyan()
-    );
+    println!("{}", "\n🔹 Nạp cấu hình vào PowerShell Profile...".cyan());
 
     let doc_dir = dirs::document_dir().unwrap_or_else(|| home_dir.join("Documents"));
     let target_profiles = [
-        doc_dir.join("PowerShell").join("Microsoft.PowerShell_profile.ps1"),
-        doc_dir.join("WindowsPowerShell").join("Microsoft.PowerShell_profile.ps1"),
-        home_dir.join("Documents").join("PowerShell").join("Microsoft.PowerShell_profile.ps1"),
-        home_dir.join("Documents").join("WindowsPowerShell").join("Microsoft.PowerShell_profile.ps1"),
+        doc_dir
+            .join("PowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
+        doc_dir
+            .join("WindowsPowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
+        home_dir
+            .join("Documents")
+            .join("PowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
+        home_dir
+            .join("Documents")
+            .join("WindowsPowerShell")
+            .join("Microsoft.PowerShell_profile.ps1"),
     ];
 
     let source_line = format!(
@@ -102,7 +109,11 @@ fn inject_powershell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
         } else {
             println!(
                 "{}",
-                format!("  ✅ Profile đã được cấu hình trước đó: {}", profile.display()).green()
+                format!(
+                    "  ✅ Profile đã được cấu hình trước đó: {}",
+                    profile.display()
+                )
+                .green()
             );
         }
     }
@@ -112,10 +123,7 @@ fn inject_powershell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
 
 #[cfg(unix)]
 fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()> {
-    println!(
-        "{}",
-        "\n🔹 Nạp cấu hình vào Shell Profiles...".cyan()
-    );
+    println!("{}", "\n🔹 Nạp cấu hình vào Shell Profiles...".cyan());
 
     let bash_line = format!(
         "\n# Load dotfiles config\n[ -f \"{}/shell/.bashrc\" ] && source \"{}/shell/.bashrc\"\n",

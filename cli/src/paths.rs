@@ -18,7 +18,9 @@ pub fn is_dotfiles_root(path: &Path) -> bool {
 /// Find the dotfiles root directory by traversing upwards from an executable or file path.
 pub fn find_dotfiles_root_from(path: &Path) -> Result<PathBuf> {
     let mut current = if path.is_file() {
-        path.parent().map(Path::to_path_buf).unwrap_or_else(|| path.to_path_buf())
+        path.parent()
+            .map(Path::to_path_buf)
+            .unwrap_or_else(|| path.to_path_buf())
     } else {
         path.to_path_buf()
     };
@@ -57,7 +59,7 @@ pub fn strip_unc_prefix(path: PathBuf) -> PathBuf {
 }
 
 /// Resolve dotfiles directory safely across platforms and symlinks.
-/// 
+///
 /// 1. If DOTFILES_DIR environment variable is set and not empty, use it.
 /// 2. Otherwise, get current_exe() and canonicalize() to trace any symlinks to the real binary,
 ///    then walk up to find the dotfiles repository root.
@@ -68,9 +70,9 @@ pub fn resolve_dotfiles_dir() -> Result<PathBuf> {
         if !trimmed.is_empty() {
             let path = PathBuf::from(trimmed);
             if path.exists() {
-                let canonical = path
-                    .canonicalize()
-                    .with_context(|| format!("Failed to canonicalize {}='{}'", DOTFILES_DIR_ENV, trimmed))?;
+                let canonical = path.canonicalize().with_context(|| {
+                    format!("Failed to canonicalize {}='{}'", DOTFILES_DIR_ENV, trimmed)
+                })?;
                 return Ok(strip_unc_prefix(canonical));
             }
             return Ok(strip_unc_prefix(path));
@@ -194,9 +196,11 @@ pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
 
     let config_dir = home_dir.join(".config");
     #[cfg(windows)]
-    let local_appdata = dirs::data_local_dir().unwrap_or_else(|| home_dir.join("AppData").join("Local"));
+    let local_appdata =
+        dirs::data_local_dir().unwrap_or_else(|| home_dir.join("AppData").join("Local"));
     #[cfg(windows)]
-    let roaming_appdata = dirs::config_dir().unwrap_or_else(|| home_dir.join("AppData").join("Roaming"));
+    let roaming_appdata =
+        dirs::config_dir().unwrap_or_else(|| home_dir.join("AppData").join("Roaming"));
 
     for entry in entries.flatten() {
         let path = entry.path();
@@ -277,7 +281,11 @@ pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
     {
         // Link CLI binary if built
         let local_bin = home_dir.join(".local").join("bin");
-        let cli_bin = dotfiles_dir.join("cli").join("target").join("release").join("dot");
+        let cli_bin = dotfiles_dir
+            .join("cli")
+            .join("target")
+            .join("release")
+            .join("dot");
         if cli_bin.exists() {
             targets.push(AppTarget {
                 name: "dot (CLI binary)".to_string(),
@@ -290,8 +298,6 @@ pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
 
     targets
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -307,7 +313,11 @@ mod tests {
         fs::create_dir_all(root.join("scripts")).unwrap();
         fs::create_dir_all(root.join("target").join("release")).unwrap();
         fs::write(root.join("bin").join("dot"), b"fake binary").unwrap();
-        fs::write(root.join("target").join("release").join("dot"), b"fake binary").unwrap();
+        fs::write(
+            root.join("target").join("release").join("dot"),
+            b"fake binary",
+        )
+        .unwrap();
         dir
     }
 
@@ -327,7 +337,8 @@ mod tests {
 
         // 2. From <root>/target/release/dot
         let release_path = canonical_root.join("target").join("release").join("dot");
-        let resolved = find_dotfiles_root_from(&release_path).expect("Failed to resolve from target/release/dot");
+        let resolved = find_dotfiles_root_from(&release_path)
+            .expect("Failed to resolve from target/release/dot");
         assert_eq!(strip_unc_prefix(resolved), canonical_root);
     }
 
@@ -347,8 +358,11 @@ mod tests {
         let symlink_created = std::os::windows::fs::symlink_file(&real_bin, &symlink_path).is_ok();
 
         if symlink_created {
-            let canonical_exe = symlink_path.canonicalize().expect("Failed to canonicalize symlink");
-            let resolved = find_dotfiles_root_from(&canonical_exe).expect("Failed to resolve from symlinked executable");
+            let canonical_exe = symlink_path
+                .canonicalize()
+                .expect("Failed to canonicalize symlink");
+            let resolved = find_dotfiles_root_from(&canonical_exe)
+                .expect("Failed to resolve from symlinked executable");
             assert_eq!(strip_unc_prefix(resolved), canonical_root);
         }
     }
@@ -400,4 +414,3 @@ mod tests {
         assert!(names.iter().any(|n| n == "custom_app"));
     }
 }
-

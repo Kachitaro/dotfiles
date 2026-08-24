@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use owo_colors::OwoColorize;
 use sha2::{Digest, Sha256};
 use std::env;
@@ -33,10 +33,10 @@ pub fn verify_checksum(actual_sha256: &str, expected_content: &str) -> bool {
         if line.is_empty() || line.starts_with('#') {
             continue;
         }
-        if let Some(hash) = line.split_whitespace().next() {
-            if hash.to_lowercase() == actual_clean {
-                return true;
-            }
+        if let Some(hash) = line.split_whitespace().next()
+            && hash.to_lowercase() == actual_clean
+        {
+            return true;
         }
     }
     false
@@ -45,17 +45,28 @@ pub fn verify_checksum(actual_sha256: &str, expected_content: &str) -> bool {
 pub fn execute() -> Result<()> {
     println!(
         "{}",
-        format!("🔹 Đang kiểm tra và tải bản phát hành mới nhất từ GitHub ({}) ...", REPO).cyan()
+        format!(
+            "🔹 Đang kiểm tra và tải bản phát hành mới nhất từ GitHub ({}) ...",
+            REPO
+        )
+        .cyan()
     );
-    println!("  Phiên bản hiện tại: {}", format!("v{}", CURRENT_VERSION).yellow());
+    println!(
+        "  Phiên bản hiện tại: {}",
+        format!("v{}", CURRENT_VERSION).yellow()
+    );
 
     // 1. Xác định vị trí file thực thi hiện tại hoặc ~/.local/bin
     let current_exe = env::current_exe().ok();
     let home_bin = dirs::home_dir().map(|h| {
         #[cfg(windows)]
-        { h.join(".local").join("bin").join("dot.exe") }
+        {
+            h.join(".local").join("bin").join("dot.exe")
+        }
         #[cfg(unix)]
-        { h.join(".local").join("bin").join("dot") }
+        {
+            h.join(".local").join("bin").join("dot")
+        }
     });
 
     let target_dest = if let Some(ref exe) = current_exe {
@@ -85,7 +96,10 @@ pub fn execute() -> Result<()> {
             REPO, asset_name
         );
         let checksum_url = format!("{}.sha256", url);
-        let sums_url = format!("https://github.com/{}/releases/latest/download/SHA256SUMS.txt", REPO);
+        let sums_url = format!(
+            "https://github.com/{}/releases/latest/download/SHA256SUMS.txt",
+            REPO
+        );
 
         let temp_dir = env::temp_dir().join("dot_update_extract");
         let temp_zip = env::temp_dir().join("dot_update.zip");
@@ -139,7 +153,9 @@ pub fn execute() -> Result<()> {
                     let _ = fs::remove_file(&temp_zip);
                     let _ = fs::remove_file(&temp_sha);
                     let _ = fs::remove_dir_all(&temp_dir);
-                    bail!("❌ Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật.");
+                    bail!(
+                        "❌ Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật."
+                    );
                 }
                 println!("  ✅ Checksum SHA-256 hợp lệ: {}", actual_zip_sha.dimmed());
             }
@@ -162,11 +178,13 @@ pub fn execute() -> Result<()> {
         let _ = fs::remove_file(&temp_sha);
 
         // Đồng bộ thêm vào ~/.local/bin/dot.exe nếu target_dest nằm ở chỗ khác
-        if let Some(ref h_bin) = home_bin {
-            if h_bin != &target_dest {
-                if let Some(p) = h_bin.parent() { let _ = fs::create_dir_all(p); }
-                let _ = fs::copy(&target_dest, h_bin);
+        if let Some(ref h_bin) = home_bin
+            && h_bin != &target_dest
+        {
+            if let Some(p) = h_bin.parent() {
+                let _ = fs::create_dir_all(p);
             }
+            let _ = fs::copy(&target_dest, h_bin);
         }
     }
 
@@ -180,7 +198,11 @@ pub fn execute() -> Result<()> {
             ("linux", "aarch64") => "aarch64-unknown-linux-gnu",
             ("macos", "aarch64") => "aarch64-apple-darwin",
             ("macos", "x86_64") => "x86_64-apple-darwin",
-            _ => bail!("Hệ điều hành hoặc kiến trúc chưa được hỗ trợ tự động: {}-{}", os, arch),
+            _ => bail!(
+                "Hệ điều hành hoặc kiến trúc chưa được hỗ trợ tự động: {}-{}",
+                os,
+                arch
+            ),
         };
 
         let asset_name = format!("dot-{}.tar.gz", target_triple);
@@ -189,7 +211,10 @@ pub fn execute() -> Result<()> {
             REPO, asset_name
         );
         let checksum_url = format!("{}.sha256", url);
-        let sums_url = format!("https://github.com/{}/releases/latest/download/SHA256SUMS.txt", REPO);
+        let sums_url = format!(
+            "https://github.com/{}/releases/latest/download/SHA256SUMS.txt",
+            REPO
+        );
 
         let temp_dir = env::temp_dir().join("dot_update_extract");
         let temp_archive = env::temp_dir().join(&asset_name);
@@ -223,9 +248,14 @@ pub fn execute() -> Result<()> {
                     let _ = fs::remove_file(&temp_archive);
                     let _ = fs::remove_file(&temp_sha);
                     let _ = fs::remove_dir_all(&temp_dir);
-                    bail!("❌ Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật.");
+                    bail!(
+                        "❌ Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật."
+                    );
                 }
-                println!("  ✅ Checksum SHA-256 hợp lệ: {}", actual_archive_sha.dimmed());
+                println!(
+                    "  ✅ Checksum SHA-256 hợp lệ: {}",
+                    actual_archive_sha.dimmed()
+                );
             }
         }
 
@@ -237,18 +267,24 @@ pub fn execute() -> Result<()> {
         let _ = fs::remove_file(&temp_archive);
         let _ = fs::remove_file(&temp_sha);
 
-        if let Some(ref h_bin) = home_bin {
-            if h_bin != &target_dest {
-                if let Some(p) = h_bin.parent() { let _ = fs::create_dir_all(p); }
-                let _ = fs::copy(&target_dest, h_bin);
-                let _ = Command::new("chmod").arg("+x").arg(h_bin).status();
+        if let Some(ref h_bin) = home_bin
+            && h_bin != &target_dest
+        {
+            if let Some(p) = h_bin.parent() {
+                let _ = fs::create_dir_all(p);
             }
+            let _ = fs::copy(&target_dest, h_bin);
+            let _ = Command::new("chmod").arg("+x").arg(h_bin).status();
         }
     }
 
     println!(
         "{}",
-        format!("  ✅ Đã cập nhật binary 'dot' thành công tại: {}", target_dest.display()).green()
+        format!(
+            "  ✅ Đã cập nhật binary 'dot' thành công tại: {}",
+            target_dest.display()
+        )
+        .green()
     );
     println!("\n{}", "🎉 Cập nhật CLI hoàn tất!".green().bold());
 
@@ -263,14 +299,17 @@ fn find_extracted_binary(dir: &std::path::Path, bin_name: &str) -> Result<PathBu
             if path.is_file() && path.file_name().map(|n| n == bin_name).unwrap_or(false) {
                 return Ok(path);
             }
-            if path.is_dir() {
-                if let Ok(found) = find_extracted_binary(&path, bin_name) {
-                    return Ok(found);
-                }
+            if path.is_dir()
+                && let Ok(found) = find_extracted_binary(&path, bin_name)
+            {
+                return Ok(found);
             }
         }
     }
-    bail!("Không tìm thấy binary '{}' trong file nén release.", bin_name)
+    bail!(
+        "Không tìm thấy binary '{}' trong file nén release.",
+        bin_name
+    )
 }
 
 #[cfg(test)]
@@ -338,4 +377,3 @@ mod tests {
         assert!(!verify_checksum(sample_hash, ""));
     }
 }
-
