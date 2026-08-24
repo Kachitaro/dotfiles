@@ -198,7 +198,10 @@ overlay0 = "{white}"
 }
 
 pub fn update_starship_config(dotfiles_dir: &Path, theme: &ThemeData) -> Result<()> {
-    let starship_path = dotfiles_dir.join("apps").join("starship").join("starship.toml");
+    let starship_path = dotfiles_dir
+        .join("apps")
+        .join("starship")
+        .join("starship.toml");
     if !starship_path.exists() {
         return Ok(());
     }

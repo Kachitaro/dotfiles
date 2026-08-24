@@ -41,7 +41,11 @@ pub fn execute(path: PathBuf) -> Result<()> {
     let basename_str = basename.to_string_lossy();
     println!(
         "{}",
-        format!("🔹 Đang thu nạp '{}' vào apps/ trong kho dotfiles...", basename_str).cyan()
+        format!(
+            "🔹 Đang thu nạp '{}' vào apps/ trong kho dotfiles...",
+            basename_str
+        )
+        .cyan()
     );
 
     // Try rename/move first. If cross-device move fails, copy and delete.

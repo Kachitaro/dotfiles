@@ -139,7 +139,9 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
 
     let bashrc = home_dir.join(".bashrc");
     let existing_bash = fs::read_to_string(&bashrc).unwrap_or_default();
-    if !existing_bash.contains("apps/shell/.bashrc") && !existing_bash.contains("dotfiles/shell/.bashrc") {
+    if !existing_bash.contains("apps/shell/.bashrc")
+        && !existing_bash.contains("dotfiles/shell/.bashrc")
+    {
         let mut new_content = existing_bash;
         new_content.push_str(&bash_line);
         fs::write(&bashrc, new_content)?;
@@ -148,7 +150,9 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
 
     let zshrc = home_dir.join(".zshrc");
     let existing_zsh = fs::read_to_string(&zshrc).unwrap_or_default();
-    if !existing_zsh.contains("apps/shell/.zshrc") && !existing_zsh.contains("dotfiles/shell/.zshrc") {
+    if !existing_zsh.contains("apps/shell/.zshrc")
+        && !existing_zsh.contains("dotfiles/shell/.zshrc")
+    {
         let mut new_content = existing_zsh;
         new_content.push_str(&zsh_line);
         fs::write(&zshrc, new_content)?;
