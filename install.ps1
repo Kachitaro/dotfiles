@@ -36,7 +36,7 @@ Write-Header
 
 # 1. Xác định thư mục Dotfiles
 if ([string]::IsNullOrWhiteSpace($DotfilesDir)) {
-    if (Test-Path "$PSScriptRoot\wezterm\wezterm.lua") {
+    if (Test-Path "$PSScriptRoot\apps\wezterm\wezterm.lua") {
         $DotfilesDir = $PSScriptRoot
     } elseif (Test-Path "D:\work\dotfiles") {
         $DotfilesDir = "D:\work\dotfiles"
