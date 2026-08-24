@@ -71,7 +71,11 @@ alias lt="eza -a --tree --level=3 $EZA_STANDARD_OPTIONS"
 # 3. Completion Base (Compinit)
 # ------------------------------------------------------------------------------
 autoload -Uz compinit
-compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 
 # ------------------------------------------------------------------------------
 # 4. Modern CLI Tools & Completion Initializations
@@ -80,31 +84,32 @@ compinit
 # Zoxide (Modern cd)
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
-# Atuin (SQLite Shell History)
+# Atuin (SQLite Shell History) environment
 [ -f "$HOME/.atuin/bin/env" ] && source "$HOME/.atuin/bin/env"
-command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
 
-# Fzf (Fuzzy Finder)
+# Fzf (Fuzzy Finder) environment
 if command -v fzf >/dev/null 2>&1; then
     export FZF_DEFAULT_OPTS="--height 50% --layout=reverse --border --info=inline"
     export FZF_CTRL_T_OPTS="--preview 'if [ -d {} ]; then eza -a --tree --level=2 --color=always --icons=always {}; else bat --color=always --style=numbers,changes {}; fi' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
     export FZF_ALT_C_OPTS="--preview 'eza -a --tree --level=2 --color=always --icons=always {}' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
-    source <(fzf --zsh)
 fi
 
-# Carapace (Multi-shell Completion)
+# Carapace (Multi-shell Completion) bridge
 if command -v carapace >/dev/null 2>&1; then
     export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
-    source <(carapace _carapace zsh)
 fi
 
-# FNM (Fast Node Manager)
-if command -v fnm >/dev/null 2>&1; then
-    eval "$(fnm env --use-on-cd --shell zsh)"
+# Nạp file cache khởi động đóng băng nếu có; fallback sang chạy động nếu chưa tạo cache
+if [ -f "$DOTFILES_DIR/themes/generated/init.zsh" ]; then
+    source "$DOTFILES_DIR/themes/generated/init.zsh"
+else
+    # Fallback: chạy trực tiếp các lệnh khởi tạo
+    command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
+    command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
+    command -v carapace >/dev/null 2>&1 && source <(carapace _carapace zsh)
+    command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
+    command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 fi
-
-# Starship Prompt
-command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 
 # ------------------------------------------------------------------------------
 # 5. Functions & Themes

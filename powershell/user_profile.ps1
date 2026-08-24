@@ -59,29 +59,39 @@ if (Get-Module -Name PSFzf) {
 # ------------------------------------------------------------------------------
 # 4. Modern CLI Tools (Phải load SAU PSReadLine để ghi đè phím)
 # ------------------------------------------------------------------------------
-if (Get-Command starship -ErrorAction SilentlyContinue) {
-    Invoke-Expression (&starship init powershell)
-}
+$cachedInitPs1 = if ($env:DOTFILES_DIR) { Join-Path $env:DOTFILES_DIR "themes\generated\init.ps1" } else { $null }
+if ($cachedInitPs1 -and (Test-Path $cachedInitPs1)) {
+    if (Get-Command carapace -ErrorAction SilentlyContinue) {
+        $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
+        Set-PSReadLineOption -Colors @{ "Selection" = "`e[7m" }
+        Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+    }
+    . $cachedInitPs1
+} else {
+    if (Get-Command starship -ErrorAction SilentlyContinue) {
+        Invoke-Expression (&starship init powershell)
+    }
 
-if (Get-Command fnm -ErrorAction SilentlyContinue) {
-    fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
-}
+    if (Get-Command fnm -ErrorAction SilentlyContinue) {
+        fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
+    }
 
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    zoxide init powershell | Out-String | Invoke-Expression
-}
+    if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+        zoxide init powershell | Out-String | Invoke-Expression
+    }
 
-# Carapace (Ghi đè phím TAB)
-if (Get-Command carapace -ErrorAction SilentlyContinue) {
-    $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
-    Set-PSReadLineOption -Colors @{ "Selection" = "`e[7m" }
-    Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-    carapace _carapace | Out-String | Invoke-Expression
-}
+    # Carapace (Ghi đè phím TAB)
+    if (Get-Command carapace -ErrorAction SilentlyContinue) {
+        $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
+        Set-PSReadLineOption -Colors @{ "Selection" = "`e[7m" }
+        Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+        carapace _carapace | Out-String | Invoke-Expression
+    }
 
-# Atuin (Ghi đè phím Mũi tên lên và Ctrl+R)
-if (Get-Command atuin -ErrorAction SilentlyContinue) {
-   Invoke-Expression ((&atuin init powershell --disable-up-arrow) -join "`n")
+    # Atuin (Ghi đè phím Mũi tên lên và Ctrl+R)
+    if (Get-Command atuin -ErrorAction SilentlyContinue) {
+        Invoke-Expression ((&atuin init powershell --disable-up-arrow) -join "`n")
+    }
 }
 
 # ------------------------------------------------------------------------------

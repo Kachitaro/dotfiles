@@ -112,18 +112,19 @@ cargo build --release
 
 ---
 
-## 🎨 Theme Engine (Đồng bộ màu sắc)
+## 🎨 Theme Engine & Shell Cache (Đồng bộ màu sắc & Khởi động tức thì)
 
 Toàn bộ màu sắc của Neovim, WezTerm, Starship, Bash, Zsh và PowerShell được đồng bộ từ **một nguồn sự thật duy nhất**: `themes/theme.json`.
 
 1. Sửa màu trong `themes/theme.json`.
-2. Chạy `dot theme reload`.
-3. Rust Theme Engine tự động biên dịch JSON trực tiếp ra:
+2. Chạy `dot theme reload` (hoặc `dot inject`).
+3. Rust Theme Engine tự động biên dịch JSON và đóng băng output khởi tạo shell trực tiếp ra:
    - `themes/generated/theme.lua` (WezTerm & Neovim)
    - `themes/generated/theme.sh` (Bash & Zsh)
    - `themes/generated/theme.ps1` (PowerShell)
+   - `themes/generated/init.zsh` / `init.bash` / `init.ps1` (Script khởi tạo tĩnh giúp shell mở tức thì)
    - `atuin/themes/theme.toml` (Atuin Shell History)
-4. WezTerm, Neovim và Shell tự động nhận diện vị trí dotfiles động và áp dụng màu mới ngay lập tức.
+4. WezTerm, Neovim và Shell tự động nhận diện vị trí dotfiles động, áp dụng màu mới ngay lập tức và tối ưu triệt để tốc độ mở terminal nhờ loại bỏ các tiến trình con `eval`.
 
 Theme mặc định hiện tại: **Catppuccin Mocha**.
 

@@ -8,6 +8,7 @@ use std::path::PathBuf;
 mod commands;
 mod linker;
 mod paths;
+mod shell_cache;
 mod theme_engine;
 
 #[derive(Parser, Debug)]

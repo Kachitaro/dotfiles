@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 
 use crate::linker::create_safe_link;
 use crate::paths;
+use crate::shell_cache;
 use crate::theme_engine;
 
 pub fn execute(force: bool) -> Result<()> {
@@ -40,6 +41,14 @@ pub fn execute(force: bool) -> Result<()> {
         eprintln!(
             "{}",
             format!("  ⚠️ Không thể biên dịch Theme: {}", e).yellow()
+        );
+    }
+
+    // Sinh file cache khởi động shell (init.zsh, init.bash, init.ps1)
+    if let Err(e) = shell_cache::generate_shell_caches(&dotfiles_dir) {
+        eprintln!(
+            "{}",
+            format!("  ⚠️ Không thể tạo cache khởi động Shell: {}", e).yellow()
         );
     }
 

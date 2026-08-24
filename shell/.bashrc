@@ -82,48 +82,55 @@ fi
 # Detect current shell (zsh or bash)
 CURRENT_SHELL=$(basename "$SHELL")
 
-# --- FNM (Fast Node Manager) ---
-if command -v fnm >/dev/null 2>&1; then
-    eval "$(fnm env --use-on-cd --shell $CURRENT_SHELL)"
-fi
-
-# --- Starship Prompt ---
-if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init $CURRENT_SHELL)"
-fi
-
-# --- Carapace Multi-shell Completion ---
-if command -v carapace >/dev/null 2>&1; then
-    export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
-    if [ "$CURRENT_SHELL" = "zsh" ]; then
-        source <(carapace _carapace zsh)
-    elif [ "$CURRENT_SHELL" = "bash" ]; then    
-        source <(carapace _carapace bash)
-    fi
-fi
-
-# --- Fzf ---
+# Fzf environment configuration
 if command -v fzf >/dev/null 2>&1; then
-    # Cấu hình FZF nâng cao với eza và bat
     export FZF_DEFAULT_OPTS="--height 50% --layout=reverse --border --info=inline"
     export FZF_CTRL_T_OPTS="--preview 'if [ -d {} ]; then eza -a --tree --level=2 --color=always --icons=always {}; else bat --color=always --style=numbers,changes {}; fi' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
     export FZF_ALT_C_OPTS="--preview 'eza -a --tree --level=2 --color=always --icons=always {}' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+fi
 
-    # Load Keybindings & Completions
-    if [ "$CURRENT_SHELL" = "zsh" ]; then
-        for f in /usr/share/doc/fzf/examples/key-bindings.zsh /usr/share/fzf/key-bindings.zsh /usr/share/fzf/shell/key-bindings.zsh ~/.fzf.zsh; do
-            [ -f "$f" ] && source "$f" && break
-        done
-        for f in /usr/share/doc/fzf/examples/completion.zsh /usr/share/fzf/completion.zsh /usr/share/fzf/shell/completion.zsh; do
-            [ -f "$f" ] && source "$f" && break
-        done
-    elif [ "$CURRENT_SHELL" = "bash" ]; then
-        for f in /usr/share/doc/fzf/examples/key-bindings.bash /usr/share/fzf/key-bindings.bash /usr/share/fzf/shell/key-bindings.bash ~/.fzf.bash; do
-            [ -f "$f" ] && source "$f" && break
-        done
-        for f in /usr/share/doc/fzf/examples/completion.bash /usr/share/fzf/completion.bash /usr/share/fzf/shell/completion.bash; do
-            [ -f "$f" ] && source "$f" && break
-        done
+# Carapace bridge configuration
+if command -v carapace >/dev/null 2>&1; then
+    export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
+fi
+
+# Nạp file cache khởi động đóng băng nếu có; fallback sang chạy động nếu chưa tạo cache
+if [ -f "$DOTFILES_DIR/themes/generated/init.bash" ]; then
+    source "$DOTFILES_DIR/themes/generated/init.bash"
+else
+    # Fallback: chạy trực tiếp các lệnh khởi tạo
+    if command -v fnm >/dev/null 2>&1; then
+        eval "$(fnm env --use-on-cd --shell $CURRENT_SHELL)"
+    fi
+
+    if command -v starship >/dev/null 2>&1; then
+        eval "$(starship init $CURRENT_SHELL)"
+    fi
+
+    if command -v carapace >/dev/null 2>&1; then
+        if [ "$CURRENT_SHELL" = "zsh" ]; then
+            source <(carapace _carapace zsh)
+        elif [ "$CURRENT_SHELL" = "bash" ]; then    
+            source <(carapace _carapace bash)
+        fi
+    fi
+
+    if command -v fzf >/dev/null 2>&1; then
+        if [ "$CURRENT_SHELL" = "zsh" ]; then
+            for f in /usr/share/doc/fzf/examples/key-bindings.zsh /usr/share/fzf/key-bindings.zsh /usr/share/fzf/shell/key-bindings.zsh ~/.fzf.zsh; do
+                [ -f "$f" ] && source "$f" && break
+            done
+            for f in /usr/share/doc/fzf/examples/completion.zsh /usr/share/fzf/completion.zsh /usr/share/fzf/shell/completion.zsh; do
+                [ -f "$f" ] && source "$f" && break
+            done
+        elif [ "$CURRENT_SHELL" = "bash" ]; then
+            for f in /usr/share/doc/fzf/examples/key-bindings.bash /usr/share/fzf/key-bindings.bash /usr/share/fzf/shell/key-bindings.bash ~/.fzf.bash; do
+                [ -f "$f" ] && source "$f" && break
+            done
+            for f in /usr/share/doc/fzf/examples/completion.bash /usr/share/fzf/completion.bash /usr/share/fzf/shell/completion.bash; do
+                [ -f "$f" ] && source "$f" && break
+            done
+        fi
     fi
 fi
 

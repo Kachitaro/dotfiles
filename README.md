@@ -112,18 +112,19 @@ cargo build --release
 
 ---
 
-## 🎨 Theme Engine (System-wide Color Sync)
+## 🎨 Theme Engine & Shell Cache (System-wide Color Sync & Fast Startup)
 
 All colors across Neovim, WezTerm, Starship, Bash, Zsh, and PowerShell are synchronized from a **single source of truth**: `themes/theme.json`.
 
 1. Edit colors in `themes/theme.json`.
-2. Run `dot theme reload`.
-3. The built-in Rust Theme Engine compiles JSON directly into:
+2. Run `dot theme reload` (or `dot inject`).
+3. The built-in Rust Theme Engine compiles JSON and freezes shell initialization output directly into:
    - `themes/generated/theme.lua` (WezTerm & Neovim)
    - `themes/generated/theme.sh` (Bash & Zsh)
    - `themes/generated/theme.ps1` (PowerShell)
+   - `themes/generated/init.zsh` / `init.bash` / `init.ps1` (Precompiled static init scripts for instant shell startup)
    - `atuin/themes/theme.toml` (Atuin Shell History)
-4. WezTerm, Neovim, and Shell dynamically pick up the new colors instantly.
+4. WezTerm, Neovim, and Shell dynamically pick up the new colors instantly, and terminal startup times are significantly reduced by eliminating dynamic subprocess evals.
 
 Current default theme: **Catppuccin Mocha**.
 
