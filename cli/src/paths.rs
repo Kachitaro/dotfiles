@@ -135,6 +135,36 @@ pub struct AppTarget {
     pub is_dir: bool,
 }
 
+/// Tạo AppTarget mặc định map vào ~/.config/<folder_name>
+fn build_config_target(folder_name: &str, path: &Path, config_dir: &Path) -> AppTarget {
+    AppTarget {
+        name: folder_name.to_string(),
+        src: path.to_path_buf(),
+        dest: config_dir.join(folder_name),
+        is_dir: true,
+    }
+}
+
+/// Tạo danh sách AppTarget cho WezTerm (thư mục .config và file .wezterm.lua nếu có)
+fn build_wezterm_targets(path: &Path, config_dir: &Path, home_dir: &Path) -> Vec<AppTarget> {
+    let mut targets = vec![AppTarget {
+        name: "wezterm (.config)".to_string(),
+        src: path.to_path_buf(),
+        dest: config_dir.join("wezterm"),
+        is_dir: true,
+    }];
+    let wz_lua = path.join("wezterm.lua");
+    if wz_lua.exists() {
+        targets.push(AppTarget {
+            name: "wezterm.lua (~/.wezterm.lua)".to_string(),
+            src: wz_lua,
+            dest: home_dir.join(".wezterm.lua"),
+            is_dir: false,
+        });
+    }
+    targets
+}
+
 /// Dynamic auto-discovery of dotfiles packages (Stow-like dynamic scanning).
 /// Automatically detects any configuration folder in the repository and maps it
 /// to the proper OS destinations on Windows, macOS, and Linux.
@@ -162,15 +192,11 @@ pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
         ".system_generated",
     ];
 
-    #[cfg(windows)]
     let config_dir = home_dir.join(".config");
     #[cfg(windows)]
     let local_appdata = dirs::data_local_dir().unwrap_or_else(|| home_dir.join("AppData").join("Local"));
     #[cfg(windows)]
     let roaming_appdata = dirs::config_dir().unwrap_or_else(|| home_dir.join("AppData").join("Roaming"));
-
-    #[cfg(unix)]
-    let config_dir = home_dir.join(".config");
 
     for entry in entries.flatten() {
         let path = entry.path();
@@ -187,115 +213,62 @@ pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
             continue;
         }
 
-        #[cfg(windows)]
-        {
-            match folder_name {
-                "nvim" => {
-                    targets.push(AppTarget {
-                        name: "nvim (LocalAppdata)".to_string(),
-                        src: path.clone(),
-                        dest: local_appdata.join("nvim"),
-                        is_dir: true,
-                    });
-                    targets.push(AppTarget {
-                        name: "nvim (.config)".to_string(),
-                        src: path.clone(),
-                        dest: config_dir.join("nvim"),
-                        is_dir: true,
-                    });
-                }
-                "bat" => {
-                    targets.push(AppTarget {
-                        name: "bat (AppData)".to_string(),
-                        src: path.clone(),
-                        dest: roaming_appdata.join("bat"),
-                        is_dir: true,
-                    });
-                    targets.push(AppTarget {
-                        name: "bat (.config)".to_string(),
-                        src: path.clone(),
-                        dest: config_dir.join("bat"),
-                        is_dir: true,
-                    });
-                }
-                "helix" => {
-                    targets.push(AppTarget {
-                        name: "helix (AppData)".to_string(),
-                        src: path.clone(),
-                        dest: roaming_appdata.join("helix"),
-                        is_dir: true,
-                    });
-                    targets.push(AppTarget {
-                        name: "helix (.config)".to_string(),
-                        src: path.clone(),
-                        dest: config_dir.join("helix"),
-                        is_dir: true,
-                    });
-                }
-                "wezterm" => {
-                    targets.push(AppTarget {
-                        name: "wezterm (.config)".to_string(),
-                        src: path.clone(),
-                        dest: config_dir.join("wezterm"),
-                        is_dir: true,
-                    });
-                    let wz_lua = path.join("wezterm.lua");
-                    if wz_lua.exists() {
-                        targets.push(AppTarget {
-                            name: "wezterm.lua (~/.wezterm.lua)".to_string(),
-                            src: wz_lua,
-                            dest: home_dir.join(".wezterm.lua"),
-                            is_dir: false,
-                        });
-                    }
-                }
-                "shell" => {
-                    // Shell profile scripts (bash/zsh) are injected directly into .bashrc / .zshrc
-                }
-                _ => {
-                    // Mọi thư mục khác (starship, atuin, carapace, powershell, scoop, git, lazygit, tmux, yazi...)
-                    // Tự động map vào ~/.config/<folder_name>
-                    targets.push(AppTarget {
-                        name: folder_name.to_string(),
-                        src: path.clone(),
-                        dest: config_dir.join(folder_name),
-                        is_dir: true,
-                    });
-                }
+        match folder_name {
+            "shell" => {
+                // Shell profile scripts (bash/zsh) are injected directly into .bashrc / .zshrc
             }
-        }
-
-        #[cfg(unix)]
-        {
-            match folder_name {
-                "wezterm" => {
-                    targets.push(AppTarget {
-                        name: "wezterm (.config)".to_string(),
-                        src: path.clone(),
-                        dest: config_dir.join("wezterm"),
-                        is_dir: true,
-                    });
-                    let wz_lua = path.join("wezterm.lua");
-                    if wz_lua.exists() {
-                        targets.push(AppTarget {
-                            name: "wezterm.lua (~/.wezterm.lua)".to_string(),
-                            src: wz_lua,
-                            dest: home_dir.join(".wezterm.lua"),
-                            is_dir: false,
-                        });
-                    }
-                }
-                "shell" => {
-                    // Handled by shell profile injector
-                }
-                _ => {
-                    targets.push(AppTarget {
-                        name: folder_name.to_string(),
-                        src: path.clone(),
-                        dest: config_dir.join(folder_name),
-                        is_dir: true,
-                    });
-                }
+            "wezterm" => {
+                targets.extend(build_wezterm_targets(&path, &config_dir, &home_dir));
+            }
+            #[cfg(windows)]
+            "nvim" => {
+                targets.push(AppTarget {
+                    name: "nvim (LocalAppdata)".to_string(),
+                    src: path.clone(),
+                    dest: local_appdata.join("nvim"),
+                    is_dir: true,
+                });
+                targets.push(AppTarget {
+                    name: "nvim (.config)".to_string(),
+                    src: path.clone(),
+                    dest: config_dir.join("nvim"),
+                    is_dir: true,
+                });
+            }
+            #[cfg(windows)]
+            "bat" => {
+                targets.push(AppTarget {
+                    name: "bat (AppData)".to_string(),
+                    src: path.clone(),
+                    dest: roaming_appdata.join("bat"),
+                    is_dir: true,
+                });
+                targets.push(AppTarget {
+                    name: "bat (.config)".to_string(),
+                    src: path.clone(),
+                    dest: config_dir.join("bat"),
+                    is_dir: true,
+                });
+            }
+            #[cfg(windows)]
+            "helix" => {
+                targets.push(AppTarget {
+                    name: "helix (AppData)".to_string(),
+                    src: path.clone(),
+                    dest: roaming_appdata.join("helix"),
+                    is_dir: true,
+                });
+                targets.push(AppTarget {
+                    name: "helix (.config)".to_string(),
+                    src: path.clone(),
+                    dest: config_dir.join("helix"),
+                    is_dir: true,
+                });
+            }
+            _ => {
+                // Mọi thư mục khác (starship, atuin, carapace, powershell, scoop, git, lazygit, tmux, yazi...)
+                // Tự động map vào ~/.config/<folder_name>
+                targets.push(build_config_target(folder_name, &path, &config_dir));
             }
         }
     }
