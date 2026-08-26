@@ -29,6 +29,9 @@ return {
   {
     "keaising/im-select.nvim",
     event = "VeryLazy",
+    cond = function()
+      return vim.fn.executable "im-select" == 1 or vim.fn.executable "im-select.exe" == 1
+    end,
     opts = {
       default_im_select = "1033", -- US English
       default_command = "im-select",

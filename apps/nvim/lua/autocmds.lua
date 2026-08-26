@@ -1,7 +1,7 @@
 require "nvchad.autocmds"
 
 
-if vim.fn.has("win32") == 1 then
+if vim.fn.has("win32") == 1 and vim.fn.executable("im-select.exe") == 1 then
   local default_im = "1033"
   local current_im = default_im
 
@@ -45,3 +45,13 @@ if vim.fn.has("win32") == 1 then
     end,
   })
 end
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    require("nvim-tree.api").tree.open()
+    
+    -- Nếu bạn muốn mở Neovim lên, sidebar hiện ra nhưng con trỏ chuột (focus) 
+    -- tự động nhảy sang cửa sổ soạn thảo code chính thì bỏ comment dòng bên dưới:
+    -- vim.cmd("wincmd p")
+  end,
+})

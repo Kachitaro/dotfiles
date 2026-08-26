@@ -50,7 +50,7 @@ local function get_theme_path()
     end
   end
 
-  local k_out = vim.fn.system { "k-dot", "theme", "path" }
+  local k_out = vim.fn.system { "dot", "theme", "path" }
   if vim.v.shell_error == 0 and k_out and k_out ~= "" then
     local trimmed = vim.trim(k_out)
     local candidate = trimmed .. "/theme.lua"
@@ -115,6 +115,5 @@ if success and type(theme) == "table" then
     vim.api.nvim_set_hl(0, "Normal", { bg = theme.bg, fg = theme.fg })
     vim.api.nvim_set_hl(0, "NormalFloat", { bg = theme.bg })
     vim.api.nvim_set_hl(0, "LineNr", { fg = theme.black })
-    -- Add more custom overrides here if needed
   end)
 end
