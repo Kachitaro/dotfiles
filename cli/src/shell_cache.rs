@@ -4,7 +4,6 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
-/// Chạy lệnh khởi tạo của một công cụ CLI và lấy output stdout dưới dạng String
 fn run_tool_init(tool_name: &str, program: &str, args: &[&str]) -> Option<String> {
     match Command::new(program).args(args).output() {
         Ok(output) if output.status.success() => {
@@ -20,7 +19,7 @@ fn run_tool_init(tool_name: &str, program: &str, args: &[&str]) -> Option<String
             eprintln!(
                 "{}",
                 format!(
-                    "  ⚠️ Công cụ '{}' trả về lỗi khi chạy '{} {}': {}",
+                    "  [!] Công cụ '{}' trả về lỗi khi chạy '{} {}': {}",
                     tool_name,
                     program,
                     args.join(" "),
@@ -34,7 +33,7 @@ fn run_tool_init(tool_name: &str, program: &str, args: &[&str]) -> Option<String
             eprintln!(
                 "{}",
                 format!(
-                    "  ⚠️ Bỏ qua '{}': không tìm thấy công cụ hoặc không thể khởi chạy ({}).",
+                    "  [!] Bỏ qua '{}': không tìm thấy công cụ hoặc không thể khởi chạy ({}).",
                     tool_name, e
                 )
                 .yellow()
@@ -44,13 +43,13 @@ fn run_tool_init(tool_name: &str, program: &str, args: &[&str]) -> Option<String
     }
 }
 
-/// Sinh file cache init.zsh đóng băng output các lệnh khởi tạo cho Zsh
 pub fn generate_zsh_cache(out_dir: &Path) -> Result<()> {
     let mut content = String::from(
         "# Auto-generated Zsh init cache by 'dot inject' / 'dot theme reload'\n# Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'\n\n",
     );
 
-    let tools: [(&str, &str, &[&str]); 5] = [
+    let tools: [(&str, &str, &[&str]); 6] = [
+        ("zoxide", "zoxide", &["init", "zsh"]),
         ("atuin", "atuin", &["init", "zsh"]),
         ("fnm", "fnm", &["env", "--use-on-cd", "--shell", "zsh"]),
         ("fzf", "fzf", &["--zsh"]),
@@ -73,13 +72,13 @@ pub fn generate_zsh_cache(out_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Sinh file cache init.bash đóng băng output các lệnh khởi tạo cho Bash
 pub fn generate_bash_cache(out_dir: &Path) -> Result<()> {
     let mut content = String::from(
         "# Auto-generated Bash init cache by 'dot inject' / 'dot theme reload'\n# Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'\n\n",
     );
 
-    let tools: [(&str, &str, &[&str]); 5] = [
+    let tools: [(&str, &str, &[&str]); 6] = [
+        ("zoxide", "zoxide", &["init", "bash"]),
         ("atuin", "atuin", &["init", "bash"]),
         ("fnm", "fnm", &["env", "--use-on-cd", "--shell", "bash"]),
         ("fzf", "fzf", &["--bash"]),
@@ -102,7 +101,6 @@ pub fn generate_bash_cache(out_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Sinh file cache init.ps1 đóng băng output các lệnh khởi tạo cho PowerShell
 pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
     let header = String::from(
         "# Auto-generated PowerShell init cache by 'dot inject' / 'dot theme reload'\n# Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'\n\n",
@@ -116,7 +114,7 @@ pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
             &["env", "--use-on-cd", "--shell", "powershell"],
         ),
         ("zoxide", "zoxide", &["init", "powershell"]),
-        ("carapace", "carapace", &["_carapace"]),
+        ("carapace", "carapace", &["_carapace", "powershell"]),
         (
             "atuin",
             "atuin",
@@ -155,11 +153,11 @@ pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
     }
     full_content.push_str(&body);
 
-    fs::write(out_dir.join("init.ps1"), full_content).with_context(|| "Không thể ghi tệp init.ps1")?;
+    fs::write(out_dir.join("init.ps1"), full_content)
+        .with_context(|| "Không thể ghi tệp init.ps1")?;
     Ok(())
 }
 
-/// Sinh toàn bộ cache khởi động shell vào themes/generated/
 pub fn generate_shell_caches(dotfiles_dir: &Path) -> Result<()> {
     let out_dir = dotfiles_dir.join("themes").join("generated");
     fs::create_dir_all(&out_dir)

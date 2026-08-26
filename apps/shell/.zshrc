@@ -131,8 +131,8 @@ get_system_size() {
 # Load Theme
 if [ -f "$DOTFILES_DIR/themes/generated/theme.sh" ]; then
     source "$DOTFILES_DIR/themes/generated/theme.sh"
-elif [ -f "$HOME/Desktop/Work/dotfiles/themes/generated/theme.sh" ]; then
-    source "$HOME/Desktop/Work/dotfiles/themes/generated/theme.sh"
+elif [ -f "$HOME/.dotfiles/themes/generated/theme.sh" ]; then
+    source "$HOME/.dotfiles/themes/generated/theme.sh"
 fi
 
 # ------------------------------------------------------------------------------

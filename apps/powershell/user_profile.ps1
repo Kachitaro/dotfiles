@@ -161,7 +161,7 @@ if (Test-Path -Path $funcPath) {
 $theme_candidates = @(
     $(if ($env:DOTFILES_DIR) { Join-Path $env:DOTFILES_DIR "themes\generated\theme.ps1" }),
     "$env:USERPROFILE\.dotfiles\themes\generated\theme.ps1",
-    "$env:USERPROFILE\Desktop\Work\dotfiles\themes\generated\theme.ps1"
+    "$env:USERPROFILE\.config\themes\generated\theme.ps1"
 )
 foreach ($t_path in $theme_candidates) {
     if ($t_path -and (Test-Path $t_path)) {

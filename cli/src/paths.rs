@@ -160,6 +160,8 @@ pub fn discover_app_targets(dotfiles_dir: &Path) -> Vec<AppTarget> {
         ".system_generated",
         ".gitkeep",
         ".DS_Store",
+        "shell",
+        "powershell",
     ];
 
     for entry in entries.flatten() {
@@ -318,7 +320,9 @@ mod tests {
         assert!(names.iter().any(|n| n.contains("starship")));
         assert!(names.iter().any(|n| n == "custom_app"));
 
-        let home_config = dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")).join(".config");
+        let home_config = dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".config");
         for target in &targets {
             assert!(target.src.starts_with(root.join("apps")));
             assert_eq!(target.dest, home_config.join(&target.name));

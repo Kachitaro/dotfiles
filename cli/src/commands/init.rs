@@ -35,7 +35,7 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
 
     println!(
         "{}",
-        format!("🔹 Khởi tạo kho dotfiles tại: {}", dotfiles_dir.display()).cyan()
+        format!("[*] Khởi tạo kho dotfiles tại: {}", dotfiles_dir.display()).cyan()
     );
 
     // 1. Tạo thư mục dotfiles nếu chưa tồn tại
@@ -46,7 +46,7 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
                 dotfiles_dir.display()
             )
         })?;
-        println!("  ✅ Đã tạo thư mục: {}", dotfiles_dir.display());
+        println!("  [+] Đã tạo thư mục: {}", dotfiles_dir.display());
     }
 
     // 2. Tạo thư mục apps và themes
@@ -54,7 +54,7 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
     if !apps_dir.exists() {
         fs::create_dir_all(&apps_dir)
             .with_context(|| format!("Không thể tạo thư mục {}", apps_dir.display()))?;
-        println!("  ✅ Đã tạo thư mục: {}", apps_dir.display());
+        println!("  [+] Đã tạo thư mục: {}", apps_dir.display());
     }
 
     let themes_dir = dotfiles_dir.join("themes");
@@ -67,16 +67,16 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
     if !theme_json_path.exists() || force {
         fs::write(&theme_json_path, DEFAULT_THEME_JSON)
             .with_context(|| format!("Không thể tạo {}", theme_json_path.display()))?;
-        println!("  ✅ Đã tạo file mẫu theme: {}", theme_json_path.display());
+        println!("  [+] Đã tạo file mẫu theme: {}", theme_json_path.display());
     } else {
-        println!("  ℹ️  Đã có sẵn {}", theme_json_path.display());
+        println!("  [i] Đã có sẵn {}", theme_json_path.display());
     }
 
     // 3. Compile theme lần đầu
-    println!("  🔄 Đang biên dịch Theme Engine ban đầu...");
+    println!("  [*] Đang biên dịch Theme Engine ban đầu...");
     let theme_data = theme_engine::generate_themes(&dotfiles_dir)?;
     println!(
-        "  ✅ Đã tạo theme '{}' tại: {}",
+        "  [+] Đã tạo theme '{}' tại: {}",
         theme_data.name,
         dotfiles_dir.join("themes").join("generated").display()
     );
@@ -91,22 +91,22 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
         if let Ok(output) = setx_status
             && output.status.success()
         {
-            println!("  ✅ Đã tự động cấu hình biến môi trường DOTFILES_DIR.");
+            println!("  [+] Đã tự động cấu hình biến môi trường DOTFILES_DIR.");
         }
     }
 
-    println!("\n{}", "🎉 KHỞI TẠO THÀNH CÔNG!".green().bold());
+    println!("\n{}", "[+] KHỞI TẠO THÀNH CÔNG!".green().bold());
     println!("Bây giờ bạn có thể bắt đầu sử dụng các lệnh:");
     println!(
-        "  • {} : Thu nạp một cấu hình vào kho dotfiles",
+        "  * {} : Thu nạp một cấu hình vào kho dotfiles",
         "dot add <path>".yellow()
     );
     println!(
-        "  • {} : Biên dịch lại khi bạn chỉnh sửa theme.json",
+        "  * {} : Biên dịch lại khi bạn chỉnh sửa theme.json",
         "dot theme reload".yellow()
     );
     println!(
-        "  • {} : In đường dẫn chứa theme đã biên dịch",
+        "  * {} : In đường dẫn chứa theme đã biên dịch",
         "dot theme path".yellow()
     );
 
@@ -114,7 +114,7 @@ pub fn execute(target_path: Option<PathBuf>, force: bool) -> Result<()> {
     {
         println!(
             "\n{}",
-            "💡 Gợi ý cấu hình biến môi trường trên Linux/macOS:".bold()
+            "[i] Gợi ý cấu hình biến môi trường trên Linux/macOS:".bold()
         );
         println!("Thêm dòng sau vào ~/.bashrc hoặc ~/.zshrc:");
         println!("  export DOTFILES_DIR=\"{}\"", dotfiles_dir.display());

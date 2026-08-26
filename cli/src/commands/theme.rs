@@ -15,7 +15,7 @@ pub fn reload() -> Result<()> {
     if let Err(e) = shell_cache::generate_shell_caches(&dotfiles_dir) {
         eprintln!(
             "{}",
-            format!("  ⚠️ Không thể tạo cache khởi động Shell: {}", e).yellow()
+            format!("  [!] Không thể tạo cache khởi động Shell: {}", e).yellow()
         );
     }
 

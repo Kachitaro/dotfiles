@@ -18,14 +18,14 @@ $ErrorActionPreference = "Continue"
 $ProgressPreference = "SilentlyContinue"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
 
-function Write-Step   { param ([string]$msg) Write-Host "`n🔹 [STEP] $msg" -ForegroundColor Cyan }
-function Write-Suc  { param ([string]$msg) Write-Host "  ✅ $msg" -ForegroundColor Green }
-function Write-Warn   { param ([string]$msg) Write-Host "  ⚠️ $msg" -ForegroundColor Yellow }
-function Write-Err    { param ([string]$msg) Write-Host "  ❌ $msg" -ForegroundColor Red }
+function Write-Step   { param ([string]$msg) Write-Host "`n[*] [STEP] $msg" -ForegroundColor Cyan }
+function Write-Suc    { param ([string]$msg) Write-Host "  [+] $msg" -ForegroundColor Green }
+function Write-Warn   { param ([string]$msg) Write-Host "  [!] $msg" -ForegroundColor Yellow }
+function Write-Err    { param ([string]$msg) Write-Host "  [-] $msg" -ForegroundColor Red }
 function Write-Header {
     Write-Host @"
 ====================================================================
-  🚀 KACHITARO DOTFILES & DEV ENVIRONMENT INSTALLER
+  [+] KACHITARO DOTFILES & DEV ENVIRONMENT INSTALLER
   Repository: https://github.com/kachitaro/dotfiles
 ====================================================================
 "@ -ForegroundColor Magenta
@@ -240,9 +240,9 @@ if ($ForceInstall) { $injectArgs += "--force" }
 Write-Host @"
 
 ====================================================================
-  🎉 HOÀN TẤT THIẾT LẬP KACHITARO DOTFILES!
+  [+] HOAN TAT THIET LAP KACHITARO DOTFILES!
 ====================================================================
-  👉 Lệnh 'dot' đã sẵn sàng trong PATH của bạn.
-  👉 Bạn có thể dùng 'dot --help' để xem toàn bộ hướng dẫn.
+  * Lenh 'dot' da san sang trong PATH cua ban.
+  * Ban co the dung 'dot --help' de xem toan bo huong dan.
 ====================================================================
 "@ -ForegroundColor Green

@@ -36,40 +36,38 @@ vim.schedule(function()
   require "mappings"
 end)
 
--- Apply dynamically generated custom theme overrides (Optimized)
-vim.schedule(function()
-  local uv = vim.uv or vim.loop
-  local home = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
-  local candidates = {}
-  
-  -- 1. Thử lấy từ biến môi trường
-  local env_dotfiles = os.getenv("DOTFILES_DIR")
-  if env_dotfiles and env_dotfiles ~= "" then
-    table.insert(candidates, env_dotfiles .. "/themes/generated/theme.lua")
-  end
+-- Apply dynamically generated custom theme overrides (Synchronous to eliminate FOUC)
+local uv = vim.uv or vim.loop
+local home = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
+local candidates = {}
 
-  -- 2. Fallback path
-  if home ~= "" then
-    table.insert(candidates, home .. "/.dotfiles/themes/generated/theme.lua")
-    table.insert(candidates, home .. "/Desktop/Work/dotfiles/themes/generated/theme.lua")
-  end
+-- 1. Thử lấy từ biến môi trường
+local env_dotfiles = os.getenv("DOTFILES_DIR")
+if env_dotfiles and env_dotfiles ~= "" then
+  table.insert(candidates, env_dotfiles .. "/themes/generated/theme.lua")
+end
 
-  -- Tìm file theme hợp lệ
-  local theme_path = nil
-  for _, path in ipairs(candidates) do
-    if uv.fs_stat(path) then
-      theme_path = path
-      break
-    end
-  end
+-- 2. Fallback paths
+if home ~= "" then
+  table.insert(candidates, home .. "/.dotfiles/themes/generated/theme.lua")
+  table.insert(candidates, home .. "/.config/themes/generated/theme.lua")
+end
 
-  -- Áp dụng theme nếu tìm thấy
-  if theme_path then
-    local success, theme = pcall(dofile, theme_path)
-    if success and type(theme) == "table" then
-      vim.api.nvim_set_hl(0, "Normal", { bg = theme.bg, fg = theme.fg })
-      vim.api.nvim_set_hl(0, "NormalFloat", { bg = theme.bg })
-      vim.api.nvim_set_hl(0, "LineNr", { fg = theme.black })
-    end
+-- Tìm file theme hợp lệ
+local theme_path = nil
+for _, path in ipairs(candidates) do
+  if uv.fs_stat(path) then
+    theme_path = path
+    break
   end
-end)
+end
+
+-- Áp dụng theme đồng bộ ngay khi khởi động
+if theme_path then
+  local success, theme = pcall(dofile, theme_path)
+  if success and type(theme) == "table" then
+    vim.api.nvim_set_hl(0, "Normal", { bg = theme.bg, fg = theme.fg })
+    vim.api.nvim_set_hl(0, "NormalFloat", { bg = theme.bg })
+    vim.api.nvim_set_hl(0, "LineNr", { fg = theme.black })
+  end
+end

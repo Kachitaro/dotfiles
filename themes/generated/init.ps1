@@ -2,25 +2,20 @@
 # Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'
 
 # --- starship init ---
-Invoke-Expression (& '/usr/local/bin/starship' init powershell --print-full-init | Out-String)
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (& 'starship' init powershell --print-full-init | Out-String)
+} else {
+    Write-Warning "Starship is not installed or not in PATH."
+}
 
 # --- fnm init ---
-$env:PATH = "/run/user/1000/fnm_multishells/12519_1787724455278/bin:/home/john/.gemini/antigravity-cli/bin:/home/john/.local/share/fnm/node-versions/v22.23.2/installation/bin:/run/user/1000/fnm_multishells/6344_1787723629235/bin:/home/john/.local/share/fnm:/home/john/.bun/bin:/home/john/.local/bin:/home/john/.config/carapace/bin:/home/john/.atuin/bin:/home/john/.bun/bin:/home/john/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin"
-$env:FNM_MULTISHELL_PATH = "/run/user/1000/fnm_multishells/12519_1787724455278"
-$env:FNM_VERSION_FILE_STRATEGY = "local"
-$env:FNM_DIR = "/home/john/.local/share/fnm"
-$env:FNM_LOGLEVEL = "info"
-$env:FNM_NODE_DIST_MIRROR = "https://nodejs.org/dist"
-$env:FNM_COREPACK_ENABLED = "false"
-$env:FNM_RESOLVE_ENGINES = "true"
-$env:FNM_ARCH = "x64"
-function global:Set-FnmOnLoad { If ((Test-Path .nvmrc) -Or (Test-Path .node-version) -Or (Test-Path package.json)) { & fnm use --silent-if-unchanged }
- }
-function global:Set-LocationWithFnm { param($path); if ($path -eq $null) {Set-Location} else {Set-Location $path}; Set-FnmOnLoad }
-Set-Alias -Scope global cd_with_fnm Set-LocationWithFnm
-Set-Alias -Option AllScope -Scope global cd Set-LocationWithFnm
-Set-FnmOnLoad
-
+# [FIXED] Removed hardcoded Linux PATHs and directories. 
+# Using the native PowerShell initialization for FNM.
+if (Get-Command fnm -ErrorAction SilentlyContinue) {
+    fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
+} else {
+    Write-Warning "FNM is not installed or not in PATH."
+}
 
 # --- zoxide init ---
 # =============================================================================
@@ -145,6 +140,8 @@ function global:__zoxide_zi {
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
+
+# --- atuin init ---
 if (Get-Module Atuin -ErrorAction Ignore) {
     if ($PSVersionTable.PSVersion.Major -ge 7) {
         Write-Warning "The Atuin module is already loaded, replacing it."

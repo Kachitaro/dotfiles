@@ -10,7 +10,7 @@ pub fn execute() -> Result<()> {
     let dotfiles_dir = paths::resolve_dotfiles_dir()?;
     println!(
         "{}",
-        "🔹 Đang phục hồi (eject) cấu hình về máy thực...".cyan()
+        "[*] Đang phục hồi (eject) cấu hình về máy thực...".cyan()
     );
 
     let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
@@ -32,7 +32,7 @@ pub fn execute() -> Result<()> {
 
     println!(
         "\n{}",
-        "🎉 Quá trình EJECT hoàn tất! Máy bạn đã độc lập.".green()
+        "[+] Quá trình EJECT hoàn tất! Máy bạn đã độc lập.".green()
     );
     println!(
         "{}",
@@ -57,7 +57,7 @@ fn restore_app_if_symlinked(src: &Path, dest: &Path, is_dir: bool, name: &str) -
             }
             println!(
                 "{}",
-                format!("  ✅ Đã phục hồi: {} -> {}", name, dest.display()).green()
+                format!("  [+] Đã phục hồi: {} -> {}", name, dest.display()).green()
             );
         }
     }
@@ -66,7 +66,7 @@ fn restore_app_if_symlinked(src: &Path, dest: &Path, is_dir: bool, name: &str) -
 
 #[cfg(windows)]
 fn clean_powershell_profiles(home_dir: &Path) -> Result<()> {
-    println!("{}", "\n🔹 Gỡ cấu hình khỏi PowerShell Profile...".cyan());
+    println!("{}", "\n[*] Gỡ cấu hình khỏi PowerShell Profile...".cyan());
 
     let doc_dir = dirs::document_dir().unwrap_or_else(|| home_dir.join("Documents"));
     let candidate_profiles = [
@@ -104,7 +104,7 @@ fn clean_powershell_profiles(home_dir: &Path) -> Result<()> {
                 fs::write(&profile, new_content)?;
                 println!(
                     "{}",
-                    format!("  ✅ Đã gỡ cấu hình khỏi: {}", profile.display()).green()
+                    format!("  [+] Đã gỡ cấu hình khỏi: {}", profile.display()).green()
                 );
             }
         }
@@ -117,7 +117,7 @@ fn clean_powershell_profiles(home_dir: &Path) -> Result<()> {
 fn clean_unix_shell_profiles(home_dir: &Path) -> Result<()> {
     println!(
         "{}",
-        "\n🔹 Gỡ bỏ dòng load dotfiles khỏi shell profile...".cyan()
+        "\n[*] Gỡ bỏ dòng load dotfiles khỏi shell profile...".cyan()
     );
 
     let shell_profiles = [
@@ -146,7 +146,7 @@ fn clean_unix_shell_profiles(home_dir: &Path) -> Result<()> {
                     fs::write(&profile, new_content)?;
                     println!(
                         "{}",
-                        format!("  ✅ Đã gỡ cấu hình khỏi: {}", profile.display()).green()
+                        format!("  [+] Đã gỡ cấu hình khỏi: {}", profile.display()).green()
                     );
                 }
             }

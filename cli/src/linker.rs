@@ -62,7 +62,7 @@ pub fn create_safe_link(link: &Path, target: &Path, is_dir: bool, force: bool) -
     if !target.exists() {
         eprintln!(
             "{}",
-            format!("  ⚠️ Target không tồn tại: {}", target.display()).yellow()
+            format!("  [!] Target không tồn tại: {}", target.display()).yellow()
         );
         return Ok(());
     }
@@ -93,7 +93,7 @@ pub fn create_safe_link(link: &Path, target: &Path, is_dir: bool, force: bool) -
                 println!(
                     "{}",
                     format!(
-                        "  ⚠️ Đã xóa (ghi đè) file/thư mục hiện tại: {}",
+                        "  [!] Đã xóa (ghi đè) file/thư mục hiện tại: {}",
                         link.display()
                     )
                     .yellow()
@@ -110,7 +110,7 @@ pub fn create_safe_link(link: &Path, target: &Path, is_dir: bool, force: bool) -
                 println!(
                     "{}",
                     format!(
-                        "  ⚠️ Đã sao lưu file/thư mục hiện tại sang: {}",
+                        "  [!] Đã sao lưu file/thư mục hiện tại sang: {}",
                         backup_path
                     )
                     .yellow()
@@ -130,7 +130,7 @@ pub fn create_safe_link(link: &Path, target: &Path, is_dir: bool, force: bool) -
         })?;
         println!(
             "{}",
-            format!("  ✅ Linked: {} -> {}", link.display(), target.display()).green()
+            format!("  [+] Linked: {} -> {}", link.display(), target.display()).green()
         );
     }
 
@@ -146,39 +146,61 @@ pub fn create_safe_link(link: &Path, target: &Path, is_dir: bool, force: bool) -
             Ok(_) => {
                 println!(
                     "{}",
-                    format!("  ✅ Linked: {} -> {}", link.display(), target.display()).green()
+                    format!("  [+] Linked: {} -> {}", link.display(), target.display()).green()
                 );
             }
             Err(e) => {
-                println!(
-                    "{}",
-                    format!(
-                        "  ⚠️ Không thể tạo Symlink ({}). Tiến hành copy file/thư mục thay thế...",
-                        e
-                    )
-                    .yellow()
-                );
-                if is_dir {
-                    copy_dir_all(target, link).with_context(|| {
-                        format!(
-                            "Không thể copy thư mục fallback {} -> {}",
-                            target.display(),
-                            link.display()
-                        )
-                    })?;
+                let junction_created = if is_dir {
+                    let status = std::process::Command::new("cmd")
+                        .args([
+                            "/C",
+                            "mklink",
+                            "/J",
+                            &link.to_string_lossy(),
+                            &target.to_string_lossy(),
+                        ])
+                        .output();
+                    matches!(status, Ok(out) if out.status.success())
                 } else {
-                    fs::copy(target, link).with_context(|| {
+                    false
+                };
+
+                if junction_created {
+                    println!(
+                        "{}",
+                        format!("  [+] Junction: {} -> {}", link.display(), target.display()).green()
+                    );
+                } else {
+                    println!(
+                        "{}",
                         format!(
-                            "Không thể copy file fallback {} -> {}",
-                            target.display(),
-                            link.display()
+                            "  [!] Không thể tạo Symlink/Junction ({}). Tiến hành copy file/thư mục thay thế...",
+                            e
                         )
-                    })?;
+                        .yellow()
+                    );
+                    if is_dir {
+                        copy_dir_all(target, link).with_context(|| {
+                            format!(
+                                "Không thể copy thư mục fallback {} -> {}",
+                                target.display(),
+                                link.display()
+                            )
+                        })?;
+                    } else {
+                        fs::copy(target, link).with_context(|| {
+                            format!(
+                                "Không thể copy file fallback {} -> {}",
+                                target.display(),
+                                link.display()
+                            )
+                        })?;
+                    }
+                    println!(
+                        "{}",
+                        format!("  [+] Copied: {} -> {}", link.display(), target.display()).green()
+                    );
                 }
-                println!(
-                    "{}",
-                    format!("  ✅ Copied: {} -> {}", link.display(), target.display()).green()
-                );
             }
         }
     }

@@ -31,14 +31,17 @@ local is_linux = wezterm.target_triple:find("linux") ~= nil
 local function get_ram_usage()
   if is_windows then
     local success, stdout = wezterm.run_child_process({
-      'pwsh.exe', '-NoProfile', '-NonInteractive', '-Command',
-      "(Get-CimInstance Win32_OperatingSystem | ForEach-Object { [Math]::Round((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize) * 100) })"
+      'cmd.exe', '/c', 'wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /Value'
     })
     if success and stdout then
-      return stdout:gsub("%s+", "")
+      local free = stdout:match("FreePhysicalMemory=(%d+)")
+      local total = stdout:match("TotalVisibleMemorySize=(%d+)")
+      if free and total then
+        local used = tonumber(total) - tonumber(free)
+        return tostring(math.floor((used / tonumber(total)) * 100 + 0.5))
+      end
     end
   elseif is_linux then
-    -- Đọc trực tiếp /proc/meminfo siêu nhanh trên Linux mà không cần spawn child process
     local file = io.open("/proc/meminfo", "r")
     if file then
       local mem_total, mem_available

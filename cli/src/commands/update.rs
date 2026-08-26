@@ -46,7 +46,7 @@ pub fn execute() -> Result<()> {
     println!(
         "{}",
         format!(
-            "🔹 Đang kiểm tra và tải bản phát hành mới nhất từ GitHub ({}) ...",
+            "[*] Đang kiểm tra và tải bản phát hành mới nhất từ GitHub ({}) ...",
             REPO
         )
         .cyan()
@@ -154,10 +154,10 @@ pub fn execute() -> Result<()> {
                     let _ = fs::remove_file(&temp_sha);
                     let _ = fs::remove_dir_all(&temp_dir);
                     bail!(
-                        "❌ Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật."
+                        "[-] Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật."
                     );
                 }
-                println!("  ✅ Checksum SHA-256 hợp lệ: {}", actual_zip_sha.dimmed());
+                println!("  [+] Checksum SHA-256 hợp lệ: {}", actual_zip_sha.dimmed());
             }
         }
 
@@ -249,11 +249,11 @@ pub fn execute() -> Result<()> {
                     let _ = fs::remove_file(&temp_sha);
                     let _ = fs::remove_dir_all(&temp_dir);
                     bail!(
-                        "❌ Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật."
+                        "[-] Checksum không khớp — file tải về có thể bị hỏng hoặc bị can thiệp. Hủy cập nhật."
                     );
                 }
                 println!(
-                    "  ✅ Checksum SHA-256 hợp lệ: {}",
+                    "  [+] Checksum SHA-256 hợp lệ: {}",
                     actual_archive_sha.dimmed()
                 );
             }
@@ -281,12 +281,12 @@ pub fn execute() -> Result<()> {
     println!(
         "{}",
         format!(
-            "  ✅ Đã cập nhật binary 'dot' thành công tại: {}",
+            "  [+] Đã cập nhật binary 'dot' thành công tại: {}",
             target_dest.display()
         )
         .green()
     );
-    println!("\n{}", "🎉 Cập nhật CLI hoàn tất!".green().bold());
+    println!("\n{}", "[+] Cập nhật CLI hoàn tất!".green().bold());
 
     Ok(())
 }

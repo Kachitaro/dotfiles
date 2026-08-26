@@ -279,7 +279,7 @@ pub fn generate_themes(dotfiles_dir: &Path) -> Result<ThemeData> {
     if let Err(e) = update_starship_config(dotfiles_dir, &theme_data) {
         eprintln!(
             "{}",
-            format!("  ⚠️ Không thể cập nhật Starship config: {}", e).yellow()
+            format!("  [!] Không thể cập nhật Starship config: {}", e).yellow()
         );
     }
 
@@ -287,7 +287,7 @@ pub fn generate_themes(dotfiles_dir: &Path) -> Result<ThemeData> {
     if let Err(e) = update_bat_config(dotfiles_dir, &theme_data) {
         eprintln!(
             "{}",
-            format!("  ⚠️ Không thể cập nhật Bat config: {}", e).yellow()
+            format!("  [!] Không thể cập nhật Bat config: {}", e).yellow()
         );
     }
 

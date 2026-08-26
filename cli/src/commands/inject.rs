@@ -12,7 +12,7 @@ pub fn execute(force: bool) -> Result<()> {
     let dotfiles_dir = paths::resolve_dotfiles_dir()?;
     println!(
         "{}",
-        "🔹 Đang đồng bộ và liên kết (inject) cấu hình vào hệ thống...".cyan()
+        "[*] Đang đồng bộ và liên kết (inject) cấu hình vào hệ thống...".cyan()
     );
 
     let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
@@ -40,7 +40,7 @@ pub fn execute(force: bool) -> Result<()> {
     if let Err(e) = theme_engine::generate_themes(&dotfiles_dir) {
         eprintln!(
             "{}",
-            format!("  ⚠️ Không thể biên dịch Theme: {}", e).yellow()
+            format!("  [!] Không thể biên dịch Theme: {}", e).yellow()
         );
     }
 
@@ -48,13 +48,13 @@ pub fn execute(force: bool) -> Result<()> {
     if let Err(e) = shell_cache::generate_shell_caches(&dotfiles_dir) {
         eprintln!(
             "{}",
-            format!("  ⚠️ Không thể tạo cache khởi động Shell: {}", e).yellow()
+            format!("  [!] Không thể tạo cache khởi động Shell: {}", e).yellow()
         );
     }
 
     println!(
         "\n{}",
-        "🎉 Quá trình INJECT hoàn tất! Hệ thống đã được liên kết lại với Dotfiles.".green()
+        "[+] Quá trình INJECT hoàn tất! Hệ thống đã được liên kết lại với Dotfiles.".green()
     );
 
     Ok(())
@@ -62,7 +62,7 @@ pub fn execute(force: bool) -> Result<()> {
 
 #[cfg(windows)]
 fn inject_powershell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()> {
-    println!("{}", "\n🔹 Nạp cấu hình vào PowerShell Profile...".cyan());
+    println!("{}", "\n[*] Nạp cấu hình vào PowerShell Profile...".cyan());
 
     let doc_dir = dirs::document_dir().unwrap_or_else(|| home_dir.join("Documents"));
     let target_profiles = [
@@ -104,13 +104,13 @@ fn inject_powershell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
             fs::write(&profile, new_content)?;
             println!(
                 "{}",
-                format!("  ✅ Đã nạp dotfiles vào: {}", profile.display()).green()
+                format!("  [+] Đã nạp dotfiles vào: {}", profile.display()).green()
             );
         } else {
             println!(
                 "{}",
                 format!(
-                    "  ✅ Profile đã được cấu hình trước đó: {}",
+                    "  [+] Profile đã được cấu hình trước đó: {}",
                     profile.display()
                 )
                 .green()
@@ -123,7 +123,7 @@ fn inject_powershell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
 
 #[cfg(unix)]
 fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()> {
-    println!("{}", "\n🔹 Nạp cấu hình vào Shell Profiles...".cyan());
+    println!("{}", "\n[*] Nạp cấu hình vào Shell Profiles...".cyan());
 
     let bash_line = format!(
         "\n# Load dotfiles config\n[ -f \"{}/apps/shell/.bashrc\" ] && source \"{}/apps/shell/.bashrc\"\n",
@@ -142,12 +142,12 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
     if existing_bash.contains("dotfiles/shell/.bashrc") {
         let new_content = existing_bash.replace("dotfiles/shell/.bashrc", "dotfiles/apps/shell/.bashrc");
         fs::write(&bashrc, new_content)?;
-        println!("{}", "  ✅ Đã cập nhật dotfiles trong ~/.bashrc".green());
+        println!("{}", "  [+] Đã cập nhật dotfiles trong ~/.bashrc".green());
     } else if !existing_bash.contains("apps/shell/.bashrc") {
         let mut new_content = existing_bash;
         new_content.push_str(&bash_line);
         fs::write(&bashrc, new_content)?;
-        println!("{}", "  ✅ Đã nạp dotfiles vào ~/.bashrc".green());
+        println!("{}", "  [+] Đã nạp dotfiles vào ~/.bashrc".green());
     }
 
     let zshrc = home_dir.join(".zshrc");
@@ -155,12 +155,12 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
     if existing_zsh.contains("dotfiles/shell/.zshrc") {
         let new_content = existing_zsh.replace("dotfiles/shell/.zshrc", "dotfiles/apps/shell/.zshrc");
         fs::write(&zshrc, new_content)?;
-        println!("{}", "  ✅ Đã cập nhật dotfiles trong ~/.zshrc".green());
+        println!("{}", "  [+] Đã cập nhật dotfiles trong ~/.zshrc".green());
     } else if !existing_zsh.contains("apps/shell/.zshrc") {
         let mut new_content = existing_zsh;
         new_content.push_str(&zsh_line);
         fs::write(&zshrc, new_content)?;
-        println!("{}", "  ✅ Đã nạp dotfiles vào ~/.zshrc".green());
+        println!("{}", "  [+] Đã nạp dotfiles vào ~/.zshrc".green());
     }
 
     // PowerShell on Linux
@@ -177,7 +177,7 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
         let mut new_content = existing_pwsh;
         new_content.push_str(&pwsh_line);
         fs::write(&pwsh_profile, new_content)?;
-        println!("{}", "  ✅ Đã nạp dotfiles vào PowerShell profile".green());
+        println!("{}", "  [+] Đã nạp dotfiles vào PowerShell profile".green());
     }
 
     Ok(())
