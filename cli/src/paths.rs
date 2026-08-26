@@ -70,13 +70,12 @@ pub fn resolve_dotfiles_dir() -> Result<PathBuf> {
         let trimmed = env_val.trim();
         if !trimmed.is_empty() {
             let path = PathBuf::from(trimmed);
-            if path.exists() {
+            if path.exists() && is_dotfiles_root(&path) {
                 let canonical = path.canonicalize().with_context(|| {
                     format!("Failed to canonicalize {}='{}'", DOTFILES_DIR_ENV, trimmed)
                 })?;
                 return Ok(strip_unc_prefix(canonical));
             }
-            return Ok(strip_unc_prefix(path));
         }
     }
 
@@ -109,7 +108,7 @@ pub fn resolve_dotfiles_dir() -> Result<PathBuf> {
     // Fallback 2: Check default ~/.dotfiles
     if let Some(home) = dirs::home_dir() {
         let default_dotfiles = home.join(".dotfiles");
-        if is_dotfiles_root(&default_dotfiles) || default_dotfiles.is_dir() {
+        if is_dotfiles_root(&default_dotfiles) {
             if let Ok(canonical) = default_dotfiles.canonicalize() {
                 return Ok(strip_unc_prefix(canonical));
             }

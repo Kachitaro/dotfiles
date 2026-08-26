@@ -139,9 +139,11 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
 
     let bashrc = home_dir.join(".bashrc");
     let existing_bash = fs::read_to_string(&bashrc).unwrap_or_default();
-    if !existing_bash.contains("apps/shell/.bashrc")
-        && !existing_bash.contains("dotfiles/shell/.bashrc")
-    {
+    if existing_bash.contains("dotfiles/shell/.bashrc") {
+        let new_content = existing_bash.replace("dotfiles/shell/.bashrc", "dotfiles/apps/shell/.bashrc");
+        fs::write(&bashrc, new_content)?;
+        println!("{}", "  ✅ Đã cập nhật dotfiles trong ~/.bashrc".green());
+    } else if !existing_bash.contains("apps/shell/.bashrc") {
         let mut new_content = existing_bash;
         new_content.push_str(&bash_line);
         fs::write(&bashrc, new_content)?;
@@ -150,9 +152,11 @@ fn inject_unix_shell_profiles(dotfiles_dir: &Path, home_dir: &Path) -> Result<()
 
     let zshrc = home_dir.join(".zshrc");
     let existing_zsh = fs::read_to_string(&zshrc).unwrap_or_default();
-    if !existing_zsh.contains("apps/shell/.zshrc")
-        && !existing_zsh.contains("dotfiles/shell/.zshrc")
-    {
+    if existing_zsh.contains("dotfiles/shell/.zshrc") {
+        let new_content = existing_zsh.replace("dotfiles/shell/.zshrc", "dotfiles/apps/shell/.zshrc");
+        fs::write(&zshrc, new_content)?;
+        println!("{}", "  ✅ Đã cập nhật dotfiles trong ~/.zshrc".green());
+    } else if !existing_zsh.contains("apps/shell/.zshrc") {
         let mut new_content = existing_zsh;
         new_content.push_str(&zsh_line);
         fs::write(&zshrc, new_content)?;
