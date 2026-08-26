@@ -228,6 +228,16 @@ if vim.fn.has("win32") == 1 and vim.fn.executable("im-select.exe") == 1 then
     end,
   })
 end
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    require("nvim-tree.api").tree.open()
+    
+    -- Nếu bạn muốn mở Neovim lên, sidebar hiện ra nhưng con trỏ chuột (focus) 
+    -- tự động nhảy sang cửa sổ soạn thảo code chính thì bỏ comment dòng bên dưới:
+    -- vim.cmd("wincmd p")
+  end,
+})
 ```
 
 ## File: lua/chadrc.lua
@@ -269,10 +279,9 @@ local map = vim.keymap.set
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 map("n", "<C-\\>", "<cmd>vsplit<CR>", { desc = "Chia dọc màn hình (Vertical Split)" })
--- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
-
--- Bật/tắt gõ tiếng Việt trong Neovim
+map("n", "<C-b>", "<cmd>NvimTreeToggle<CR>", { desc = "Bật/tắt NvimTree" })
 map({ "n", "i" }, "<C-e>", "<cmd>VietnameseToggle<CR>", { desc = "Toggle tiếng Việt (Telex/VNI)" })
+map("n", "<F12>", "<cmd>lua vim.lsp.buf.definition()<CR>", { desc = "Go to definition" })
 ```
 
 ## File: lua/options.lua
