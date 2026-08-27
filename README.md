@@ -40,7 +40,6 @@ dotfiles/
 ├── apps/                    # 📦 Application configurations (Auto-discovered by 'dot')
 │   ├── atuin/               # Shell history sync & fuzzy search
 │   ├── bat/                 # Syntax-highlighted cat alternative
-│   ├── carapace/            # Multi-shell autocomplete engine
 │   ├── nvim/                # Neovim IDE configuration (NvChad)
 │   ├── powershell/          # PowerShell 7 profile & functions
 │   ├── scoop/               # Scoop package manager configs
@@ -193,7 +192,6 @@ Current default theme: **Catppuccin Mocha**.
 | :--------------------- | :-------------------------------------------------------------------------------- |
 | `Ctrl + R`             | **Atuin** interactive history search (with full duration, exit code, timestamp)   |
 | `Ctrl + F`             | **PSFzf / FZF** file finder                                                       |
-| `Tab`                  | **Carapace** rich menu auto-completion (with descriptions & syntax flags)        |
 | `z <dir>`              | **Zoxide** jump to frequently used directory                                      |
 | `g`                    | Alias for `git`                                                                   |
 | `ls`, `ll`, `la`, `lt` | **Eza** modern file listings (icons, git status, tree view)                       |

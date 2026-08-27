@@ -101,11 +101,6 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_ALT_C_OPTS="--preview 'eza -a --tree --level=2 --color=always --icons=always {}' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
 fi
 
-# Carapace bridge configuration
-if command -v carapace >/dev/null 2>&1; then
-    export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
-fi
-
 # Nạp file cache khởi động đóng băng nếu có; fallback sang chạy động nếu chưa tạo cache
 if [ -f "$DOTFILES_DIR/themes/generated/init.bash" ]; then
     source "$DOTFILES_DIR/themes/generated/init.bash"
@@ -117,14 +112,6 @@ else
 
     if command -v starship >/dev/null 2>&1; then
         eval "$(starship init $CURRENT_SHELL)"
-    fi
-
-    if command -v carapace >/dev/null 2>&1; then
-        if [ "$CURRENT_SHELL" = "zsh" ]; then
-            source <(carapace _carapace zsh)
-        elif [ "$CURRENT_SHELL" = "bash" ]; then    
-            source <(carapace _carapace bash)
-        fi
     fi
 
     if command -v fzf >/dev/null 2>&1; then

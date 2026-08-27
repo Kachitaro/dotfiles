@@ -2,7 +2,6 @@
 # Dotfiles PowerShell Configuration
 # ==============================================================================
 
-# Ngăn chặn load trùng lặp trong cùng một phiên (do PowerShell gọi cả profile.ps1 lẫn Microsoft.PowerShell_profile.ps1)
 if ($global:__DOTFILES_PROFILE_LOADED -and -not $env:FORCE_DOTFILES_RELOAD) {
     return
 }
@@ -33,7 +32,6 @@ if (Get-Module -Name PSReadLine) {
         Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
         Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
 
-        # Tự động duy trì file lịch sử gọn nhẹ (100 dòng) vì đã có Atuin quản lý toàn bộ
         $histPath = (Get-PSReadLineOption).HistorySavePath
         if ($histPath -and (Test-Path $histPath)) {
             $fileInfo = Get-Item $histPath -ErrorAction SilentlyContinue
@@ -61,11 +59,6 @@ if (Get-Module -Name PSFzf) {
 # ------------------------------------------------------------------------------
 $cachedInitPs1 = if ($env:DOTFILES_DIR) { Join-Path $env:DOTFILES_DIR "themes\generated\init.ps1" } else { $null }
 if ($cachedInitPs1 -and (Test-Path $cachedInitPs1)) {
-    if (Get-Command carapace -ErrorAction SilentlyContinue) {
-        $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
-        Set-PSReadLineOption -Colors @{ "Selection" = "`e[7m" }
-        Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-    }
     . $cachedInitPs1
 } else {
     if (Get-Command starship -ErrorAction SilentlyContinue) {
@@ -80,15 +73,6 @@ if ($cachedInitPs1 -and (Test-Path $cachedInitPs1)) {
         zoxide init powershell | Out-String | Invoke-Expression
     }
 
-    # Carapace (Ghi đè phím TAB)
-    if (Get-Command carapace -ErrorAction SilentlyContinue) {
-        $env:CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
-        Set-PSReadLineOption -Colors @{ "Selection" = "`e[7m" }
-        Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-        carapace _carapace | Out-String | Invoke-Expression
-    }
-
-    # Atuin (Ghi đè phím Mũi tên lên và Ctrl+R)
     if (Get-Command atuin -ErrorAction SilentlyContinue) {
         Invoke-Expression ((&atuin init powershell --disable-up-arrow) -join "`n")
     }
@@ -120,7 +104,6 @@ function lt { eza -a --tree --level=3 --color=always --icons=always --group-dire
 # ------------------------------------------------------------------------------
 # 6. Load External Scripts & Themes
 # ------------------------------------------------------------------------------
-# Thiết lập biến DOTFILES_DIR
 if (-not $env:DOTFILES_DIR -and $PSScriptRoot) {
     $parentDir = Split-Path -Path $PSScriptRoot -Parent
     if (Test-Path (Join-Path $parentDir "themes")) {

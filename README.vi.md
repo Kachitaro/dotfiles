@@ -40,7 +40,6 @@ dotfiles/
 ├── apps/                    # 📦 Cấu hình các ứng dụng (Được CLI 'dot' tự động quét và map)
 │   ├── atuin/               # Đồng bộ & tìm kiếm lịch sử lệnh shell
 │   ├── bat/                 # Xem nội dung tệp có highlight cú pháp
-│   ├── carapace/            # Bộ gợi ý auto-complete đa shell
 │   ├── nvim/                # Cấu hình Neovim IDE (NvChad)
 │   ├── powershell/          # Profile & hàm tiện ích PowerShell 7
 │   ├── scoop/               # Cấu hình trình quản lý gói Scoop
@@ -193,7 +192,6 @@ Theme mặc định hiện tại: **Catppuccin Mocha**.
 | :--------------------- | :------------------------------------------------------------------------------- |
 | `Ctrl + R`             | **Atuin** tìm kiếm lịch sử lệnh tương tác (kèm thời lượng chạy, exit code, ngày) |
 | `Ctrl + F`             | **PSFzf / FZF** tìm kiếm tệp và thư mục siêu nhanh                               |
-| `Tab`                  | **Carapace** menu auto-complete trực quan đa shell                               |
 | `z <thư_mục>`          | **Zoxide** nhảy nhanh đến thư mục thường xuyên sử dụng                           |
 | `g`                    | Phím tắt nhanh cho `git`                                                         |
 | `ls`, `ll`, `la`, `lt` | **Eza** liệt kê tệp hiện đại (kèm icon, trạng thái git, cây thư mục)             |

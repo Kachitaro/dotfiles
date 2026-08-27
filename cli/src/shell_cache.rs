@@ -48,12 +48,11 @@ pub fn generate_zsh_cache(out_dir: &Path) -> Result<()> {
         "# Auto-generated Zsh init cache by 'dot inject' / 'dot theme reload'\n# Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'\n\n",
     );
 
-    let tools: [(&str, &str, &[&str]); 6] = [
+    let tools: [(&str, &str, &[&str]); 5] = [
         ("zoxide", "zoxide", &["init", "zsh"]),
         ("atuin", "atuin", &["init", "zsh"]),
         ("fnm", "fnm", &["env", "--use-on-cd", "--shell", "zsh"]),
         ("fzf", "fzf", &["--zsh"]),
-        ("carapace", "carapace", &["_carapace", "zsh"]),
         ("starship", "starship", &["init", "zsh"]),
     ];
 
@@ -77,12 +76,11 @@ pub fn generate_bash_cache(out_dir: &Path) -> Result<()> {
         "# Auto-generated Bash init cache by 'dot inject' / 'dot theme reload'\n# Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'\n\n",
     );
 
-    let tools: [(&str, &str, &[&str]); 6] = [
+    let tools: [(&str, &str, &[&str]); 5] = [
         ("zoxide", "zoxide", &["init", "bash"]),
         ("atuin", "atuin", &["init", "bash"]),
         ("fnm", "fnm", &["env", "--use-on-cd", "--shell", "bash"]),
         ("fzf", "fzf", &["--bash"]),
-        ("carapace", "carapace", &["_carapace", "bash"]),
         ("starship", "starship", &["init", "bash"]),
     ];
 
@@ -106,7 +104,7 @@ pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
         "# Auto-generated PowerShell init cache by 'dot inject' / 'dot theme reload'\n# Do not edit manually - regenerate with 'dot inject' or 'dot theme reload'\n\n",
     );
 
-    let tools: [(&str, &str, &[&str]); 5] = [
+    let tools: [(&str, &str, &[&str]); 4] = [
         ("starship", "starship", &["init", "powershell"]),
         (
             "fnm",
@@ -114,7 +112,6 @@ pub fn generate_powershell_cache(out_dir: &Path) -> Result<()> {
             &["env", "--use-on-cd", "--shell", "powershell"],
         ),
         ("zoxide", "zoxide", &["init", "powershell"]),
-        ("carapace", "carapace", &["_carapace", "powershell"]),
         (
             "atuin",
             "atuin",

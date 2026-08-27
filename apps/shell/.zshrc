@@ -100,19 +100,12 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_ALT_C_OPTS="--preview 'eza -a --tree --level=2 --color=always --icons=always {}' --preview-window 'right:55%,border-left' --bind 'ctrl-/:change-preview-window(down|hidden|)'"
 fi
 
-# Carapace (Multi-shell Completion) bridge
-if command -v carapace >/dev/null 2>&1; then
-    export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
-fi
-
-# Nạp file cache khởi động đóng băng nếu có; fallback sang chạy động nếu chưa tạo cache
 if [ -f "$DOTFILES_DIR/themes/generated/init.zsh" ]; then
     source "$DOTFILES_DIR/themes/generated/init.zsh"
 else
     # Fallback: chạy trực tiếp các lệnh khởi tạo
-    command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
+    command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh --disable-up-arrow)"
     command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
-    command -v carapace >/dev/null 2>&1 && source <(carapace _carapace zsh)
     command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
     command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 fi
